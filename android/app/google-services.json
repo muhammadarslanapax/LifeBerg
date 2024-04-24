@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "1087275287967",
+    "project_id": "life-berg",
+    "storage_bucket": "life-berg.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1087275287967:android:79927b48df6c71967169aa",
+        "android_client_info": {
+          "package_name": "com.example.life_berg"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBFf6tl1Dc_wV3ES5zOTyKTTJYD_R9e0n0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

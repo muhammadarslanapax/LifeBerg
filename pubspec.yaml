@@ -1,0 +1,71 @@
+name: life_berg
+description: A new Flutter project.
+
+
+publish_to:
+
+version: 1.0.0+5
+
+environment:
+  sdk: '>=2.19.2 <3.0.0'
+
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+
+  cupertino_icons: ^1.0.2
+  get:
+  flutter_svg:
+  cached_network_image:
+  smooth_page_indicator:
+  pinput:
+  flutter_time_picker_spinner:
+  expandable:
+  syncfusion_flutter_charts: ^20.4.41
+  step_progress_indicator:
+  flutter_neat_and_clean_calendar:
+  intl:
+  timelines:
+  table_calendar:
+  lottie:
+  keyboard_dismisser:
+  textfield_tags: ^2.0.2
+  dropdown_button2: ^1.5.0
+  fluttertoast: ^8.2.2
+  flutter_smart_dialog: ^4.5.4+2
+  firebase_core: ^2.13.1
+  firebase_auth: ^4.6.2
+  http: ^0.13.4
+  firebase_messaging: ^14.7.3
+  shared_preferences: ^2.1.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+
+  flutter_lints: ^2.0.0
+
+flutter:
+
+  uses-material-design: true
+  assets:
+    -  assets/images/
+    -  assets/goal_icons/
+    -  assets/avatar/
+
+  fonts:
+    - family: Ubuntu
+      fonts:
+        - asset: fonts/ubuntu/Ubuntu-Light.ttf
+          weight: 300
+        - asset: fonts/ubuntu/Ubuntu-Regular.ttf
+          weight: 400
+        - asset: fonts/ubuntu/Ubuntu-Medium.ttf
+          weight: 500
+        - asset: fonts/ubuntu/Ubuntu-Bold.ttf
+          weight: 700
+
+
