@@ -1,0 +1,1 @@
+const String introShow = "is_intro_show";

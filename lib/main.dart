@@ -11,8 +11,7 @@ import 'package:life_berg/controller/auth_controller/goal_controller.dart';
 import 'package:life_berg/controller/journal_controller/journal_controller.dart';
 import 'package:life_berg/controller/personal_development_controller/personal_development_controller.dart';
 import 'package:life_berg/shareprefrences/user_sharedprefrence.dart';
-
-
+import 'package:life_berg/utils/pref_utils.dart';
 
 
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -26,6 +25,7 @@ Future<void> main() async {
   Get.put(WellbeingActionPlanController());
   Get.put(JournalController());
   await Firebase.initializeApp();
+  PrefUtils().init();
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
   SharedPreferencesForUser.getInstance();
