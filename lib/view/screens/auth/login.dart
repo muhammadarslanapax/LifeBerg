@@ -12,7 +12,6 @@ import 'package:life_berg/constant/color.dart';
 import 'package:life_berg/constant/sizes_constant.dart';
 import 'package:life_berg/controller/auth_controller/login_controler.dart';
 import 'package:life_berg/generated/assets.dart';
-import 'package:life_berg/model/authentocation_models/login_model.dart';
 import 'package:life_berg/view/screens/auth/complete_profile/complete_profile.dart';
 import 'package:life_berg/view/screens/auth/signup.dart';
 import 'package:life_berg/view/widget/my_button.dart';
@@ -28,43 +27,6 @@ import 'forgot_pass/forgot_pass.dart';
 class Login extends StatelessWidget {
   LoginController controller = Get.put(LoginController());
 
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  HttpManager httpManager = HttpManager();
-
-  TextEditingController _emailController = TextEditingController();
-  TextEditingController _passwordController = TextEditingController();
-
-  _loginUpUser() async {
-    SmartDialog.showLoading(msg: "Please wait..");
-    String? token = await FirebaseMessaging.instance.getToken();
-    httpManager
-        .loginUp(_emailController.text.toString(),
-            _passwordController.text.toString(), token ?? "")
-        .then((value) {
-      SmartDialog.dismiss();
-      if (value.error == null) {
-        LoginModel loginModel = value.snapshot;
-        if (loginModel.success == true) {
-          Fluttertoast.showToast(msg: loginModel.message ?? "");
-
-          SharedPreferencesForUser.getInstance().then((prefs) {
-            prefs.setLoggedIn(true);
-            prefs.setToken(loginModel.token ?? "");
-            prefs.setFirstName(loginModel.data!.firstName ?? "");
-            prefs.setLastName(loginModel.data!.lastName ?? "");
-            prefs.setEmail(loginModel.data!.email ?? "");
-            prefs.setUserID(loginModel.data!.sId ?? "");
-
-              Get.to(() => CompleteProfile());
-          });
-        } else {
-          SmartDialog.dismiss();
-          Fluttertoast.showToast(msg: loginModel.message ?? "");
-        }
-      }
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return KeyboardDismisser(
@@ -74,6 +36,7 @@ class Login extends StatelessWidget {
       ],
       child: Scaffold(
         resizeToAvoidBottomInset: false,
+        backgroundColor: kPrimaryColor,
         body: Column(
           children: [
             Expanded(
@@ -103,45 +66,66 @@ class Login extends StatelessWidget {
                       MyTextField(
                         onChanged: (value) => controller.getEmail(value),
                         hint: 'Email Address',
-                        controller: _emailController,
+                        textInputType: TextInputType.emailAddress,
+                        textInputAction: TextInputAction.next,
+                        controller: controller.emailCon,
+                        textCapitalization: TextCapitalization.none,
+                        fillColor: kInputFillColor,
                       ),
                       MyTextField(
                         isObSecure: true,
                         hint: 'Password',
-                        controller: _passwordController,
+                        fillColor: kInputFillColor,
+                        textCapitalization: TextCapitalization.none,
+                        textInputAction: TextInputAction.done,
+                        controller: controller.passCon,
                       ),
                       MyText(
                         onTap: () => Get.to(() => ForgotPass()),
                         paddingTop: 4,
                         align: TextAlign.end,
                         text: 'Forgot Password?',
-                        size: 16,
+                        size: 14,
+                        color: kSecondaryTextColor,
                         paddingBottom: 25,
                       ),
                       Obx(() {
                         return MyButton(
                             isDisable: controller.isDisable.value,
                             text: 'Sign In',
+                            height: 56,
+                            radius: 16,
                             onTap: () => {
-                                  if (_emailController.text
+                                  if (controller.emailCon.text
                                           .toString()
                                           .isNotEmpty &&
-                                      _passwordController.text
+                                      controller.passCon.text
                                           .toString()
                                           .isNotEmpty)
-                                    {_loginUpUser()}
+                                    {controller.loginUser()}
                                   else
                                     {
                                       Fluttertoast.showToast(
                                           msg: "Please enter all fields.")
                                     }
-                                } // Get.to(() => CompleteProfile()),
-                            );
+                                });
                       }),
+                      MyText(
+                        paddingTop: 25,
+                        text: 'Or sign in using',
+                        size: 15,
+                        weight: FontWeight.w400,
+                        color: kTextColor,
+                        paddingBottom: 8,
+                      ),
                       SocialLogin(
-                        onGoogle: () {},
+                        onGoogle: () {
+                          controller.signInWithGoogle();
+                        },
                         onFacebook: () {},
-                        onApple: () {},
+                        onApple: () {
+                          controller.signInWithApple();
+                        },
                       ),
                     ],
                   ),
@@ -158,14 +142,17 @@ class Login extends StatelessWidget {
                 alignment: WrapAlignment.center,
                 children: [
                   MyText(
-                    text: 'Don’t have an account?',
-                    size: 14,
+                    text: 'If you don’t have an account, ',
+                    size: 15,
+                    color: kTertiaryColor,
                   ),
                   MyText(
                     onTap: () => Get.to(() => Signup()),
-                    text: ' Sign up for free.',
+                    text: 'sign up for free',
                     color: kTertiaryColor,
-                    size: 14,
+                    size: 15,
+                    textDecorationColor: kTertiaryColor,
+                    decoration: TextDecoration.underline,
                   ),
                 ],
               ),

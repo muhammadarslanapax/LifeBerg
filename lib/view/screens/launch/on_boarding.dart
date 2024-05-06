@@ -18,11 +18,12 @@ class OnBoarding extends StatelessWidget {
   Widget build(BuildContext context) {
     return Obx(() {
       return Scaffold(
+        backgroundColor: kPrimaryColor,
         appBar: AppBar(
           centerTitle: false,
           backgroundColor: controller.currentIndex.value == 0
               ? kPrimaryColor
-              : kSecondaryColor,
+              : kTertiaryColor,
           elevation: controller.currentIndex.value == 0 ? 0 : 1,
           leading: Obx(
             () {
@@ -36,6 +37,7 @@ class OnBoarding extends StatelessWidget {
                           child: Image.asset(
                             Assets.imagesArrowBack,
                             height: 24,
+                            color: kSecondaryColor,
                           ),
                         ),
                       ],
@@ -50,7 +52,7 @@ class OnBoarding extends StatelessWidget {
                       text: 'Back',
                       size: 16,
                       weight: FontWeight.w500,
-                      color: kTextColor,
+                      color: kSecondaryColor,
                     );
             },
           ),

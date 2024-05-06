@@ -18,13 +18,16 @@ class IceBerg extends StatelessWidget {
         vertical: 30,
       ),
       children: [
+        SizedBox(
+          height: 30,
+        ),
         Image.asset(
           Assets.imagesIceBag,
           height: 157,
         ),
         MyText(
           paddingTop: 25,
-          text: 'Hello, ubaidziad!',
+          text: 'Hello, ${completeProfileController.userNameCon.text.toString()}!',
           size: 24,
           weight: FontWeight.w500,
           align: TextAlign.center,
@@ -39,6 +42,9 @@ class IceBerg extends StatelessWidget {
         ),
         MyTextField(
           hint: 'Name your iceberg',
+          textInputAction: TextInputAction.done,
+          fillColor: kSecondaryColor,
+          controller: completeProfileController.iceBergCon,
           onChanged: (value) => completeProfileController.getIceBerg(value),
         ),
         SizedBox(

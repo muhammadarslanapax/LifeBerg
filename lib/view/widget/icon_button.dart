@@ -22,11 +22,11 @@ class MyIconButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 47,
+      height: 56,
       width: Get.width,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8.0),
-        color: kSecondaryColor,
+        borderRadius: BorderRadius.circular(16.0),
+        color: kPrimaryColor,
         border: Border.all(
           width: 1.0,
           color: kBorderColor,

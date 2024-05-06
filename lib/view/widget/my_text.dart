@@ -11,6 +11,7 @@ class MyText extends StatelessWidget {
   // ignore: prefer_typing_uninitialized_variables
   var maxLines, overFlow;
   VoidCallback? onTap;
+  Color? textDecorationColor;
 
   MyText({
     Key? key,
@@ -21,6 +22,7 @@ class MyText extends StatelessWidget {
     this.decoration = TextDecoration.none,
     this.color,
     this.letterSpacing,
+    this.textDecorationColor,
     this.weight = FontWeight.w400,
     this.align,
     this.overFlow,
@@ -51,6 +53,7 @@ class MyText extends StatelessWidget {
             color: color ?? kTextColor,
             fontWeight: weight,
             decoration: decoration,
+            decorationColor: textDecorationColor,
             fontFamily: fontFamily ?? 'Ubuntu',
             height: height,
             fontStyle: fontStyle,

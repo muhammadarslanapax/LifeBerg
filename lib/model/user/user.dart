@@ -1,39 +1,7 @@
-class LoginModel {
-  bool? success;
-  Data? data;
-  String? message;
-  String? token;
-  String? fcmToken;
-
-  LoginModel(
-      {this.success, this.data, this.message, this.token, this.fcmToken});
-
-  LoginModel.fromJson(Map<String, dynamic> json) {
-    success = json['success'];
-    data = json['data'] != null ? new Data.fromJson(json['data']) : null;
-    message = json['message'];
-    token = json['token'];
-    fcmToken = json['fcmToken'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = new Map<String, dynamic>();
-    data['success'] = this.success;
-    if (this.data != null) {
-      data['data'] = this.data!.toJson();
-    }
-    data['message'] = this.message;
-    data['token'] = this.token;
-    data['fcmToken'] = this.fcmToken;
-    return data;
-  }
-}
-
-class Data {
+class User {
   String? sId;
   String? socialType;
-  String? firstName;
-  String? lastName;
+  String? fullName;
   String? email;
   String? forgotPasswordNonce;
   String? password;
@@ -41,25 +9,29 @@ class Data {
   bool? emailNotification;
   String? filePath;
   String? fcmToken;
+  String? country;
+  String? primaryVocation;
+  String? userName;
 
-  Data(
+  User(
       {this.sId,
         this.socialType,
-        this.firstName,
-        this.lastName,
+        this.fullName,
         this.email,
         this.forgotPasswordNonce,
         this.password,
         this.pushNotification,
         this.emailNotification,
         this.filePath,
-        this.fcmToken});
+        this.fcmToken,
+      this.country,
+      this.primaryVocation,
+      this.userName});
 
-  Data.fromJson(Map<String, dynamic> json) {
+  User.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
     socialType = json['socialType'];
-    firstName = json['firstName'];
-    lastName = json['lastName'];
+    fullName = json['fullName'];
     email = json['email'];
     forgotPasswordNonce = json['forgotPasswordNonce'];
     password = json['password'];
@@ -67,14 +39,16 @@ class Data {
     emailNotification = json['emailNotification'];
     filePath = json['filePath'];
     fcmToken = json['fcmToken'];
+    country = json['country'];
+    primaryVocation = json['primaryVocation'];
+    userName = json['userName'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['_id'] = this.sId;
     data['socialType'] = this.socialType;
-    data['firstName'] = this.firstName;
-    data['lastName'] = this.lastName;
+    data['fullName'] = this.fullName;
     data['email'] = this.email;
     data['forgotPasswordNonce'] = this.forgotPasswordNonce;
     data['password'] = this.password;
@@ -82,6 +56,9 @@ class Data {
     data['emailNotification'] = this.emailNotification;
     data['filePath'] = this.filePath;
     data['fcmToken'] = this.fcmToken;
+    data['country'] = this.country;
+    data['primaryVocation'] = this.primaryVocation;
+    data['userName'] = this.userName;
     return data;
   }
 }

@@ -16,61 +16,24 @@ class GoalController extends GetxController {
   RxInt personalDevIndex = RxInt(-1);
   String selectedPersonalDev = '';
 
-  final List<ToggleButtonModel> wellBeingList = [
-    ToggleButtonModel(
-      text: 'Nature',
-      isSelected: false.obs,
-    ),
-    ToggleButtonModel(
-      text: 'Sleep',
-      isSelected: false.obs,
-    ),
-    ToggleButtonModel(
-      text: 'Exercise',
-      isSelected: false.obs,
-    ),
-    ToggleButtonModel(
-      text: 'Social',
-      isSelected: false.obs,
-    ),
-    ToggleButtonModel(
-      text: 'Nutrition',
-      isSelected: false.obs,
-    ),
-    ToggleButtonModel(
-      text: 'Quiet Time',
-      isSelected: false.obs,
-    ),
-    ToggleButtonModel(
-      text: 'Gratitude',
-      isSelected: false.obs,
-    ),
-    ToggleButtonModel(
-      text: 'Family',
-      isSelected: false.obs,
-    ),
-    ToggleButtonModel(
-      text: 'Journaling',
-      isSelected: false.obs,
-    ),
-    ToggleButtonModel(
-      text: 'Prayer',
-      isSelected: false.obs,
-    ),
-    ToggleButtonModel(
-      text: 'Creativity',
-      isSelected: false.obs,
-    ),
-    ToggleButtonModel(
-      text: '',
-      isSelected: false.obs,
-    ),
+  final List<String> wellBeingList = [
+    "Nature",
+    "Sleep",
+    "Exercise",
+    "Social",
+    "Nutrition",
+    "Quiet Time",
+    "Gratitude",
+    "Family",
+    "Journaling",
+    "Prayer",
+    "Creativity",
+    "Other"
   ];
 
   void getWellBeing(int index) {
     wellBeingIndex.value = index;
-    var data = wellBeingList[index];
-    selectedWellBeing = data.text;
+    selectedWellBeing = wellBeingList[index];
   }
 
   final List<ToggleButtonModel> wellBeingPlanList = [
@@ -122,56 +85,78 @@ class GoalController extends GetxController {
 
   void getWellBeingPlan(int index) {
     wellBeingIndex.value = index;
-    var data = wellBeingList[index];
-    selectedWellBeing = data.text;
+    selectedWellBeing = wellBeingList[index];
   }
 
-  final List<ToggleButtonModel> vocationGoalList = [
-    ToggleButtonModel(
-      text: 'RACGP exam prep',
-      isSelected: false.obs,
-    ),
-    ToggleButtonModel(
-      text: 'Exercise physiology training',
-      isSelected: false.obs,
-    ),
-    ToggleButtonModel(
-      text: 'Admin tasks',
-      isSelected: false.obs,
-    ),
-    ToggleButtonModel(
-      text: 'Stem cell research',
-      isSelected: false.obs,
-    ),
-    ToggleButtonModel(
-      text: 'Work productivity',
-      isSelected: false.obs,
-    ),
-    ToggleButtonModel(
-      text: 'Try new recipes',
-      isSelected: false.obs,
-    ),
-    ToggleButtonModel(
-      text: 'ANKI',
-      isSelected: false.obs,
-    ),
-    ToggleButtonModel(
-      text: 'OSCE practice',
-      isSelected: false.obs,
-    ),
-    ToggleButtonModel(
-      text: '',
-      isSelected: false.obs,
-    ),
+  final List<String> vocationGoalList = [
+    "Case logs",
+    "Task prioritisation",
+    "Project X",
+    "Research X",
+    "Plan kid’s activities",
+    "Use organiser",
+    "Study group",
+    "Patient care",
+    "Mentoring",
+    "Other"
   ];
+
+  // final List<ToggleButtonModel> vocationGoalList = [
+  //   ToggleButtonModel(
+  //     text: 'RACGP exam prep',
+  //     isSelected: false.obs,
+  //   ),
+  //   ToggleButtonModel(
+  //     text: 'Exercise physiology training',
+  //     isSelected: false.obs,
+  //   ),
+  //   ToggleButtonModel(
+  //     text: 'Admin tasks',
+  //     isSelected: false.obs,
+  //   ),
+  //   ToggleButtonModel(
+  //     text: 'Stem cell research',
+  //     isSelected: false.obs,
+  //   ),
+  //   ToggleButtonModel(
+  //     text: 'Work productivity',
+  //     isSelected: false.obs,
+  //   ),
+  //   ToggleButtonModel(
+  //     text: 'Try new recipes',
+  //     isSelected: false.obs,
+  //   ),
+  //   ToggleButtonModel(
+  //     text: 'ANKI',
+  //     isSelected: false.obs,
+  //   ),
+  //   ToggleButtonModel(
+  //     text: 'OSCE practice',
+  //     isSelected: false.obs,
+  //   ),
+  //   ToggleButtonModel(
+  //     text: '',
+  //     isSelected: false.obs,
+  //   ),
+  // ];
 
   void getVocationGoal(int index) {
     vocationalTaskIndex.value = index;
-    var data = vocationGoalList[index];
-    selectedVocationalTask = data.text;
+    selectedVocationalTask = vocationGoalList[index];
   }
 
-  final List<ToggleButtonModel> personalDevelopmentList = [
+  final List<String> personalDevelopmentList = [
+    "Step out of comfort zone",
+    "Acts of kindness",
+    "Try new recipes",
+    "Acts of kindness",
+    "Weights",
+    "Quit smoking",
+    "Gratitude journal",
+    "Other"
+  ];
+
+  /*final List<ToggleButtonModel> personalDevelopmentList = [
     ToggleButtonModel(
       text: 'Flute practice',
       isSelected: false.obs,
@@ -204,11 +189,10 @@ class GoalController extends GetxController {
       text: '',
       isSelected: false.obs,
     ),
-  ];
+  ];*/
 
   void getPersonalDevelopments(int index) {
     personalDevIndex.value = index;
-    var data = personalDevelopmentList[index];
-    selectedPersonalDev = data.text;
+    selectedPersonalDev = personalDevelopmentList[index];
   }
 }

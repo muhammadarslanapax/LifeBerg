@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:life_berg/constant/sizes_constant.dart';
 import 'package:life_berg/generated/assets.dart';
@@ -13,6 +14,8 @@ import 'package:life_berg/view/widget/my_text.dart';
 import 'package:life_berg/view/widget/simple_app_bar.dart';
 import 'package:life_berg/view/widget/toggle_button.dart';
 import 'package:lottie/lottie.dart';
+
+import '../../../constant/color.dart';
 
 class VocationGoal extends StatelessWidget {
   @override
@@ -55,142 +58,53 @@ class VocationGoal extends StatelessWidget {
                   size: 16,
                   paddingBottom: 20,
                 ),
-                Row(
-                  children: [
-                    for (int i = 0; i < 2; i++)
-                      Obx(
-                        () {
-                          var data = goalController.vocationGoalList[i];
-                          return Expanded(
-                            flex: i == 0 ? 4 : 6,
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 4),
-                              child: ToggleButton(
-                                horizontalPadding: 0.0,
-                                onTap: () => goalController.getVocationGoal(i),
-                                text: data.text,
-                                isSelected:
-                                    goalController.vocationalTaskIndex.value ==
-                                        i,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                  ],
-                ),
-                SizedBox(
-                  height: 16,
-                ),
-                Row(
-                  children: [
-                    for (int i = 2; i < 5; i++)
-                      Obx(
-                        () {
-                          var data = goalController.vocationGoalList[i];
-                          return Expanded(
-                            flex: i == 2 ? 2 : 3,
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 4),
-                              child: ToggleButton(
-                                horizontalPadding: 0.0,
-                                onTap: () => goalController.getVocationGoal(i),
-                                text: data.text,
-                                isSelected:
-                                    goalController.vocationalTaskIndex.value ==
-                                        i,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                  ],
-                ),
-                SizedBox(
-                  height: 16,
-                ),
-                Row(
-                  children: [
-                    for (int i = 5; i < 9; i++)
-                      if (i == 8)
-                        Expanded(
-                          child: Padding(
-                            padding: EdgeInsets.only(left: 4),
-                            child: GestureDetector(
-                              onTap: () => Get.to(
-                                () =>
-                                    AddNewGoal(createdFrom: 'vocationalTasks'),
-                              ),
-                              child: Align(
-                                alignment: Alignment.centerLeft,
-                                child: Image.asset(
-                                  Assets.imagesAddIcon,
-                                  height: 34,
-                                  width: 38,
-                                ),
-                              ),
-                            ),
-                          ),
-                        )
-                      else
-                        Obx(
+                Wrap(
+                  spacing: 7.0,
+                  runSpacing: 7.0,
+                  children: goalController.vocationGoalList
+                      .asMap()
+                      .map((i, element) => MapEntry(
+                    i,
+                    element != "Other"
+                        ? Obx(
                           () {
-                            var data = goalController.vocationGoalList[i];
-                            return Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 4),
-                              child: ToggleButton(
-                                horizontalPadding: 12.5,
-                                onTap: () => goalController.getVocationGoal(i),
-                                text: data.text,
-                                isSelected:
-                                    goalController.vocationalTaskIndex.value ==
-                                        i,
-                              ),
-                            );
-                          },
-                        ),
-                  ],
+                        return ToggleButton(
+                          horizontalPadding: 10.0,
+                          onTap: () =>
+                              goalController.getWellBeing(i),
+                          text: element,
+                          isSelected:
+                          goalController.wellBeingIndex == i,
+                        );
+                      },
+                    )
+                        : Container(
+                      width: 42,
+                      height: 42,
+                      decoration: BoxDecoration(
+                          color: kSecondaryColor,
+                          borderRadius: BorderRadius.all(
+                              Radius.circular(8.0)),
+                          border: Border.all(
+                            width: 1.0,
+                            color: kBorderColor,
+                          )),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: 12.0, vertical: 12.0),
+                      child: SvgPicture.asset("assets/vectors/ic_plus.svg"),
+                    ),
+                  ))
+                      .values
+                      .toList(),
                 ),
-                // Padding(
-                //   padding: EdgeInsets.symmetric(horizontal: 0),
-                //   child: Wrap(
-                //     crossAxisAlignment: WrapCrossAlignment.center,
-                //     spacing: 8,
-                //     runSpacing: 16,
-                //     children: List.generate(
-                //       goalController.vocationGoalList.length,
-                //       (index) {
-                //         if (index ==
-                //             goalController.vocationGoalList.length - 1) {
-                //           return GestureDetector(
-                //             onTap: () => Get.to(() => AddNewGoal()),
-                //             child: Image.asset(
-                //               Assets.imagesAddIcon,
-                //               height: 34,
-                //             ),
-                //           );
-                //         } else {
-                //           var data = goalController.vocationGoalList[index];
-                //           return Obx(() {
-                //             return ToggleButton(
-                //               horizontalPadding: 8.0,
-                //               onTap: () =>
-                //                   goalController.getVocationGoal(index),
-                //               text: data.text,
-                //               isSelected: data.isSelected.value,
-                //             );
-                //           });
-                //         }
-                //       },
-                //     ),
-                //   ),
-                // ),
                 SizedBox(
                   height: 30,
                 ),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 4),
                   child: MyButton(
+                    height: 56,
+                    radius: 16,
                     isDisable: false,
                     text: 'Create your goal',
                     onTap: () => Get.to(
@@ -204,6 +118,8 @@ class VocationGoal extends StatelessWidget {
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 4),
                   child: MyBorderButton(
+                    height: 56,
+                    radius: 16,
                     text: 'Skip',
                     onTap: () => Get.to(() => PersonalDevelopmentGoal()),
                   ),

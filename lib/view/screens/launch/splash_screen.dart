@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:life_berg/constant/color.dart';
 import 'package:life_berg/generated/assets.dart';
+import 'package:life_berg/utils/pref_utils.dart';
 import 'package:life_berg/view/screens/launch/on_boarding.dart';
+
+import '../auth/login.dart';
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -19,7 +22,7 @@ class _SplashScreenState extends State<SplashScreen> {
   void splashScreenHandler() {
     Future.delayed(
       Duration(seconds: 2),
-      () => Get.offAll(() => OnBoarding()),
+      () => Get.offAll(() => !PrefUtils().getIsShowIntro ? Login() : OnBoarding()),
     );
   }
 

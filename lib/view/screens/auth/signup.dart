@@ -11,7 +11,7 @@ import 'package:life_berg/constant/color.dart';
 import 'package:life_berg/constant/sizes_constant.dart';
 import 'package:life_berg/controller/auth_controller/signup_controller.dart';
 import 'package:life_berg/generated/assets.dart';
-import 'package:life_berg/model/authentocation_models/signup_model.dart';
+import 'package:life_berg/utils/toast_utils.dart';
 import 'package:life_berg/view/screens/auth/login.dart';
 import 'package:life_berg/view/widget/my_button.dart';
 import 'package:life_berg/view/widget/my_text.dart';
@@ -26,51 +26,6 @@ import 'complete_profile/complete_profile.dart';
 class Signup extends StatelessWidget {
   SignupController controller = Get.put(SignupController());
 
-  HttpManager httpManager = HttpManager();
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-
-  TextEditingController _firstNameController = TextEditingController();
-  TextEditingController _emailController = TextEditingController();
-  TextEditingController _passwordController = TextEditingController();
-  TextEditingController _confirmPasswordController = TextEditingController();
-
-  _signUpUser() async {
-    SmartDialog.showLoading(msg: "Please wait..");
-    String? token = await FirebaseMessaging.instance.getToken();
-    httpManager
-        .signUp(
-        _firstNameController.text.toString(),
-        "",
-        _emailController.text.toString(),
-        _passwordController.text.toString(),
-        token ?? "")
-        .then((value) {
-      SmartDialog.dismiss();
-      if (value.error == null) {
-        SignupModel registrationMethod = value.snapshot;
-        if (registrationMethod.success == true) {
-          Fluttertoast.showToast(msg: registrationMethod.message ?? "");
-
-          SharedPreferencesForUser.getInstance().then((prefs) {
-
-            prefs.setLoggedIn(true);
-            prefs.setToken(registrationMethod.token ?? "");
-            prefs.setFirstName(registrationMethod.data!.firstName ?? "");
-            prefs.setLastName(registrationMethod.data!.lastName ?? "");
-            prefs.setEmail(registrationMethod.data!.email ?? "");
-            prefs.setUserID(registrationMethod.data!.sId ?? "");
-
-
-            Get.to(() => CompleteProfile());
-          });
-        } else {
-          SmartDialog.dismiss();
-          Fluttertoast.showToast(msg: registrationMethod.message ?? "");
-        }
-      }
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return KeyboardDismisser(
@@ -80,6 +35,31 @@ class Signup extends StatelessWidget {
       ],
       child: Scaffold(
         resizeToAvoidBottomInset: false,
+        backgroundColor: kPrimaryColor,
+        appBar: AppBar(
+          centerTitle: false,
+          backgroundColor: kTertiaryColor,
+          elevation:  1,
+          leading: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              GestureDetector(
+                onTap: () => Get.back(),
+                child: Image.asset(
+                  Assets.imagesArrowBack,
+                  height: 24,
+                  color: kSecondaryColor,
+                ),
+              ),
+            ],
+          ),
+          title: MyText(
+            text: 'Back',
+            size: 16,
+            weight: FontWeight.w500,
+            color: kSecondaryColor,
+          ),
+        ),
         body: Column(
           children: [
             Expanded(
@@ -97,7 +77,7 @@ class Signup extends StatelessWidget {
                     ),
                     children: [
                       SizedBox(
-                        height: 50,
+                        height: 20,
                       ),
                       Image.asset(
                         Assets.imagesLogo,
@@ -108,55 +88,82 @@ class Signup extends StatelessWidget {
                       ),
                       MyTextField(
                         hint: 'Full Name',
-                        controller: _firstNameController,
+                        fillColor: kInputFillColor,
+                        controller: controller.nameCon,
+                        textInputAction: TextInputAction.next,
                       ),
                       MyTextField(
                         onChanged: (value) => controller.getEmail(value),
                         hint: 'Email Address',
-                        controller: _emailController,
+                        textInputType: TextInputType.emailAddress,
+                        textInputAction: TextInputAction.next,
+                        controller: controller.emailCon,
+                        textCapitalization: TextCapitalization.none,
+                        fillColor: kInputFillColor,
                       ),
                       MyTextField(
                         isObSecure: true,
                         hint: 'Password',
-                        controller: _passwordController,
+                        controller: controller.passCon,
                         haveObSecureIcon: true,
+                        fillColor: kInputFillColor,
+                        textCapitalization: TextCapitalization.none,
+                        textInputAction: TextInputAction.next,
                       ),
                       MyTextField(
                         haveObSecureIcon: true,
                         isObSecure: true,
-                        controller: _confirmPasswordController,
-                        hint: 'Confirm Password',
+                        controller: controller.repeatPassCon,
+                        hint: 'Repeat password',
+                        fillColor: kInputFillColor,
+                        textCapitalization: TextCapitalization.none,
+                        textInputAction: TextInputAction.done,
                       ),
                       MyText(
-                        paddingTop: 10,
-                        align: TextAlign.center,
+                        paddingTop: 5,
                         text:
                             'By creating an account, you agree to our Terms and Conditions',
-                        size: 16,
+                        size: 11,
+                        color: kTextColor,
+                        weight: FontWeight.w400,
                         paddingBottom: 25,
                       ),
                       Obx(() {
                         return MyButton(
                           isDisable: controller.isDisable.value,
                           text: 'Sign Up',
+                          height: 56,
+                          radius: 16,
                           onTap: () {
-                            if(_firstNameController.text.toString().isNotEmpty && _emailController.text.toString().isNotEmpty
-                            && _passwordController.text.toString().isNotEmpty && _confirmPasswordController.text.toString().isNotEmpty){
-                              if(_passwordController.text.toString() == _confirmPasswordController.text.toString()){
-                                _signUpUser();
+                            if(controller.nameCon.text.toString().isNotEmpty && controller.emailCon.text.toString().isNotEmpty
+                            && controller.passCon.text.toString().isNotEmpty && controller.repeatPassCon.text.toString().isNotEmpty){
+                              if(controller.passCon.text.toString() == controller.repeatPassCon.text.toString()){
+                                controller.signUp();
                               }else{
-                                Fluttertoast.showToast(msg: "Both Passwords are not same.");
+                                ToastUtils.showToast("Both Passwords are not same.");
                               }
                             }else{
-                              Fluttertoast.showToast(msg: "Please enter all fields.");
+                              ToastUtils.showToast("Please enter all fields.");
                             }
                           },
                         );
                       }),
+                      MyText(
+                        paddingTop: 25,
+                        text: 'Or sign up using',
+                        size: 15,
+                        weight: FontWeight.w400,
+                        color: kTextColor,
+                        paddingBottom: 8,
+                      ),
                       SocialLogin(
-                        onGoogle: () {},
+                        onGoogle: () {
+                          controller.signInWithGoogle();
+                        },
                         onFacebook: () {},
-                        onApple: () {},
+                        onApple: () {
+                          controller.signInWithApple();
+                        },
                       ),
                     ],
                   ),
@@ -173,14 +180,17 @@ class Signup extends StatelessWidget {
                 alignment: WrapAlignment.center,
                 children: [
                   MyText(
-                    text: 'Have an account?',
-                    size: 14,
+                    text: 'If you already have an account, ',
+                    size: 15,
+                    color: kTertiaryColor,
                   ),
                   MyText(
                     onTap: () => Get.offAll(() => Login()),
-                    text: ' Sign in here.',
+                    text: 'sign in now',
+                    size: 15,
                     color: kTertiaryColor,
-                    size: 14,
+                    textDecorationColor: kTertiaryColor,
+                    decoration: TextDecoration.underline,
                   ),
                 ],
               ),

@@ -22,14 +22,18 @@ class WelcomeOnBoard extends StatelessWidget {
           height: 256,
         ),
         MyText(
+          paddingLeft: 10,
+          paddingRight: 10,
           paddingTop: 10,
-          text: 'Welcome aboard, user!',
+          text: 'Welcome aboard, ${completeProfileController.user?.fullName}!',
           size: 24,
           weight: FontWeight.w500,
           align: TextAlign.center,
         ),
         MyText(
           paddingTop: 6,
+          paddingLeft: 10,
+          paddingRight: 10,
           text:
               'Let’s start by creating goals to boost your\n\n1. Wellbeing\n2. Vocational Tasks\n3. Personal Development',
           size: 16,

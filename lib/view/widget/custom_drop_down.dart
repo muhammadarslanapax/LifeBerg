@@ -27,7 +27,8 @@ class CustomDropDown extends StatelessWidget {
       child: DropdownButton2(
         hint: MyText(
           text: hint,
-          size: 14,
+          size: 15,
+          weight: FontWeight.w400,
           color: kTextColor.withOpacity(0.50),
         ),
         items: items!

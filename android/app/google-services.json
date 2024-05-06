@@ -1,26 +1,44 @@
 {
   "project_info": {
-    "project_number": "1087275287967",
-    "project_id": "life-berg",
-    "storage_bucket": "life-berg.appspot.com"
+    "project_number": "648558078003",
+    "project_id": "lifeberg-dev",
+    "storage_bucket": "lifeberg-dev.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1087275287967:android:79927b48df6c71967169aa",
+        "mobilesdk_app_id": "1:648558078003:android:c464f7f9a623aa366f1b46",
         "android_client_info": {
-          "package_name": "com.example.life_berg"
+          "package_name": "com.codebosses.life_berg"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "648558078003-dsa73k9hb1bkqu8njvmph8asp0mk0r38.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.codebosses.life_berg",
+            "certificate_hash": "6e0082c8e9eecc5f4e27392142032a45f279c53e"
+          }
+        },
+        {
+          "client_id": "648558078003-qqev3rcafl2h6n0elvb72o8j1ilfun30.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
-          "current_key": "AIzaSyBFf6tl1Dc_wV3ES5zOTyKTTJYD_R9e0n0"
+          "current_key": "AIzaSyDai2j351LxfaC5Y7I_vifhQWGXcmr0Rvc"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "648558078003-qqev3rcafl2h6n0elvb72o8j1ilfun30.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

@@ -1,7 +1,10 @@
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:life_berg/constant/color.dart';
 import 'package:life_berg/constant/sizes_constant.dart';
 import 'package:life_berg/generated/assets.dart';
 import 'package:life_berg/utils/instance.dart';
@@ -18,6 +21,7 @@ class WellBeing extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: kPrimaryColor,
       appBar: simpleAppBar(
         title: 'Back',
       ),
@@ -53,127 +57,56 @@ class WellBeing extends StatelessWidget {
                   paddingTop: 40,
                   text: 'Select a goal or add your own!',
                   size: 16,
-                  paddingBottom: 20,
+                  weight: FontWeight.w400,
+                  paddingBottom: 15,
                 ),
-                Row(
-                  children: [
-                    for (int i = 0; i < 4; i++)
-                      Obx(
-                        () {
-                          var data = goalController.wellBeingList[i];
-                          return Expanded(
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 4),
-                              child: ToggleButton(
-                                horizontalPadding: 0.0,
-                                onTap: () => goalController.getWellBeing(i),
-                                text: data.text,
-                                isSelected: goalController.wellBeingIndex == i,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                  ],
+                Wrap(
+                  spacing: 7.0,
+                  runSpacing: 7.0,
+                  children: goalController.wellBeingList
+                      .asMap()
+                      .map((i, element) => MapEntry(
+                            i,
+                            element != "Other"
+                                ? Obx(
+                                    () {
+                                      return ToggleButton(
+                                        horizontalPadding: 10.0,
+                                        onTap: () =>
+                                            goalController.getWellBeing(i),
+                                        text: element,
+                                        isSelected:
+                                            goalController.wellBeingIndex == i,
+                                      );
+                                    },
+                                  )
+                                : Container(
+                              width: 42,
+                              height: 42,
+                                    decoration: BoxDecoration(
+                                        color: kSecondaryColor,
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(8.0)),
+                                        border: Border.all(
+                                          width: 1.0,
+                                          color: kBorderColor,
+                                        )),
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 12.0, vertical: 12.0),
+                                    child: SvgPicture.asset("assets/vectors/ic_plus.svg"),
+                                  ),
+                          ))
+                      .values
+                      .toList(),
                 ),
-                SizedBox(
-                  height: 16,
-                ),
-                Row(
-                  children: [
-                    for (int i = 4; i < 8; i++)
-                      Obx(
-                        () {
-                          var data = goalController.wellBeingList[i];
-                          return Expanded(
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 4),
-                              child: ToggleButton(
-                                horizontalPadding: 0.0,
-                                onTap: () => goalController.getWellBeing(i),
-                                text: data.text,
-                                isSelected: goalController.wellBeingIndex == i,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                  ],
-                ),
-                SizedBox(
-                  height: 16,
-                ),
-                Row(
-                  children: [
-                    for (int i = 8; i < 12; i++)
-                      if (i == 11)
-                        Expanded(
-                          child: Padding(
-                            padding: EdgeInsets.only(left: 4),
-                            child: GestureDetector(
-                              onTap: () => Get.to(
-                                () => AddNewGoal(createdFrom: 'wellbeing'),
-                              ),
-                              child: Align(
-                                alignment: Alignment.centerLeft,
-                                child: Image.asset(
-                                  Assets.imagesAddIcon,
-                                  height: 34,
-                                  width: 38,
-                                ),
-                              ),
-                            ),
-                          ),
-                        )
-                      else
-                        Obx(
-                          () {
-                            var data = goalController.wellBeingList[i];
-                            return Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 4),
-                              child: ToggleButton(
-                                onTap: () => goalController.getWellBeing(i),
-                                text: data.text,
-                                isSelected: goalController.wellBeingIndex == i,
-                              ),
-                            );
-                          },
-                        ),
-                  ],
-                ),
-                // Wrap(
-                //   spacing: 10,
-                //   runSpacing: 13,
-                //   children: List.generate(
-                //     goalController.wellBeingList.length,
-                //     (index) {
-                //       if (index == goalController.wellBeingList.length - 1) {
-                //         return GestureDetector(
-                //           onTap: () => Get.to(() => AddNewGoal()),
-                //           child: Image.asset(
-                //             Assets.imagesAddIcon,
-                //             height: 29,
-                //           ),
-                //         );
-                //       } else {
-                //         var data = goalController.wellBeingList[index];
-                //         return Obx(() {
-                //           return ToggleButton(
-                //             onTap: () => goalController.getWellBeing(index),
-                //             text: data.text,
-                //             isSelected: goalController.wellBeingIndex == index,
-                //           );
-                //         });
-                //       }
-                //     },
-                //   ),
-                // ),
                 SizedBox(
                   height: 30,
                 ),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 4),
                   child: MyButton(
+                    height: 56,
+                    radius: 16,
                     isDisable: false,
                     text: 'Create your goal',
                     onTap: () => Get.to(
@@ -187,6 +120,8 @@ class WellBeing extends StatelessWidget {
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 4),
                   child: MyBorderButton(
+                    height: 56,
+                    radius: 16,
                     text: 'Skip',
                     onTap: () => Get.to(() => VocationGoal()),
                   ),

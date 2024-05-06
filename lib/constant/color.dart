@@ -26,6 +26,7 @@ const kCardioColor = Color(0xff7274F3);
 const kDarkBlueColor = Color(0xff4E94BE);
 const kChartBorderColor = Color(0xffF4F4F6);
 const kChartLabelColor = Color(0xff7B8794);
+const kSecondaryTextColor = Color(0xff75767F);
 
 const kDailyGratitudeColor = Color(0xffA98FE3);
 const kQuiteTimeColor = Color(0xff00BAC7);

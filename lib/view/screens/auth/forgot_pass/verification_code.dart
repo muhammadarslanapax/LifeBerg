@@ -16,13 +16,14 @@ class VerificationCode extends StatelessWidget {
 
   final defaultPinTheme = PinTheme(
     height: 47,
-    width: 77,
+    width: 80,
+    margin: EdgeInsets.symmetric(horizontal: 5.0),
     textStyle: TextStyle(
       fontSize: 16,
       color: kBlackColor.withOpacity(0.36),
     ),
     decoration: BoxDecoration(
-      color: kInputFillColor,
+      color: kSecondaryColor,
       borderRadius: BorderRadius.circular(8.0),
       border: Border.all(
         color: kBorderColor,
@@ -34,14 +35,14 @@ class VerificationCode extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kSecondaryColor,
+      backgroundColor: kPrimaryColor,
       // appBar: simpleAppBar(
       //   title: 'Back',
       // ),
       body: Column(
         children: [
           SizedBox(
-            height: 20,
+            height: 40,
           ),
           Expanded(
             child: Padding(
@@ -67,7 +68,7 @@ class VerificationCode extends StatelessWidget {
                 MyText(
                   paddingTop: 6,
                   text:
-                      'Enter code that we have sent to your email example@lifeberg.app',
+                      'Please enter the code that we have sent to your email ${controller.emailCon.text.toString()}',
                   size: 16,
                   align: TextAlign.center,
                   height: 1.5,
@@ -76,6 +77,8 @@ class VerificationCode extends StatelessWidget {
                 Pinput(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   length: 4,
+                  showCursor: true,
+                  controller: controller.otpCon,
                   defaultPinTheme: defaultPinTheme,
                   onCompleted: (pin) {},
                   onChanged: (value) => controller.getOTP(value),
@@ -88,17 +91,20 @@ class VerificationCode extends StatelessWidget {
                 ),
                 Obx(() {
                   return MyButton(
-                    radius: 16.0,
+                    height: 56,
+                    radius: 16,
                     isDisable: controller.isVerifyDisable.value,
                     text: 'Verify',
-                    onTap: () => Get.to(() => NewPass()),
+                    onTap: () => controller.verifyEmailCode(),
                   );
                 }),
                 SizedBox(
                   height: 10,
                 ),
                 MyBorderButton(
-                  radius: 16.0,
+                  height: 56,
+                  radius: 16,
+                  borderColor: kTertiaryColor,
                   text: 'Resend Code',
                   onTap: () {},
                 ),

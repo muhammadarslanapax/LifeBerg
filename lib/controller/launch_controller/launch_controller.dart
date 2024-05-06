@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:life_berg/generated/assets.dart';
+import 'package:life_berg/utils/pref_utils.dart';
 import 'package:life_berg/view/screens/auth/login.dart';
 
 class LaunchController extends GetxController {
@@ -24,7 +25,7 @@ class LaunchController extends GetxController {
       'image': Assets.imagesOn3,
       'title': 'Our vision is simple',
       'description':
-          'We hope to support you so that you can, in turn, care for those around you. We’re ready when you are!',
+          'We hope to support you,\nso that you can, in turn, care for those around you. We’re ready when you are!',
     },
   ];
 
@@ -40,6 +41,9 @@ class LaunchController extends GetxController {
   }
 
   void onTap() {
+    if(currentIndex.value == 2){
+      PrefUtils().setIsShowIntro = false;
+    }
     currentIndex.value == 2
         ? Get.offAll(() => Login())
         : pageController.nextPage(
@@ -49,4 +53,7 @@ class LaunchController extends GetxController {
             curve: Curves.easeInOut,
           );
   }
+
+
+
 }

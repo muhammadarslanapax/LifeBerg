@@ -16,14 +16,14 @@ class NewPass extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kSecondaryColor,
+      backgroundColor: kPrimaryColor,
       // appBar: simpleAppBar(
       //   title: 'Back',
       // ),
       body: Column(
         children: [
           SizedBox(
-            height: 30,
+            height: 40,
           ),
           Expanded(
             flex: 5,
@@ -57,26 +57,32 @@ class NewPass extends StatelessWidget {
                   paddingBottom: 20,
                 ),
                 MyTextField(
-                  fillColor: kInputFillColor,
+                  fillColor: kSecondaryColor,
                   hint: 'Password',
                   isObSecure: true,
                   haveObSecureIcon: true,
                   controller: controller.passCon,
+                  textCapitalization: TextCapitalization.none,
+                  textInputAction: TextInputAction.next,
                 ),
                 MyTextField(
-                  fillColor: kInputFillColor,
+                  fillColor: kSecondaryColor,
                   hint: 'Confirm Password',
                   isObSecure: true,
+                  controller: controller.confirmCon,
                   haveObSecureIcon: true,
                   onChanged: (value) => controller.getConfirmPass(value),
                   marginBottom: 25,
+                  textCapitalization: TextCapitalization.none,
+                  textInputAction: TextInputAction.done,
                 ),
                 Obx(() {
                   return MyButton(
                     radius: 16.0,
+                    height: 56,
                     isDisable: controller.isNewPassDisable.value,
                     text: 'Create Password',
-                    onTap: () => Get.offAll(() => PassChangedSuccess()),
+                    onTap: () => controller.resetPassword(),
                   );
                 }),
               ],

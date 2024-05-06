@@ -12,7 +12,7 @@ AppBar simpleAppBar({
 }) {
   return AppBar(
     centerTitle: centerTitle,
-    backgroundColor: kSecondaryColor,
+    backgroundColor: kTertiaryColor,
     elevation: 1,
     leading: haveLeading!
         ? Column(
@@ -23,6 +23,7 @@ AppBar simpleAppBar({
                 child: Image.asset(
                   Assets.imagesArrowBack,
                   height: 24,
+                  color: kSecondaryColor,
                 ),
               ),
             ],
@@ -32,7 +33,7 @@ AppBar simpleAppBar({
       text: title,
       size: 16,
       weight: FontWeight.w500,
-      color: kTextColor,
+      color: kSecondaryColor,
     ),
   );
 }

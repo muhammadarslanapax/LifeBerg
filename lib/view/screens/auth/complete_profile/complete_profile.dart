@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:keyboard_dismisser/keyboard_dismisser.dart';
@@ -10,6 +11,7 @@ import 'package:life_berg/view/widget/my_border_button.dart';
 import 'package:life_berg/view/widget/my_button.dart';
 import 'package:life_berg/view/widget/simple_app_bar.dart';
 
+import '../../../../constant/color.dart';
 
 class CompleteProfile extends StatelessWidget {
   @override
@@ -20,39 +22,42 @@ class CompleteProfile extends StatelessWidget {
         GestureType.onPanUpdateDownDirection,
       ],
       child: Scaffold(
+        backgroundColor: kPrimaryColor,
         appBar: simpleAppBar(
           centerTitle: false,
           title: 'Back',
           onBackTap: () => completeProfileController.onBackTap(),
         ),
-        body: ListView(
-          shrinkWrap: true,
-          physics: BouncingScrollPhysics(),
-          padding: EdgeInsets.zero,
+        body: Column(
+          // shrinkWrap: true,
+          // physics: BouncingScrollPhysics(),
+          // padding: EdgeInsets.zero,
           children: [
-            Obx(() {
-              return IndexedStack(
-                index: completeProfileController.currentIndex.value,
-                children: completeProfileController.profileSteps,
-                // PageView.builder(
-                //   controller: completeProfileController.pageController,
-                //   onPageChanged: (index) =>
-                //       completeProfileController.getCurrentIndex(index),
-                //   physics: NeverScrollableScrollPhysics(),
-                //   itemCount: completeProfileController.profileSteps.length,
-                //   itemBuilder: (context, index) {
-                //     return completeProfileController.profileSteps[index];
-                //   },
-                // ),
-              );
-            }),
-            Obx(() {
-              return SizedBox(
-                height: completeProfileController.currentIndex.value == 2
-                    ? Get.height * 0.13
-                    : Get.height * 0.21,
-              );
-            }),
+            Expanded(
+              child: Obx(() {
+                return IndexedStack(
+                  index: completeProfileController.currentIndex.value,
+                  children: completeProfileController.profileSteps,
+                  // PageView.builder(
+                  //   controller: completeProfileController.pageController,
+                  //   onPageChanged: (index) =>
+                  //       completeProfileController.getCurrentIndex(index),
+                  //   physics: NeverScrollableScrollPhysics(),
+                  //   itemCount: completeProfileController.profileSteps.length,
+                  //   itemBuilder: (context, index) {
+                  //     return completeProfileController.profileSteps[index];
+                  //   },
+                  // ),
+                );
+              }),
+            ),
+            // Obx(() {
+            //   return SizedBox(
+            //     height: completeProfileController.currentIndex.value == 2
+            //         ? Get.height * 0.13
+            //         : Get.height * 0.17,
+            //   );
+            // }),
             Padding(
               padding: EdgeInsets.symmetric(
                 horizontal: 15,
@@ -63,6 +68,8 @@ class CompleteProfile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     MyButton(
+                      height: 56,
+                      radius: 16,
                       isDisable: completeProfileController.currentIndex == 0
                           ? completeProfileController
                               .isUserNameVocationDisable.value
@@ -79,7 +86,11 @@ class CompleteProfile extends StatelessWidget {
                               );
                             }
                           : () {
-                              completeProfileController.onNext();
+                              if (completeProfileController.currentIndex == 0) {
+                                completeProfileController.updateUsername();
+                              } else {
+                                completeProfileController.updateIcebergName();
+                              }
                             },
                     ),
                     SizedBox(
@@ -87,7 +98,9 @@ class CompleteProfile extends StatelessWidget {
                     ),
                     if (completeProfileController.currentIndex.value == 2)
                       MyBorderButton(
-                        text: 'Skip onboarding',
+                        radius: 16,
+                        height: 56,
+                        text: 'Skip Onboarding',
                         onTap: () {
                           Get.to(
                             () => WeAreOff(),

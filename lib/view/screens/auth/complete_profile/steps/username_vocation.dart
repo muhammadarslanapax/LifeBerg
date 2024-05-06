@@ -19,9 +19,12 @@ class UserNameVocation extends StatelessWidget {
         vertical: 30,
       ),
       children: [
+        SizedBox(
+          height: 30,
+        ),
         Image.asset(
           Assets.imagesLogo,
-          height: 70,
+          height: 80,
         ),
         MyText(
           paddingTop: 25,
@@ -32,7 +35,7 @@ class UserNameVocation extends StatelessWidget {
         ),
         MyText(
           paddingTop: 6,
-          text: 'Please enter your username & vocation below.',
+          text: 'Let’s set up your profile to get started.',
           size: 16,
           align: TextAlign.center,
           height: 1.5,
@@ -41,9 +44,12 @@ class UserNameVocation extends StatelessWidget {
         MyTextField(
           hint: 'Username',
           controller: completeProfileController.userNameCon,
+          fillColor: kSecondaryColor,
+          textInputAction: TextInputAction.done,
         ),
         Obx(() {
           return CustomDropDown(
+            buttonHeight: 56,
             selectedValue: completeProfileController.selectedVocation.value,
             hint: 'Select',
             onChanged: (value) => completeProfileController.getVocation(value),
@@ -53,15 +59,24 @@ class UserNameVocation extends StatelessWidget {
         SizedBox(
           height: 10,
         ),
-        Obx(() {
-          return SizedBox(
-            child: completeProfileController.showOtherField.value
-                ? MyTextField(
-                    hint: 'Please Specify',
-                  )
-                : SizedBox(),
-          );
-        }),
+        MyTextField(
+          hint: 'Country',
+          controller: completeProfileController.countryCon,
+          fillColor: kSecondaryColor,
+          textInputAction: TextInputAction.done,
+        ),
+        // SizedBox(
+        //   height: 10,
+        // ),
+        // Obx(() {
+        //   return SizedBox(
+        //     child: completeProfileController.showOtherField.value
+        //         ? MyTextField(
+        //             hint: 'Please Specify',
+        //           )
+        //         : SizedBox(),
+        //   );
+        // }),
         SizedBox(
           height: 20,
         ),

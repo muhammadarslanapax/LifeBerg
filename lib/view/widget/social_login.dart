@@ -17,9 +17,6 @@ class SocialLogin extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        SizedBox(
-          height: 35,
-        ),
         MyIconButton(
           onTap: onGoogle,
           icon: Assets.imagesGoogle,

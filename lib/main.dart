@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:life_berg/config/routes/routes.dart';
 import 'package:life_berg/config/theme/light_theme.dart';
@@ -13,7 +14,6 @@ import 'package:life_berg/controller/personal_development_controller/personal_de
 import 'package:life_berg/shareprefrences/user_sharedprefrence.dart';
 import 'package:life_berg/utils/pref_utils.dart';
 
-
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
 }
@@ -24,7 +24,12 @@ Future<void> main() async {
   Get.put(GoalController());
   Get.put(WellbeingActionPlanController());
   Get.put(JournalController());
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+      options: FirebaseOptions(
+          apiKey: "AIzaSyDai2j351LxfaC5Y7I_vifhQWGXcmr0Rvc",
+          appId: "1:648558078003:android:c464f7f9a623aa366f1b46",
+          messagingSenderId: "648558078003",
+          projectId: "lifeberg-dev"));
   PrefUtils().init();
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
@@ -44,6 +49,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       debugShowMaterialGrid: false,
       theme: lightTheme,
+      builder: FlutterSmartDialog.init(),
       themeMode: ThemeMode.light,
       title: 'LifeBerg',
       initialRoute: AppLinks.splash_screen,

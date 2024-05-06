@@ -16,14 +16,11 @@ class ForgotPass extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kSecondaryColor,
-      // appBar: simpleAppBar(
-      //   title: 'Back',
-      // ),
+      backgroundColor: kPrimaryColor,
       body: Column(
         children: [
           SizedBox(
-            height: 30,
+            height: 40,
           ),
           Expanded(
             flex: 5,
@@ -51,24 +48,29 @@ class ForgotPass extends StatelessWidget {
                 MyText(
                   paddingTop: 6,
                   text:
-                      'Type your email address and we will send the verification code.',
+                      'Please type your email address below and we will send you the verification code.',
                   size: 16,
                   align: TextAlign.center,
                   height: 1.5,
                   paddingBottom: 20,
                 ),
                 MyTextField(
-                  fillColor: kInputFillColor,
                   hint: 'Email Address',
                   onChanged: (value) => controller.getEmail(value),
                   marginBottom: 25,
+                  textInputType: TextInputType.emailAddress,
+                  textInputAction: TextInputAction.done,
+                  controller: controller.emailCon,
+                  textCapitalization: TextCapitalization.none,
+                  fillColor: kSecondaryColor,
                 ),
                 Obx(() {
                   return MyButton(
-                    radius: 16.0,
+                    height: 56,
+                    radius: 16,
                     isDisable: controller.isDisable.value,
                     text: 'Reset',
-                    onTap: () => Get.to(() => VerificationCode()),
+                    onTap: () => controller.sendVerificationCode(),
                   );
                 }),
               ],

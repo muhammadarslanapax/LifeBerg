@@ -47,7 +47,7 @@ class ToggleButton extends StatelessWidget {
               child: MyText(
                 onTap: onTap,
                 text: text,
-                size: 12,
+                size: 14,
                 weight: FontWeight.w400,
                 align: TextAlign.center,
                 color: isSelected ? kSecondaryColor : kTextColor,

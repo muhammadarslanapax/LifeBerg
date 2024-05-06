@@ -50,6 +50,7 @@ class PassChangedSuccess extends StatelessWidget {
                 ),
                 MyButton(
                   radius: 16.0,
+                  height: 56,
                   isDisable: false,
                   text: 'Login',
                   onTap: () => Get.offAll(() => Login()),

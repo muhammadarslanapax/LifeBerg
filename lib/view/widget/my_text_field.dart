@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:life_berg/constant/color.dart';
 import 'package:life_berg/generated/assets.dart';
 import 'package:life_berg/view/widget/my_text.dart';
@@ -22,9 +24,14 @@ class MyTextField extends StatefulWidget {
     this.isReadOnly = false,
     this.onTap,
     this.borderColor,
+    this.textInputAction,
+    this.textInputType,
+    this.textCapitalization
   }) : super(key: key);
   String? label, hint;
 
+  TextInputType? textInputType;
+  TextInputAction? textInputAction;
   TextEditingController? controller;
   ValueChanged<String>? onChanged;
   bool? isObSecure, haveLabel, haveObSecureIcon;
@@ -34,6 +41,7 @@ class MyTextField extends StatefulWidget {
   Color? hintColor, fillColor, borderColor;
   bool? isReadOnly;
   VoidCallback? onTap;
+  TextCapitalization? textCapitalization;
 
   @override
   State<MyTextField> createState() => _MyTextFieldState();
@@ -56,9 +64,11 @@ class _MyTextFieldState extends State<MyTextField> {
                 )
               : SizedBox(),
           TextFormField(
-            textCapitalization: TextCapitalization.sentences,
+            textCapitalization: widget.textCapitalization ?? TextCapitalization.sentences,
             onTap: widget.onTap,
             readOnly: widget.isReadOnly!,
+            textInputAction: widget.textInputAction,
+            keyboardType: widget.textInputType,
             maxLines: widget.maxLines,
             controller: widget.controller,
             onChanged: widget.onChanged,
@@ -66,19 +76,21 @@ class _MyTextFieldState extends State<MyTextField> {
             obscureText: widget.isObSecure!,
             obscuringCharacter: '*',
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 15,
+              fontWeight: FontWeight.w400,
               color: kTextColor,
             ),
             decoration: InputDecoration(
               contentPadding: EdgeInsets.symmetric(
                 horizontal: 15,
-                vertical: widget.maxLines! > 1 ? 15 : 0,
+                vertical: widget.maxLines! > 1 ? 15 : 16,
               ),
               filled: true,
               fillColor: widget.fillColor ?? kSecondaryColor,
               hintText: widget.hint,
               hintStyle: TextStyle(
-                fontSize: 14,
+                fontSize: 15,
+                fontWeight: FontWeight.w400,
                 color: widget.hintColor ?? kTextColor.withOpacity(0.50),
               ),
               suffixIcon: widget.haveObSecureIcon!
