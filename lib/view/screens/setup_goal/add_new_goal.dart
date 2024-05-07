@@ -2,11 +2,16 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:life_berg/constant/color.dart';
 import 'package:life_berg/constant/sizes_constant.dart';
 import 'package:life_berg/generated/assets.dart';
+import 'package:life_berg/utils/instance.dart';
 import 'package:life_berg/view/screens/setup_goal/personal_development_goal.dart';
 import 'package:life_berg/view/screens/setup_goal/vocation_goal.dart';
 import 'package:life_berg/view/screens/setup_goal/we_are_off.dart';
@@ -21,22 +26,28 @@ import 'package:life_berg/view/widget/my_text.dart';
 import 'package:life_berg/view/widget/my_text_field.dart';
 import 'package:life_berg/view/widget/simple_app_bar.dart';
 
+import '../../../model/reminder/reminder_date_time.dart';
+
 class AddNewGoal extends StatefulWidget {
+  final String? createdFrom;
+  final String? title;
+
   AddNewGoal({
     this.createdFrom = '',
+    this.title = '',
   });
-
-  String? createdFrom;
 
   @override
   State<AddNewGoal> createState() => _AddNewGoalState();
 }
 
 class _AddNewGoalState extends State<AddNewGoal> {
-  String selectedValue = 'Achieve everyday';
+  String selectGoalDaysType = 'Week';
+  double seekbarValue = 5.0;
+  bool isScale = true;
   List<String> items = [
-    'Achieve everyday',
-    'Achieve X number of days a week',
+    'Week',
+    'Month',
   ];
 
   List<String> _goals = [
@@ -48,10 +59,35 @@ class _AddNewGoalState extends State<AddNewGoal> {
 
   String? selectedGoal = 'Select category';
 
+  List<ReminderDateTime> timeList = [];
+
+  @override
+  void initState() {
+    super.initState();
+    if(widget.createdFrom == "wellbeing") {
+      selectedGoal = "Wellbeing";
+      goalController.goalNameCon.text = goalController.wellBeingIndex.value != -1 ?
+          goalController.wellBeingList[goalController.wellBeingIndex.value] : "";
+    }else if(widget.createdFrom == "vocationalTasks"){
+      selectedGoal = "Vocation";
+      goalController.goalNameCon.text = goalController.vocationalTaskIndex.value != -1 ?
+      goalController.vocationGoalList[goalController.vocationalTaskIndex.value] : "";
+    }else if(widget.createdFrom == "personalDevelopment"){
+      selectedGoal = "Personal Development";
+      goalController.goalNameCon.text = goalController.personalDevIndex.value != -1 ?
+      goalController.personalDevelopmentList[goalController.personalDevIndex.value] : "";
+    }
+    if(mounted){
+      setState(() {
+
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kSecondaryColor,
+      backgroundColor: kPrimaryColor,
       appBar: simpleAppBar(
         title: 'Add a new goal',
       ),
@@ -75,9 +111,10 @@ class _AddNewGoalState extends State<AddNewGoal> {
                   );
                 },
                 child: Container(
-                  height: 47,
-                  width: 47,
+                  height: 55,
+                  width: 55,
                   decoration: BoxDecoration(
+                    color: kSecondaryColor,
                     borderRadius: BorderRadius.circular(8.0),
                     border: Border.all(
                       width: 1.0,
@@ -99,6 +136,8 @@ class _AddNewGoalState extends State<AddNewGoal> {
                 child: MyTextField(
                   hint: 'Goal name',
                   marginBottom: 0.0,
+                  fillColor: kSecondaryColor,
+                  controller: goalController.goalNameCon,
                 ),
               ),
             ],
@@ -184,7 +223,7 @@ class _AddNewGoalState extends State<AddNewGoal> {
               ),
               isDense: true,
               isExpanded: true,
-              buttonHeight: 47,
+              buttonHeight: 56,
               buttonPadding: EdgeInsets.symmetric(
                 horizontal: 15,
               ),
@@ -230,29 +269,124 @@ class _AddNewGoalState extends State<AddNewGoal> {
           MyTextField(
             hint: 'Description',
             maxLines: 5,
+            controller: goalController.goalDesCon,
           ),
-          CustomDropDown(
-            hint: 'Certain number of days a week',
-            items: items,
-            selectedValue: selectedValue,
-            onChanged: (value) {
-              setState(() {
-                selectedValue = value;
-              });
-            },
+          MyText(
+            paddingTop: 20,
+            text: 'How often do you want to fulfil this goal?',
+            size: 16,
+            weight: FontWeight.w500,
           ),
           SizedBox(
             height: 10,
           ),
-          if (selectedValue == 'Achieve X number of days a week')
-            Row(
-              children: List.generate(
-                7,
-                (index) {
-                  return certainDay(index, () {}, index == 0);
-                },
+          Row(
+            children: [
+              Expanded(
+                flex: 1,
+                child: MyTextField(
+                  hint: 'type',
+                  textInputType: TextInputType.number,
+                  controller: goalController.daysCon,
+                ),
               ),
-            ),
+              Expanded(
+                child: MyText(
+                  text: 'days per',
+                  size: 16,
+                  align: TextAlign.center,
+                  weight: FontWeight.w400,
+                ),
+              ),
+              Expanded(
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton2(
+                    hint: MyText(
+                      text: "Select",
+                      size: 15,
+                      weight: FontWeight.w400,
+                      color: kTextColor.withOpacity(0.50),
+                    ),
+                    items: items!
+                        .map(
+                          (item) => DropdownMenuItem<dynamic>(
+                            value: item,
+                            child: MyText(
+                              text: item,
+                              size: 14,
+                            ),
+                          ),
+                        )
+                        .toList(),
+                    value: selectGoalDaysType,
+                    onChanged: (newValue) {
+                      setState(() {
+                        selectGoalDaysType = newValue;
+                      });
+                    },
+                    icon: Image.asset(
+                      Assets.imagesDropDownIcon,
+                      height: 24,
+                    ),
+                    isDense: true,
+                    isExpanded: true,
+                    buttonHeight: 56,
+                    buttonPadding: EdgeInsets.symmetric(
+                      horizontal: 15,
+                    ),
+                    buttonDecoration: BoxDecoration(
+                      border: Border.all(
+                        color: kBorderColor,
+                        width: 1.0,
+                      ),
+                      borderRadius: BorderRadius.circular(8),
+                      color: kSecondaryColor,
+                    ),
+                    buttonElevation: 0,
+                    itemHeight: 40,
+                    itemPadding: EdgeInsets.symmetric(
+                      horizontal: 15,
+                    ),
+                    dropdownMaxHeight: 200,
+                    // dropdownWidth: Get.width * 0.92,
+                    dropdownPadding: null,
+                    dropdownDecoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      color: kSecondaryColor,
+                    ),
+                    dropdownElevation: 4,
+                    scrollbarRadius: const Radius.circular(40),
+                    scrollbarThickness: 6,
+                    scrollbarAlwaysShow: true,
+                    offset: const Offset(-2, -5),
+                  ),
+                ),
+                flex: 2,
+              )
+            ],
+          ),
+          // CustomDropDown(
+          //   hint: 'Certain number of days a week',
+          //   items: items,
+          //   selectedValue: selectedValue,
+          //   onChanged: (value) {
+          //     setState(() {
+          //       selectedValue = value;
+          //     });
+          //   },
+          // ),
+          // SizedBox(
+          //   height: 10,
+          // ),
+          // if (selectedValue == 'Achieve X number of days a week')
+          //   Row(
+          //     children: List.generate(
+          //       7,
+          //       (index) {
+          //         return certainDay(index, () {}, index == 0);
+          //       },
+          //     ),
+          //   ),
           MyText(
             paddingTop: 20,
             text: 'How important is this goal to you?',
@@ -272,10 +406,16 @@ class _AddNewGoalState extends State<AddNewGoal> {
             ),
             child: Slider(
               min: 0.0,
-              max: 100.0,
+              max: 10.0,
               divisions: 2,
-              onChanged: (value) {},
-              value: 50.0,
+              onChanged: (value) {
+                if (mounted) {
+                  setState(() {
+                    seekbarValue = value;
+                  });
+                }
+              },
+              value: seekbarValue,
             ),
           ),
           Row(
@@ -307,96 +447,135 @@ class _AddNewGoalState extends State<AddNewGoal> {
             paddingBottom: 20,
           ),
           CustomRadioTile(
-            onTap: () {},
-            isSelected: false,
+            onTap: () {
+              if (mounted) {
+                setState(() {
+                  isScale = false;
+                });
+              }
+            },
+            isSelected: !isScale,
             title: 'Yes (achieved), No (not achieved)',
           ),
           SizedBox(
             height: 2,
           ),
           CustomRadioTile(
-            onTap: () {},
-            isSelected: true,
+            onTap: () {
+              if (mounted) {
+                setState(() {
+                  isScale = true;
+                });
+              }
+            },
+            isSelected: isScale,
             title: 'Point scale (0 to10)',
           ),
           SizedBox(
             height: 8,
           ),
-          GestureDetector(
-            onTap: () {
-              showModalBottomSheet(
-                context: context,
-                backgroundColor: Colors.transparent,
-                elevation: 0,
-                builder: (_) {
-                  return AddGoalReminder();
-                },
-              );
-            },
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                MyText(
-                  text: 'Add a reminder',
-                  size: 16,
-                  weight: FontWeight.w500,
-                  paddingRight: 16,
-                ),
-                Image.asset(
-                  Assets.imagesReminderBell,
-                  height: 19.5,
-                  color: kTertiaryColor,
-                ),
-              ],
-            ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              MyText(
+                text: 'Add a reminder',
+                size: 16,
+                weight: FontWeight.w500,
+                paddingRight: 16,
+              ),
+              Image.asset(
+                Assets.imagesReminderBell,
+                height: 19.5,
+                color: kTertiaryColor,
+              ),
+            ],
           ),
           SizedBox(
             height: 10,
           ),
-          Row(
-            children: [
-              Expanded(
-                flex: 7,
+          ListView.builder(
+            itemBuilder: (BuildContext ctx, index) {
+              return GestureDetector(
+                onTap: () {
+                  if (index == timeList.length) {
+                    showModalBottomSheet(
+                      context: context,
+                      backgroundColor: Colors.transparent,
+                      elevation: 0,
+                      builder: (_) {
+                        return AddGoalReminder((day, time) {
+                          if (day != null && time != null) {
+                            timeList.add(ReminderDateTime(day, time));
+                            if (mounted) {
+                              setState(() {});
+                            }
+                          }
+                        });
+                      },
+                    );
+                  }
+                },
                 child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 13,
-                  ),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      width: 1.0,
-                      color: kBorderColor,
-                    ),
-                  ),
-                  child: MyText(
-                    text: 'Sun, Mon, Tue, Wed, Thu, Fri',
+                  margin: EdgeInsets.only(bottom: 10.0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        flex: 7,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 13,
+                          ),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              width: 1.0,
+                              color: kBorderColor,
+                            ),
+                          ),
+                          child: MyText(
+                            text: index == 0 && timeList.length == 0
+                                ? "Select date and time"
+                                : index == timeList.length
+                                ? "Select another date and time"
+                                : timeList[index].day,
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 8,
+                      ),
+                      Expanded(
+                        flex: 3,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 13,
+                          ),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              width: 1.0,
+                              color: kBorderColor,
+                            ),
+                          ),
+                          child: MyText(
+                            text: timeList.length > 0 &&
+                                index != timeList.length
+                                ? DateFormat("HH:mma")
+                                .format(timeList[index].time)
+                                : "",
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-              SizedBox(
-                width: 8,
-              ),
-              Expanded(
-                flex: 3,
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 13,
-                  ),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      width: 1.0,
-                      color: kBorderColor,
-                    ),
-                  ),
-                  child: MyText(
-                    text: '05:30PM',
-                  ),
-                ),
-              ),
-            ],
+              );
+            },
+            itemCount: timeList.length + 1,
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
           ),
           SizedBox(
             height: 30,
@@ -405,40 +584,44 @@ class _AddNewGoalState extends State<AddNewGoal> {
             isDisable: false,
             text: 'Confirm',
             onTap: () {
-              Get.back();
-              showDialog(
-                context: context,
-                builder: (_) {
-                  return ImageDialog(
-                    heading: 'Goal Created',
-                    content:
-                        'Great work! You’ve taken the 1st leap to achieving your goal!',
-                    image: Assets.imagesGoalCreatedNewImage,
-                    imageSize: 100.0,
-                    onOkay: () {
-                      switch (widget.createdFrom) {
-                        case 'wellbeing':
-                          Get.back();
-                          Get.to(() => VocationGoal());
-                          break;
-                        case 'vocationalTasks':
-                          Get.back();
-                          Get.to(() => PersonalDevelopmentGoal());
-                          break;
-                        case 'personalDevelopment':
-                          Get.back();
-                          Get.to(() => WeAreOff());
-                          break;
-                        case '':
-                          Get.back();
-                          break;
-                        default:
-                          Get.back();
-                      }
-                    },
-                  );
-                },
-              );
+              SmartDialog.showLoading(msg: "Please wait...");
+              Future.delayed(Duration(seconds: 5),(){
+                Get.back();
+                SmartDialog.dismiss();
+                showDialog(
+                  context: context,
+                  builder: (_) {
+                    return ImageDialog(
+                      heading: 'Goal Created',
+                      content:
+                      'Great work! You’ve taken the 1st leap to achieving your goal!',
+                      image: Assets.imagesGoalCreatedNewImage,
+                      imageSize: 100.0,
+                      onOkay: () {
+                        switch (widget.createdFrom) {
+                          case 'wellbeing':
+                            Get.back();
+                            Get.to(() => VocationGoal());
+                            break;
+                          case 'vocationalTasks':
+                            Get.back();
+                            Get.to(() => PersonalDevelopmentGoal());
+                            break;
+                          case 'personalDevelopment':
+                            Get.back();
+                            Get.to(() => WeAreOff());
+                            break;
+                          case '':
+                            Get.back();
+                            break;
+                          default:
+                            Get.back();
+                        }
+                      },
+                    );
+                  },
+                );
+              });
             },
           ),
           SizedBox(

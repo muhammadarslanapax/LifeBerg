@@ -57,6 +57,8 @@ class WeAreOff extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 10),
             child: MyButton(
+              height: 56,
+              radius: 16,
               isDisable: false,
               text: 'Let’s go!',
               onTap: () => Get.offAll(() => BottomNavBar()),

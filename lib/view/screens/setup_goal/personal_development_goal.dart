@@ -64,36 +64,45 @@ class PersonalDevelopmentGoal extends StatelessWidget {
                   children: goalController.personalDevelopmentList
                       .asMap()
                       .map((i, element) => MapEntry(
-                    i,
-                    element != "Other"
-                        ? Obx(
-                          () {
-                        return ToggleButton(
-                          horizontalPadding: 10.0,
-                          onTap: () =>
-                              goalController.getWellBeing(i),
-                          text: element,
-                          isSelected:
-                          goalController.wellBeingIndex == i,
-                        );
-                      },
-                    )
-                        : Container(
-                      width: 42,
-                      height: 42,
-                      decoration: BoxDecoration(
-                          color: kSecondaryColor,
-                          borderRadius: BorderRadius.all(
-                              Radius.circular(8.0)),
-                          border: Border.all(
-                            width: 1.0,
-                            color: kBorderColor,
-                          )),
-                      padding: EdgeInsets.symmetric(
-                          horizontal: 12.0, vertical: 12.0),
-                      child: SvgPicture.asset("assets/vectors/ic_plus.svg"),
-                    ),
-                  ))
+                            i,
+                            element != "Other"
+                                ? Obx(
+                                    () {
+                                      return ToggleButton(
+                                        horizontalPadding: 10.0,
+                                        onTap: () =>
+                                            goalController.getWellBeing(i),
+                                        text: element,
+                                        isSelected:
+                                            goalController.wellBeingIndex == i,
+                                      );
+                                    },
+                                  )
+                                : GestureDetector(
+                                    onTap: () {
+                                      Get.to(
+                                        () => AddNewGoal(
+                                            createdFrom: 'personalDevelopment'),
+                                      );
+                                    },
+                                    child: Container(
+                                      width: 42,
+                                      height: 42,
+                                      decoration: BoxDecoration(
+                                          color: kSecondaryColor,
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(8.0)),
+                                          border: Border.all(
+                                            width: 1.0,
+                                            color: kBorderColor,
+                                          )),
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 12.0, vertical: 12.0),
+                                      child: SvgPicture.asset(
+                                          "assets/vectors/ic_plus.svg"),
+                                    ),
+                                  ),
+                          ))
                       .values
                       .toList(),
                 ),

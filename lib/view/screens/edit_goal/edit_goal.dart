@@ -331,7 +331,7 @@ class _EditGoalState extends State<EditGoal> {
                 backgroundColor: Colors.transparent,
                 elevation: 0,
                 builder: (_) {
-                  return AddGoalReminder();
+                  return AddGoalReminder((day,time){});
                 },
               );
             },

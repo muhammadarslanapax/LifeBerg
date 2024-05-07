@@ -19,11 +19,11 @@ class CustomRadioTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 15),
-      child: Row(
-        children: [
-          GestureDetector(
-            onTap: onTap,
-            child: Container(
+      child: GestureDetector(
+        onTap: onTap,
+        child: Row(
+          children: [
+            Container(
               padding: EdgeInsets.all(2.0),
               height: 15,
               width: 15,
@@ -45,15 +45,15 @@ class CustomRadioTile extends StatelessWidget {
                 ),
               ),
             ),
-          ),
-          Expanded(
-            child: MyText(
-              paddingLeft: 10,
-              text: title,
-              size: 15,
+            Expanded(
+              child: MyText(
+                paddingLeft: 10,
+                text: title,
+                size: 15,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

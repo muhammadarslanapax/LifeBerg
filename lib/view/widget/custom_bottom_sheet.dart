@@ -52,6 +52,8 @@ class CustomBottomSheet extends StatelessWidget {
                 ? EdgeInsets.fromLTRB(15, 10, 15, 30)
                 : EdgeInsets.fromLTRB(15, 10, 15, 15),
             child: MyButton(
+              height: 56,
+              radius: 16,
               isDisable: isButtonDisable,
               text: buttonText,
               onTap: onTap,

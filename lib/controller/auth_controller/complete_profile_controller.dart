@@ -97,6 +97,7 @@ class CompleteProfileController extends GetxController {
     }
   }
 
+
   void onNext() {
     if (isUserNameVocationDisable.value == false) {
       currentIndex.value++;

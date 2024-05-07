@@ -1,8 +1,13 @@
+import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:life_berg/model/setup_goal_model/setup_goal_model.dart';
 
 class GoalController extends GetxController {
   static GoalController instance = Get.find<GoalController>();
+
+  final TextEditingController goalNameCon = TextEditingController();
+  final TextEditingController goalDesCon = TextEditingController();
+  final TextEditingController daysCon = TextEditingController();
 
   RxInt wellBeingIndex = RxInt(-1);
   String selectedWellBeing = '';

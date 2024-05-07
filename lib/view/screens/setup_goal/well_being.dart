@@ -80,21 +80,28 @@ class WellBeing extends StatelessWidget {
                                       );
                                     },
                                   )
-                                : Container(
-                              width: 42,
-                              height: 42,
-                                    decoration: BoxDecoration(
-                                        color: kSecondaryColor,
-                                        borderRadius: BorderRadius.all(
-                                            Radius.circular(8.0)),
-                                        border: Border.all(
-                                          width: 1.0,
-                                          color: kBorderColor,
-                                        )),
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 12.0, vertical: 12.0),
-                                    child: SvgPicture.asset("assets/vectors/ic_plus.svg"),
-                                  ),
+                                : GestureDetector(
+                              onTap: (){
+                                Get.to(
+                                      () => AddNewGoal(createdFrom: 'wellbeing'),
+                                );
+                              },
+                                  child: Container(
+                                                                width: 42,
+                                                                height: 42,
+                                      decoration: BoxDecoration(
+                                          color: kSecondaryColor,
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(8.0)),
+                                          border: Border.all(
+                                            width: 1.0,
+                                            color: kBorderColor,
+                                          )),
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 12.0, vertical: 12.0),
+                                      child: SvgPicture.asset("assets/vectors/ic_plus.svg"),
+                                    ),
+                                ),
                           ))
                       .values
                       .toList(),
@@ -110,7 +117,7 @@ class WellBeing extends StatelessWidget {
                     isDisable: false,
                     text: 'Create your goal',
                     onTap: () => Get.to(
-                      () => AddNewGoal(createdFrom: 'wellbeing'),
+                      () => AddNewGoal(createdFrom: 'wellbeing',),
                     ),
                   ),
                 ),

@@ -444,7 +444,7 @@ class _IconAndColorBottomSheetState extends State<IconAndColorBottomSheet> {
         ),
       ),
       onTap: () {},
-      isButtonDisable: true,
+      isButtonDisable: false,
       buttonText: 'Confirm',
     );
   }

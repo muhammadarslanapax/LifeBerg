@@ -8,20 +8,32 @@ import 'package:life_berg/view/widget/main_heading.dart';
 import 'package:life_berg/view/widget/my_dialog.dart';
 import 'package:life_berg/view/widget/my_text.dart';
 
-class AddGoalReminder extends StatelessWidget {
-  AddGoalReminder({
+class AddGoalReminder extends StatefulWidget {
+  final Function(String? day, DateTime? time) onDaySelect;
+
+  AddGoalReminder(
+    this.onDaySelect, {
     Key? key,
   }) : super(key: key);
 
+  @override
+  State<AddGoalReminder> createState() => _AddGoalReminderState();
+}
+
+class _AddGoalReminderState extends State<AddGoalReminder> {
   final List<String> days = [
-    'S',
-    'M',
-    'T',
-    'W',
-    'T',
-    'F',
-    'S',
+    'Sun',
+    'Mon',
+    'Tue',
+    'Wed',
+    'Thu',
+    'Fri',
+    'Sat',
   ];
+
+  String? day;
+
+  DateTime? time;
 
   @override
   Widget build(BuildContext context) {
@@ -43,8 +55,15 @@ class AddGoalReminder extends StatelessWidget {
                 days.length,
                 (index) {
                   return weekDaysToggleButton(
-                    onTap: () {},
-                    isSelected: index == 2 || index == 4 ? true : false,
+                    onTap: () {
+                      day = days[index];
+                      if(mounted){
+                        setState(() {
+
+                        });
+                      }
+                    },
+                    isSelected: day == days[index],
                     weekDay: days[index],
                   );
                 },
@@ -59,13 +78,37 @@ class AddGoalReminder extends StatelessWidget {
           //   weight: FontWeight.w500,
           // ),
           Expanded(
-            child: hourMinute12HCustomStyle(),
+            child: TimePickerSpinner(
+              is24HourMode: false,
+              normalTextStyle: TextStyle(
+                fontSize: 16,
+                color: kTextColor,
+              ),
+              highlightedTextStyle: TextStyle(
+                fontSize: 20,
+                color: kTextColor,
+                fontWeight: FontWeight.w500,
+              ),
+              spacing: 40,
+              itemHeight: 40,
+              isForce2Digits: false,
+              minutesInterval: 1,
+              onTimeChange: (time) {
+                this.time = time;
+                if(mounted){
+                  setState(() {
+
+                  });
+                }
+              },
+            ),
           ),
         ],
       ),
       isButtonDisable: false,
       onTap: () {
         Get.back();
+        widget.onDaySelect(day,time);
         showDialog(
           context: context,
           builder: (_) {
@@ -142,6 +185,8 @@ Widget hourMinute12HCustomStyle() {
     itemHeight: 40,
     isForce2Digits: false,
     minutesInterval: 1,
-    onTimeChange: (time) {},
+    onTimeChange: (time) {
+
+    },
   );
 }

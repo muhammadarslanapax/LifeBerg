@@ -129,6 +129,7 @@ class OnBoarding extends StatelessWidget {
               ),
               child: Obx(() {
                 return MyButton(
+                  height: 56,
                   radius: 16.0,
                   text: controller.currentIndex.value == 0
                       ? 'Yes!'
