@@ -61,6 +61,9 @@ class _AddNewGoalState extends State<AddNewGoal> {
 
   List<ReminderDateTime> timeList = [];
 
+  String? icon;
+  Color? color;
+
   @override
   void initState() {
     super.initState();
@@ -106,7 +109,15 @@ class _AddNewGoalState extends State<AddNewGoal> {
                     elevation: 0,
                     backgroundColor: Colors.transparent,
                     builder: (_) {
-                      return IconAndColorBottomSheet();
+                      return IconAndColorBottomSheet(onSelect: (color,icon){
+                        this.color = color;
+                        this.icon = icon;
+                        if(mounted){
+                          setState(() {
+
+                          });
+                        }
+                      },);
                     },
                   );
                 },
@@ -123,6 +134,8 @@ class _AddNewGoalState extends State<AddNewGoal> {
                   ),
                   child: Center(
                     child: Image.asset(
+                      icon != null ?
+                          "assets/goal_icons/$icon" :
                       Assets.imagesPlus,
                       height: 24,
                     ),

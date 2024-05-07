@@ -7,7 +7,11 @@ import 'package:life_berg/view/widget/custom_bottom_sheet.dart';
 import 'package:life_berg/view/widget/main_heading.dart';
 
 class IconAndColorBottomSheet extends StatefulWidget {
-  IconAndColorBottomSheet({
+
+  final Function(Color color, String icon)? onSelect;
+
+  IconAndColorBottomSheet(
+      {this.onSelect,
     Key? key,
   }) : super(key: key);
 
@@ -380,6 +384,16 @@ class _IconAndColorBottomSheetState extends State<IconAndColorBottomSheet> {
   int iconIndex = 0;
   int colorIndex = 0;
 
+  Color? color;
+  String? icon;
+
+  @override
+  void initState() {
+    super.initState();
+    color = colors[0];
+    icon = icons[0];
+  }
+
   @override
   Widget build(BuildContext context) {
     return CustomBottomSheet(
@@ -409,16 +423,27 @@ class _IconAndColorBottomSheetState extends State<IconAndColorBottomSheet> {
                   crossAxisSpacing: 16,
                 ),
                 itemBuilder: (context, index) {
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Image.asset(
-                        'assets/goal_icons/${icons[index]}',
-                        height: 24,
-                        color:
-                            iconIndex == index ? kDarkBlueColor : kBlackColor,
-                      ),
-                    ],
+                  return GestureDetector(
+                    onTap: (){
+                      iconIndex = index;
+                      icon = icons[iconIndex];
+                      if(mounted){
+                        setState(() {
+
+                        });
+                      }
+                    },
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset(
+                          'assets/goal_icons/${icons[index]}',
+                          height: 24,
+                          color:
+                              iconIndex == index ? kDarkBlueColor : kBlackColor,
+                        ),
+                      ],
+                    ),
                   );
                 },
               ),
@@ -434,6 +459,14 @@ class _IconAndColorBottomSheetState extends State<IconAndColorBottomSheet> {
                 ChooseColor(
                   colors: colors,
                   colorIndex: colorIndex,
+                  onTap: (index){
+                    if(mounted){
+                      setState(() {
+                        colorIndex = index;
+                        color = colors[colorIndex];
+                      });
+                    }
+                  },
                 ),
               ],
             ),
@@ -443,7 +476,13 @@ class _IconAndColorBottomSheetState extends State<IconAndColorBottomSheet> {
           ],
         ),
       ),
-      onTap: () {},
+      onTap: () {
+        if(color != null &&
+        icon != null && widget.onSelect != null) {
+          widget.onSelect!(color!, icon!);
+        }
+        Navigator.of(context).pop();
+      },
       isButtonDisable: false,
       buttonText: 'Confirm',
     );
