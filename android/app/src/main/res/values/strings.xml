@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="facebook_app_id">8413684118647867</string>
+    <string name="fb_login_protocol_scheme">fb8413684118647867</string>
+    <string name="facebook_client_token">5d2d2085be5eb29b55ed27607f72f828</string>
+    <string name="app_name">LifeBerg</string>
+</resources>

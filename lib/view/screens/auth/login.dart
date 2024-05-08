@@ -122,7 +122,9 @@ class Login extends StatelessWidget {
                         onGoogle: () {
                           controller.signInWithGoogle();
                         },
-                        onFacebook: () {},
+                        onFacebook: () {
+                          controller.signInWithFacebook();
+                        },
                         onApple: () {
                           controller.signInWithApple();
                         },

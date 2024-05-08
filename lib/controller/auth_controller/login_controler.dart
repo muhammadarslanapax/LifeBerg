@@ -182,4 +182,57 @@ class LoginController extends GetxController {
       }
     });
   }
+
+  signInWithFacebook() async {
+    FocusManager.instance.primaryFocus?.unfocus();
+    FireAuth.signInWithFacebook().then((response) async {
+      if (response != null) {
+        SmartDialog.showLoading(msg: "Please wait...");
+        UserCredential userCredential = response;
+        String displayName = userCredential.user?.displayName ?? "";
+        if (displayName.isEmpty) {
+          if (userCredential.user?.providerData != null &&
+              userCredential.user!.providerData.isNotEmpty) {
+            var userInfo = userCredential.user!.providerData[0];
+            displayName = userInfo.displayName ?? "";
+          }
+        }
+        // String firstName = "";
+        // String lastName = "";
+        // if (displayName.contains(" ")) {
+        //   firstName = displayName.split(" ")[0];
+        //   lastName = displayName.split(" ")[1];
+        // } else {
+        //   firstName = displayName;
+        // }
+        httpManager
+            .socialLogin(
+            userCredential.user?.email ?? "", "facebook", displayName)
+            .then((response) {
+          SmartDialog.dismiss();
+          if (response.error == null) {
+            if (response.snapshot! is! ErrorResponse) {
+              UserResponse userResponse = response.snapshot;
+              if (userResponse.success == true) {
+                PrefUtils().user = json.encode(userResponse.user);
+                PrefUtils().token = userResponse.token ?? '';
+                PrefUtils().userId = userResponse.token ?? '';
+
+                Get.to(() => CompleteProfile());
+              } else {
+                ToastUtils.showToast(userResponse.message ?? "",
+                    color: kRedColor);
+              }
+            } else {
+              ErrorResponse errorResponse = response.snapshot;
+              ToastUtils.showToast(errorResponse.error!.details!.message ?? "",
+                  color: kRedColor);
+            }
+          } else {
+            ToastUtils.showToast("Some error occurred.", color: kRedColor);
+          }
+        });
+      }
+    });
+  }
 }

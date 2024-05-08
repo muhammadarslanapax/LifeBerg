@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:life_berg/generated/assets.dart';
 import 'package:life_berg/view/widget/icon_button.dart';
@@ -33,6 +35,8 @@ class SocialLogin extends StatelessWidget {
         SizedBox(
           height: 10,
         ),
+        Platform.isAndroid ?
+            Container() :
         MyIconButton(
           onTap: onApple,
           icon: Assets.imagesApple,
