@@ -7,9 +7,14 @@ import 'package:life_berg/view/widget/my_text.dart';
 import 'package:lottie/lottie.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
+import '../../../../../controller/auth_controller/complete_profile_controller.dart';
+
 class WelcomeOnBoard extends StatelessWidget {
+
+
   @override
   Widget build(BuildContext context) {
+    final CompleteProfileController controller  = Get.find<CompleteProfileController>();
     return ListView(
       shrinkWrap: true,
       physics: BouncingScrollPhysics(),
@@ -25,7 +30,7 @@ class WelcomeOnBoard extends StatelessWidget {
           paddingLeft: 10,
           paddingRight: 10,
           paddingTop: 10,
-          text: 'Welcome aboard, ${completeProfileController.user?.fullName}!',
+          text: 'Welcome aboard, ${controller.user?.fullName}!',
           size: 24,
           weight: FontWeight.w500,
           align: TextAlign.center,
@@ -46,7 +51,7 @@ class WelcomeOnBoard extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(
-            completeProfileController.profileSteps.length,
+            controller.profileSteps.length,
                 (index) {
               return Obx(() {
                 return AnimatedContainer(
@@ -56,10 +61,10 @@ class WelcomeOnBoard extends StatelessWidget {
                   ),
                   curve: Curves.easeInOut,
                   height: 8,
-                  width: completeProfileController.currentIndex.value == index ? 22: 8,
+                  width: controller.currentIndex.value == index ? 22: 8,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(50),
-                    color: completeProfileController.currentIndex.value == index
+                    color: controller.currentIndex.value == index
                         ? kTertiaryColor
                         : kTertiaryColor.withOpacity(0.2),
                   ),

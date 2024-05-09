@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:keyboard_dismisser/keyboard_dismisser.dart';
 import 'package:life_berg/constant/sizes_constant.dart';
+import 'package:life_berg/controller/auth_controller/complete_profile_controller.dart';
 import 'package:life_berg/utils/instance.dart';
 import 'package:life_berg/view/screens/setup_goal/we_are_off.dart';
 import 'package:life_berg/view/screens/setup_goal/well_being.dart';
@@ -14,6 +15,9 @@ import 'package:life_berg/view/widget/simple_app_bar.dart';
 import '../../../../constant/color.dart';
 
 class CompleteProfile extends StatelessWidget {
+
+  final CompleteProfileController controller = Get.put(CompleteProfileController());
+
   @override
   Widget build(BuildContext context) {
     return KeyboardDismisser(
@@ -26,7 +30,7 @@ class CompleteProfile extends StatelessWidget {
         appBar: simpleAppBar(
           centerTitle: false,
           title: 'Back',
-          onBackTap: () => completeProfileController.onBackTap(),
+          onBackTap: () => controller.onBackTap(),
         ),
         body: Column(
           // shrinkWrap: true,
@@ -36,8 +40,8 @@ class CompleteProfile extends StatelessWidget {
             Expanded(
               child: Obx(() {
                 return IndexedStack(
-                  index: completeProfileController.currentIndex.value,
-                  children: completeProfileController.profileSteps,
+                  index: controller.currentIndex.value,
+                  children: controller.profileSteps,
                   // PageView.builder(
                   //   controller: completeProfileController.pageController,
                   //   onPageChanged: (index) =>
@@ -70,33 +74,33 @@ class CompleteProfile extends StatelessWidget {
                     MyButton(
                       height: 56,
                       radius: 16,
-                      isDisable: completeProfileController.currentIndex == 0
-                          ? completeProfileController
-                              .isUserNameVocationDisable.value
-                          : completeProfileController.currentIndex.value == 1
-                              ? completeProfileController.isIceBergDisable.value
+                      isDisable: controller.currentIndex == 0
+                          ? !controller
+                              .validateUsernameVocation()
+                          : controller.currentIndex.value == 1
+                              ? controller.isIceBergDisable.value
                               : false,
-                      text: completeProfileController.currentIndex.value == 2
+                      text: controller.currentIndex.value == 2
                           ? 'Let’s go!'
                           : 'Next',
-                      onTap: completeProfileController.currentIndex == 2
+                      onTap: controller.currentIndex == 2
                           ? () {
                               Get.to(
                                 () => WellBeing(),
                               );
                             }
                           : () {
-                              if (completeProfileController.currentIndex == 0) {
-                                completeProfileController.updateUsername();
+                              if (controller.currentIndex == 0) {
+                                controller.updateUsername();
                               } else {
-                                completeProfileController.updateIcebergName();
+                                controller.updateIcebergName();
                               }
                             },
                     ),
                     SizedBox(
                       height: 10,
                     ),
-                    if (completeProfileController.currentIndex.value == 2)
+                    if (controller.currentIndex.value == 2)
                       MyBorderButton(
                         radius: 16,
                         height: 56,

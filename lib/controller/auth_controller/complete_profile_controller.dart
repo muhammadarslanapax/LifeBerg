@@ -78,14 +78,14 @@ class CompleteProfileController extends GetxController {
     }
   }
 
+  bool validateUsernameVocation(){
+    return selectedVocation.value.isNotEmpty &&
+    userNameCon.text.isNotEmpty &&
+    countryCon.text.isNotEmpty;
+  }
+
   void getVocation(String value) {
     selectedVocation.value = value;
-    isUserNameVocationDisable.value = false;
-    if (selectedVocation.value == 'Other') {
-      showOtherField.value = true;
-    } else {
-      showOtherField.value = false;
-    }
   }
 
   void getIceBerg(String value) {
@@ -99,11 +99,11 @@ class CompleteProfileController extends GetxController {
 
 
   void onNext() {
-    if (isUserNameVocationDisable.value == false) {
+    // if (validateUsernameVocation() == false) {
       currentIndex.value++;
-    } else {
-      log('message');
-    }
+    // } else {
+    //   log('message');
+    // }
   }
 
   void onBackTap() {

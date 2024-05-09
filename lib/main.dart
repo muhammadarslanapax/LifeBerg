@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -19,17 +21,18 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 }
 
 Future<void> main() async {
-  Get.put(CompleteProfileController());
   Get.put(PersonalDevelopmentController());
   Get.put(GoalController());
   Get.put(WellbeingActionPlanController());
   Get.put(JournalController());
+  Platform.isAndroid ?
   await Firebase.initializeApp(
       options: FirebaseOptions(
           apiKey: "AIzaSyDai2j351LxfaC5Y7I_vifhQWGXcmr0Rvc",
-          appId: "1:648558078003:android:c464f7f9a623aa366f1b46",
+          appId:  "1:648558078003:android:c464f7f9a623aa366f1b46",
           messagingSenderId: "648558078003",
-          projectId: "lifeberg-dev"));
+          projectId: "lifeberg-dev")) :
+  await Firebase.initializeApp();
   PrefUtils().init();
   FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 

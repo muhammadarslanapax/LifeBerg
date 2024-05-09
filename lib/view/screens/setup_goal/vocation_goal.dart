@@ -71,10 +71,10 @@ class VocationGoal extends StatelessWidget {
                                       return ToggleButton(
                                         horizontalPadding: 10.0,
                                         onTap: () =>
-                                            goalController.getWellBeing(i),
+                                            goalController.getVocationGoal(i),
                                         text: element,
                                         isSelected:
-                                            goalController.wellBeingIndex == i,
+                                            goalController.vocationalTaskIndex == i,
                                       );
                                     },
                                   )

@@ -1,6 +1,8 @@
+import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:life_berg/constant/color.dart';
+import 'package:life_berg/controller/auth_controller/complete_profile_controller.dart';
 import 'package:life_berg/generated/assets.dart';
 import 'package:life_berg/utils/instance.dart';
 import 'package:life_berg/view/widget/custom_drop_down.dart';
@@ -9,8 +11,10 @@ import 'package:life_berg/view/widget/my_text_field.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class UserNameVocation extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
+    final CompleteProfileController controller  = Get.find<CompleteProfileController>();
     return ListView(
       shrinkWrap: true,
       physics: BouncingScrollPhysics(),
@@ -43,17 +47,17 @@ class UserNameVocation extends StatelessWidget {
         ),
         MyTextField(
           hint: 'Username',
-          controller: completeProfileController.userNameCon,
+          controller: controller.userNameCon,
           fillColor: kSecondaryColor,
           textInputAction: TextInputAction.done,
         ),
         Obx(() {
           return CustomDropDown(
             buttonHeight: 56,
-            selectedValue: completeProfileController.selectedVocation.value,
+            selectedValue: controller.selectedVocation.value,
             hint: 'Select',
-            onChanged: (value) => completeProfileController.getVocation(value),
-            items: completeProfileController.vocationList,
+            onChanged: (value) => controller.getVocation(value),
+            items: controller.vocationList,
           );
         }),
         SizedBox(
@@ -61,7 +65,17 @@ class UserNameVocation extends StatelessWidget {
         ),
         MyTextField(
           hint: 'Country',
-          controller: completeProfileController.countryCon,
+          onTap: (){
+            showCountryPicker(
+              context: context,
+              showPhoneCode: true,
+              onSelect: (Country country) {
+                controller.countryCon.text = country.name;
+              },
+            );
+          },
+          isReadOnly: true,
+          controller: controller.countryCon,
           fillColor: kSecondaryColor,
           textInputAction: TextInputAction.done,
         ),
@@ -83,7 +97,7 @@ class UserNameVocation extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(
-            completeProfileController.profileSteps.length,
+            controller.profileSteps.length,
             (index) {
               return Obx(() {
                 return AnimatedContainer(
@@ -93,10 +107,10 @@ class UserNameVocation extends StatelessWidget {
                   ),
                   curve: Curves.easeInOut,
                   height: 8,
-                  width: completeProfileController.currentIndex.value == index ? 22: 8,
+                  width: controller.currentIndex.value == index ? 22: 8,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(50),
-                    color: completeProfileController.currentIndex.value == index
+                    color: controller.currentIndex.value == index
                         ? kTertiaryColor
                         : kTertiaryColor.withOpacity(0.2),
                   ),

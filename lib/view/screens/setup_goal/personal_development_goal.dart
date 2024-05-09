@@ -71,10 +71,10 @@ class PersonalDevelopmentGoal extends StatelessWidget {
                                       return ToggleButton(
                                         horizontalPadding: 10.0,
                                         onTap: () =>
-                                            goalController.getWellBeing(i),
+                                            goalController.getPersonalDevelopments(i),
                                         text: element,
                                         isSelected:
-                                            goalController.wellBeingIndex == i,
+                                            goalController.personalDevIndex == i,
                                       );
                                     },
                                   )
