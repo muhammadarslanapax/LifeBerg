@@ -6,6 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:life_berg/constant/color.dart';
 import 'package:life_berg/constant/sizes_constant.dart';
+import 'package:life_berg/controller/auth_controller/goal_controller.dart';
 import 'package:life_berg/generated/assets.dart';
 import 'package:life_berg/utils/instance.dart';
 import 'package:life_berg/view/screens/setup_goal/add_new_goal.dart';
@@ -18,6 +19,9 @@ import 'package:life_berg/view/widget/toggle_button.dart';
 import 'package:lottie/lottie.dart';
 
 class WellBeing extends StatelessWidget {
+
+  final GoalController goalController = Get.put(GoalController());
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -81,14 +85,12 @@ class WellBeing extends StatelessWidget {
                                     },
                                   )
                                 : GestureDetector(
-                              onTap: (){
-                                Get.to(
-                                      () => AddNewGoal(createdFrom: 'wellbeing'),
-                                );
-                              },
-                                  child: Container(
-                                                                width: 42,
-                                                                height: 42,
+                                    onTap: () {
+                                      goalController.openAddNewGoalPage("wellbeing");
+                                    },
+                                    child: Container(
+                                      width: 42,
+                                      height: 42,
                                       decoration: BoxDecoration(
                                           color: kSecondaryColor,
                                           borderRadius: BorderRadius.all(
@@ -99,9 +101,10 @@ class WellBeing extends StatelessWidget {
                                           )),
                                       padding: EdgeInsets.symmetric(
                                           horizontal: 12.0, vertical: 12.0),
-                                      child: SvgPicture.asset("assets/vectors/ic_plus.svg"),
+                                      child: SvgPicture.asset(
+                                          "assets/vectors/ic_plus.svg"),
                                     ),
-                                ),
+                                  ),
                           ))
                       .values
                       .toList(),
@@ -116,9 +119,7 @@ class WellBeing extends StatelessWidget {
                     radius: 16,
                     isDisable: false,
                     text: 'Create your goal',
-                    onTap: () => Get.to(
-                      () => AddNewGoal(createdFrom: 'wellbeing',),
-                    ),
+                    onTap: () => goalController.openAddNewGoalPage("wellbeing"),
                   ),
                 ),
                 SizedBox(
@@ -143,4 +144,5 @@ class WellBeing extends StatelessWidget {
       ),
     );
   }
+
 }

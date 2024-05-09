@@ -22,7 +22,6 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 Future<void> main() async {
   Get.put(PersonalDevelopmentController());
-  Get.put(GoalController());
   Get.put(WellbeingActionPlanController());
   Get.put(JournalController());
   Platform.isAndroid ?

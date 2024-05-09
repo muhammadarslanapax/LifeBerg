@@ -3,8 +3,7 @@ import 'package:get/get.dart';
 import 'package:life_berg/generated/assets.dart';
 
 class PersonalDevelopmentController extends GetxController {
-  static PersonalDevelopmentController instance =
-      Get.find<PersonalDevelopmentController>();
+  static PersonalDevelopmentController instance = Get.find<PersonalDevelopmentController>();
 
   final latestUpdatePageController = PageController();
   final videoPageController = PageController();

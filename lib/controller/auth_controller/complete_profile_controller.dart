@@ -73,19 +73,19 @@ class CompleteProfileController extends GetxController {
 
   _getUserData() {
     if (PrefUtils().user.isNotEmpty) {
-      user =
-          User.fromJson(json.decode(PrefUtils().user));
+      user = User.fromJson(json.decode(PrefUtils().user));
     }
   }
 
-  bool validateUsernameVocation(){
-    return selectedVocation.value.isNotEmpty &&
-    userNameCon.text.isNotEmpty &&
-    countryCon.text.isNotEmpty;
+    validateUsernameVocation() {
+    isUserNameVocationDisable.value =  selectedVocation.value.isEmpty ||
+        userNameCon.text.isEmpty ||
+        countryCon.text.isEmpty;
   }
 
   void getVocation(String value) {
     selectedVocation.value = value;
+    validateUsernameVocation();
   }
 
   void getIceBerg(String value) {
@@ -97,13 +97,8 @@ class CompleteProfileController extends GetxController {
     }
   }
 
-
   void onNext() {
-    // if (validateUsernameVocation() == false) {
-      currentIndex.value++;
-    // } else {
-    //   log('message');
-    // }
+    currentIndex.value++;
   }
 
   void onBackTap() {
@@ -118,13 +113,14 @@ class CompleteProfileController extends GetxController {
     currentIndex.value = index;
   }
 
-  updateUsername(){
-    updateUser(country: countryCon.text.toString(),
-    username: userNameCon.text.toString(),
-    primaryVocation: selectedVocation.value);
+  updateUsername() {
+    updateUser(
+        country: countryCon.text.toString(),
+        username: userNameCon.text.toString(),
+        primaryVocation: selectedVocation.value);
   }
 
-  updateIcebergName(){
+  updateIcebergName() {
     updateUser(iceberg: iceBergCon.text.toString());
   }
 

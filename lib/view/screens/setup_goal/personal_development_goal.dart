@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:life_berg/constant/sizes_constant.dart';
+import 'package:life_berg/controller/auth_controller/goal_controller.dart';
 import 'package:life_berg/generated/assets.dart';
 import 'package:life_berg/utils/instance.dart';
 import 'package:life_berg/view/screens/setup_goal/add_new_goal.dart';
@@ -18,6 +19,9 @@ import 'package:lottie/lottie.dart';
 import '../../../constant/color.dart';
 
 class PersonalDevelopmentGoal extends StatelessWidget {
+
+  final GoalController goalController = Get.find<GoalController>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -80,10 +84,7 @@ class PersonalDevelopmentGoal extends StatelessWidget {
                                   )
                                 : GestureDetector(
                                     onTap: () {
-                                      Get.to(
-                                        () => AddNewGoal(
-                                            createdFrom: 'personalDevelopment'),
-                                      );
+                                      goalController.openAddNewGoalPage("personalDevelopment");
                                     },
                                     child: Container(
                                       width: 42,
@@ -116,9 +117,7 @@ class PersonalDevelopmentGoal extends StatelessWidget {
                     radius: 16,
                     isDisable: false,
                     text: 'Create your goal',
-                    onTap: () => Get.to(
-                      () => AddNewGoal(createdFrom: 'personalDevelopment'),
-                    ),
+                    onTap: () => goalController.openAddNewGoalPage("personalDevelopment"),
                   ),
                 ),
                 SizedBox(
@@ -143,4 +142,5 @@ class PersonalDevelopmentGoal extends StatelessWidget {
       ),
     );
   }
+
 }

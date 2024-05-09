@@ -48,7 +48,9 @@ class UserNameVocation extends StatelessWidget {
         MyTextField(
           hint: 'Username',
           controller: controller.userNameCon,
+          textInputType: TextInputType.text,
           fillColor: kSecondaryColor,
+          onChanged: (text) => controller.validateUsernameVocation(),
           textInputAction: TextInputAction.done,
         ),
         Obx(() {
@@ -71,6 +73,7 @@ class UserNameVocation extends StatelessWidget {
               showPhoneCode: true,
               onSelect: (Country country) {
                 controller.countryCon.text = country.name;
+                controller.validateUsernameVocation();
               },
             );
           },

@@ -75,8 +75,8 @@ class CompleteProfile extends StatelessWidget {
                       height: 56,
                       radius: 16,
                       isDisable: controller.currentIndex == 0
-                          ? !controller
-                              .validateUsernameVocation()
+                          ? controller
+                              .isUserNameVocationDisable.value
                           : controller.currentIndex.value == 1
                               ? controller.isIceBergDisable.value
                               : false,

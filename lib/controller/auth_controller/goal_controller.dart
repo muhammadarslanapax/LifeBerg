@@ -1,6 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:get/get_rx/get_rx.dart';
+import 'package:get/get_rx/src/rx_types/rx_types.dart';
+import 'package:get/state_manager.dart';
 import 'package:life_berg/model/setup_goal_model/setup_goal_model.dart';
+
+import '../../model/reminder/reminder_date_time.dart';
+import '../../view/screens/setup_goal/add_new_goal.dart';
 
 class GoalController extends GetxController {
   static GoalController instance = Get.find<GoalController>();
@@ -8,6 +14,28 @@ class GoalController extends GetxController {
   final TextEditingController goalNameCon = TextEditingController();
   final TextEditingController goalDesCon = TextEditingController();
   final TextEditingController daysCon = TextEditingController();
+
+  // Fields related to add new goal page..
+  RxString icon = "".obs;
+  Color? color;
+  RxString selectedGoal = "Select category".obs;
+
+  RxString selectGoalDaysType = 'Week'.obs;
+  RxDouble seekbarValue = 5.0.obs;
+  RxBool isScale = true.obs;
+  List<String> items = [
+    'Week',
+    'Month',
+  ];
+
+  List<String> goals = [
+    'Select category',
+    'Wellbeing',
+    'Vocation',
+    'Personal Development',
+  ];
+
+  RxList<ReminderDateTime> timeList = RxList();
 
   RxInt wellBeingIndex = RxInt(-1);
   String selectedWellBeing = '';
@@ -106,45 +134,6 @@ class GoalController extends GetxController {
     "Other"
   ];
 
-  // final List<ToggleButtonModel> vocationGoalList = [
-  //   ToggleButtonModel(
-  //     text: 'RACGP exam prep',
-  //     isSelected: false.obs,
-  //   ),
-  //   ToggleButtonModel(
-  //     text: 'Exercise physiology training',
-  //     isSelected: false.obs,
-  //   ),
-  //   ToggleButtonModel(
-  //     text: 'Admin tasks',
-  //     isSelected: false.obs,
-  //   ),
-  //   ToggleButtonModel(
-  //     text: 'Stem cell research',
-  //     isSelected: false.obs,
-  //   ),
-  //   ToggleButtonModel(
-  //     text: 'Work productivity',
-  //     isSelected: false.obs,
-  //   ),
-  //   ToggleButtonModel(
-  //     text: 'Try new recipes',
-  //     isSelected: false.obs,
-  //   ),
-  //   ToggleButtonModel(
-  //     text: 'ANKI',
-  //     isSelected: false.obs,
-  //   ),
-  //   ToggleButtonModel(
-  //     text: 'OSCE practice',
-  //     isSelected: false.obs,
-  //   ),
-  //   ToggleButtonModel(
-  //     text: '',
-  //     isSelected: false.obs,
-  //   ),
-  // ];
-
   void getVocationGoal(int index) {
     vocationalTaskIndex.value = index;
     selectedVocationalTask = vocationGoalList[index];
@@ -161,43 +150,29 @@ class GoalController extends GetxController {
     "Other"
   ];
 
-  /*final List<ToggleButtonModel> personalDevelopmentList = [
-    ToggleButtonModel(
-      text: 'Flute practice',
-      isSelected: false.obs,
-    ),
-    ToggleButtonModel(
-      text: 'Check in with someone different daily',
-      isSelected: false.obs,
-    ),
-    ToggleButtonModel(
-      text: 'Surfing classes',
-      isSelected: false.obs,
-    ),
-    ToggleButtonModel(
-      text: 'Acts of kindness',
-      isSelected: false.obs,
-    ),
-    ToggleButtonModel(
-      text: 'Weight training',
-      isSelected: false.obs,
-    ),
-    ToggleButtonModel(
-      text: 'Quit smoking',
-      isSelected: false.obs,
-    ),
-    ToggleButtonModel(
-      text: 'Gratitude journal',
-      isSelected: false.obs,
-    ),
-    ToggleButtonModel(
-      text: '',
-      isSelected: false.obs,
-    ),
-  ];*/
-
   void getPersonalDevelopments(int index) {
     personalDevIndex.value = index;
     selectedPersonalDev = personalDevelopmentList[index];
+  }
+
+  openAddNewGoalPage(String from) {
+    if (from == "wellbeing") {
+      selectedGoal.value = "Wellbeing";
+      goalNameCon.text =
+          wellBeingIndex.value != -1 ? wellBeingList[wellBeingIndex.value] : "";
+    } else if (from == "vocationalTasks") {
+      selectedGoal.value = "Vocation";
+      goalNameCon.text = vocationalTaskIndex.value != -1
+          ? vocationGoalList[vocationalTaskIndex.value]
+          : "";
+    } else if (from == "personalDevelopment") {
+      selectedGoal.value = "Personal Development";
+      goalNameCon.text = personalDevIndex.value != -1
+          ? personalDevelopmentList[personalDevIndex.value]
+          : "";
+    }
+    Get.to(
+      () => AddNewGoal(),
+    );
   }
 }
