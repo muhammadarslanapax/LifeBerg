@@ -3,11 +3,9 @@ import 'package:get/get.dart';
 import 'package:life_berg/constant/color.dart';
 import 'package:life_berg/controller/auth_controller/forgot_pass_controller.dart';
 import 'package:life_berg/generated/assets.dart';
-import 'package:life_berg/view/screens/auth/forgot_pass/verification_code.dart';
 import 'package:life_berg/view/widget/my_button.dart';
 import 'package:life_berg/view/widget/my_text.dart';
 import 'package:life_berg/view/widget/my_text_field.dart';
-import 'package:life_berg/view/widget/simple_app_bar.dart';
 
 // ignore: must_be_immutable
 class ForgotPass extends StatelessWidget {

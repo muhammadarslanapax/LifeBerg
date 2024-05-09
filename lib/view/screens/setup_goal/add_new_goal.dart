@@ -1,23 +1,17 @@
 import 'dart:developer';
-import 'dart:io';
 
 import 'package:dropdown_button2/dropdown_button2.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:life_berg/constant/color.dart';
-import 'package:life_berg/constant/sizes_constant.dart';
 import 'package:life_berg/controller/auth_controller/goal_controller.dart';
 import 'package:life_berg/generated/assets.dart';
-import 'package:life_berg/utils/instance.dart';
 import 'package:life_berg/view/screens/setup_goal/personal_development_goal.dart';
 import 'package:life_berg/view/screens/setup_goal/vocation_goal.dart';
 import 'package:life_berg/view/screens/setup_goal/we_are_off.dart';
 import 'package:life_berg/view/widget/add_goal_reminder.dart';
-import 'package:life_berg/view/widget/custom_drop_down.dart';
 import 'package:life_berg/view/widget/custom_radio_tile.dart';
 import 'package:life_berg/view/widget/custom_track_shape.dart';
 import 'package:life_berg/view/widget/icon_and_color_bottom_sheet.dart';
@@ -425,80 +419,7 @@ class AddNewGoal extends StatelessWidget {
             ),
             ListView.builder(
               itemBuilder: (BuildContext ctx, index) {
-                return GestureDetector(
-                  onTap: () {
-                    if (index == goalController.timeList.length) {
-                      showModalBottomSheet(
-                        context: context,
-                        backgroundColor: Colors.transparent,
-                        elevation: 0,
-                        builder: (_) {
-                          return AddGoalReminder((day, time) {
-                            if (day != null && time != null) {
-                              goalController.timeList.add(ReminderDateTime(day, time));
-                            }
-                          });
-                        },
-                      );
-                    }
-                  },
-                  child: Container(
-                    margin: EdgeInsets.only(bottom: 10.0),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          flex: 7,
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 13,
-                            ),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                width: 1.0,
-                                color: kBorderColor,
-                              ),
-                            ),
-                            child: MyText(
-                              text: index == 0 && goalController.timeList.length == 0
-                                  ? "Select date and time"
-                                  : index == goalController.timeList.length
-                                  ? "Select another date and time"
-                                  : goalController.timeList[index].day,
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 8,
-                        ),
-                        Expanded(
-                          flex: 3,
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 13,
-                            ),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                width: 1.0,
-                                color: kBorderColor,
-                              ),
-                            ),
-                            child: MyText(
-                              text:
-                              goalController.timeList.length > 0 && index != goalController.timeList.length
-                                  ? DateFormat("HH:mma")
-                                  .format(goalController.timeList[index].time)
-                                  : "",
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
+                return _buildTimeWidget(context,index);
               },
               itemCount: goalController.timeList.length + 1,
               shrinkWrap: true,
@@ -515,39 +436,7 @@ class AddNewGoal extends StatelessWidget {
                 Future.delayed(Duration(seconds: 5), () {
                   Get.back();
                   SmartDialog.dismiss();
-                  showDialog(
-                    context: context,
-                    builder: (_) {
-                      return ImageDialog(
-                        heading: 'Goal Created',
-                        content:
-                        'Great work! You’ve taken the 1st leap to achieving your goal!',
-                        image: Assets.imagesGoalCreatedNewImage,
-                        imageSize: 100.0,
-                        onOkay: () {
-                          switch (goalController.selectedGoal.value) {
-                            case 'Wellbeing':
-                              Get.back();
-                              Get.to(() => VocationGoal());
-                              break;
-                            case 'Vocation':
-                              Get.back();
-                              Get.to(() => PersonalDevelopmentGoal());
-                              break;
-                            case 'Personal Development':
-                              Get.back();
-                              Get.to(() => WeAreOff());
-                              break;
-                            case '':
-                              Get.back();
-                              break;
-                            default:
-                              Get.back();
-                          }
-                        },
-                      );
-                    },
-                  );
+                  _showGoalCreatedDialog(context);
                 });
               },
             ),
@@ -561,35 +450,114 @@ class AddNewGoal extends StatelessWidget {
     );
   }
 
-  Expanded certainDay(
-    int index,
-    VoidCallback onTap,
-    bool isSelected,
-  ) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          margin: EdgeInsets.only(
-            left: index == 0 ? 0 : 4,
-            right: index == 6 ? 0 : 4,
-          ),
-          height: 50,
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            color: isSelected ? kTertiaryColor : kSecondaryColor,
-            border: Border.all(
-              color: kBorderColor,
-              width: 1.0,
+  _showGoalCreatedDialog(BuildContext context){
+    showDialog(
+      context: context,
+      builder: (_) {
+        return ImageDialog(
+          heading: 'Goal Created',
+          content:
+          'Great work! You’ve taken the 1st leap to achieving your goal!',
+          image: Assets.imagesGoalCreatedNewImage,
+          imageSize: 100.0,
+          onOkay: () {
+            switch (goalController.selectedGoal.value) {
+              case 'Wellbeing':
+                Get.back();
+                Get.to(() => VocationGoal());
+                break;
+              case 'Vocation':
+                Get.back();
+                Get.to(() => PersonalDevelopmentGoal());
+                break;
+              case 'Personal Development':
+                Get.back();
+                Get.to(() => WeAreOff());
+                break;
+              case '':
+                Get.back();
+                break;
+              default:
+                Get.back();
+            }
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildTimeWidget(BuildContext context,int index){
+    return GestureDetector(
+      onTap: () {
+        if (index == goalController.timeList.length) {
+          showModalBottomSheet(
+            context: context,
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            builder: (_) {
+              return AddGoalReminder((day, time) {
+                if (day != null && time != null) {
+                  goalController.timeList.add(ReminderDateTime(day, time));
+                }
+              });
+            },
+          );
+        }
+      },
+      child: Container(
+        margin: EdgeInsets.only(bottom: 10.0),
+        child: Row(
+          children: [
+            Expanded(
+              flex: 7,
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 13,
+                ),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    width: 1.0,
+                    color: kBorderColor,
+                  ),
+                ),
+                child: MyText(
+                  text: index == 0 && goalController.timeList.length == 0
+                      ? "Select date and time"
+                      : index == goalController.timeList.length
+                      ? "Select another date and time"
+                      : goalController.timeList[index].day,
+                ),
+              ),
             ),
-          ),
-          child: Center(
-            child: MyText(
-              text: index + 1,
-              size: 16,
-              color: isSelected ? kPrimaryColor : kTextColor,
+            SizedBox(
+              width: 8,
             ),
-          ),
+            Expanded(
+              flex: 3,
+              child: Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 13,
+                ),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    width: 1.0,
+                    color: kBorderColor,
+                  ),
+                ),
+                child: MyText(
+                  text:
+                  goalController.timeList.length > 0 && index != goalController.timeList.length
+                      ? DateFormat("HH:mma")
+                      .format(goalController.timeList[index].time)
+                      : "",
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

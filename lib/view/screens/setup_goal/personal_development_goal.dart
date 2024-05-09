@@ -6,8 +6,6 @@ import 'package:get/get.dart';
 import 'package:life_berg/constant/sizes_constant.dart';
 import 'package:life_berg/controller/auth_controller/goal_controller.dart';
 import 'package:life_berg/generated/assets.dart';
-import 'package:life_berg/utils/instance.dart';
-import 'package:life_berg/view/screens/setup_goal/add_new_goal.dart';
 import 'package:life_berg/view/screens/setup_goal/we_are_off.dart';
 import 'package:life_berg/view/widget/my_border_button.dart';
 import 'package:life_berg/view/widget/my_button.dart';
@@ -28,24 +26,19 @@ class PersonalDevelopmentGoal extends StatelessWidget {
       appBar: simpleAppBar(
         title: 'Back',
       ),
-      body: Column(
-        children: [
-          SizedBox(
-            height: 20,
-          ),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 9),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: Column(
+          children: [
+            SizedBox(
+              height: 20,
+            ),
+            Expanded(
               child: Lottie.asset(
                 Assets.imagesNew1,
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 10,
-            ),
-            child: Column(
+            Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 MyText(
@@ -134,11 +127,11 @@ class PersonalDevelopmentGoal extends StatelessWidget {
                 ),
               ],
             ),
-          ),
-          SizedBox(
-            height: Platform.isIOS ? IOS_BOTTOM_MARGIN : 15,
-          ),
-        ],
+            SizedBox(
+              height: Platform.isIOS ? IOS_BOTTOM_MARGIN : 15,
+            ),
+          ],
+        ),
       ),
     );
   }

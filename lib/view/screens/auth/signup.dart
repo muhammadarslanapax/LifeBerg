@@ -1,10 +1,6 @@
 import 'dart:io';
 
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:keyboard_dismisser/keyboard_dismisser.dart';
 import 'package:life_berg/constant/color.dart';
@@ -17,10 +13,6 @@ import 'package:life_berg/view/widget/my_button.dart';
 import 'package:life_berg/view/widget/my_text.dart';
 import 'package:life_berg/view/widget/my_text_field.dart';
 import 'package:life_berg/view/widget/social_login.dart';
-
-import '../../../apis/http_manager.dart';
-import '../../../shareprefrences/user_sharedprefrence.dart';
-import 'complete_profile/complete_profile.dart';
 
 // ignore: must_be_immutable
 class Signup extends StatelessWidget {

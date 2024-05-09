@@ -4,7 +4,6 @@ import 'package:get/get.dart';
 import 'package:life_berg/apis/http_manager.dart';
 import 'package:life_berg/constant/color.dart';
 import 'package:life_berg/utils/toast_utils.dart';
-import 'package:life_berg/view/screens/auth/login.dart';
 
 import '../../model/error/error_response.dart';
 import '../../view/screens/auth/forgot_pass/new_pass.dart';
