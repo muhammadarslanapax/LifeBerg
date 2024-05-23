@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:life_berg/constant/color.dart';
 import 'package:life_berg/constant/sizes_constant.dart';
 import 'package:life_berg/controller/auth_controller/goal_controller.dart';
+import 'package:life_berg/controller/auth_controller/onboarding_controller.dart';
 import 'package:life_berg/generated/assets.dart';
 import 'package:life_berg/view/screens/setup_goal/vocation_goal.dart';
 import 'package:life_berg/view/widget/my_border_button.dart';
@@ -17,7 +18,7 @@ import 'package:lottie/lottie.dart';
 
 class WellBeing extends StatelessWidget {
 
-  final GoalController goalController = Get.put(GoalController());
+  final OnboardingController onboardingController = Get.put(OnboardingController());
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +60,7 @@ class WellBeing extends StatelessWidget {
                 Wrap(
                   spacing: 7.0,
                   runSpacing: 7.0,
-                  children: goalController.wellBeingList
+                  children: onboardingController.wellBeingList
                       .asMap()
                       .map((i, element) => MapEntry(
                             i,
@@ -69,16 +70,16 @@ class WellBeing extends StatelessWidget {
                                       return ToggleButton(
                                         horizontalPadding: 10.0,
                                         onTap: () =>
-                                            goalController.getWellBeing(i),
+                                            onboardingController.getWellBeing(i),
                                         text: element,
                                         isSelected:
-                                            goalController.wellBeingIndex == i,
+                                        onboardingController.wellBeingIndex == i,
                                       );
                                     },
                                   )
                                 : GestureDetector(
                                     onTap: () {
-                                      goalController.openAddNewGoalPage("wellbeing");
+                                      onboardingController.openAddNewGoalPage("wellbeing");
                                     },
                                     child: Container(
                                       width: 42,
@@ -111,7 +112,7 @@ class WellBeing extends StatelessWidget {
                     radius: 16,
                     isDisable: false,
                     text: 'Create your goal',
-                    onTap: () => goalController.openAddNewGoalPage("wellbeing"),
+                    onTap: () => onboardingController.openAddNewGoalPage("wellbeing"),
                   ),
                 ),
                 SizedBox(

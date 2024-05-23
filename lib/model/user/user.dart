@@ -12,6 +12,7 @@ class User {
   String? country;
   String? primaryVocation;
   String? userName;
+  String? lifeBergName;
 
   User(
       {this.sId,
@@ -26,7 +27,8 @@ class User {
         this.fcmToken,
       this.country,
       this.primaryVocation,
-      this.userName});
+      this.userName,
+      this.lifeBergName,});
 
   User.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
@@ -42,6 +44,7 @@ class User {
     country = json['country'];
     primaryVocation = json['primaryVocation'];
     userName = json['userName'];
+    lifeBergName = json['lifeBergName'];
   }
 
   Map<String, dynamic> toJson() {
@@ -59,6 +62,7 @@ class User {
     data['country'] = this.country;
     data['primaryVocation'] = this.primaryVocation;
     data['userName'] = this.userName;
+    data['lifeBergName'] = this.lifeBergName;
     return data;
   }
 }

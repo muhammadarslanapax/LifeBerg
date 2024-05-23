@@ -1,11 +1,14 @@
 import 'dart:collection';
 import 'dart:convert';
 
+import 'package:crypto/crypto.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:life_berg/model/user/user_response.dart';
 
 import '../model/base_response.dart';
 import '../model/error/error_response.dart';
+import '../model/reminder/reminder_date_time.dart';
 import 'apis_constants.dart';
 
 class HttpManager {
@@ -149,6 +152,56 @@ class HttpManager {
 
       if (response.statusCode == 200) {
         return BaseResponse(true, null);
+      } else {
+        return _getErrorResponse(response.body);
+      }
+    } catch (e) {
+      return BaseResponse(null, e.toString());
+    }
+  }
+
+  Future<BaseResponse> addNewGoal(String token, String icon,
+      String name,
+      String category,
+      String description,
+      String noOfDays,
+      String daysType,
+      String importanceScale,
+      bool isScale,
+      String color,
+      List<ReminderDateTime> timesList) async {
+    try {
+      var url = ApiConstants.ADD_GOAL;
+      var params = HashMap();
+      params["icon"] = icon;
+      params["name"] = name;
+      params["category"] = "6638bf06584bab76b306e569";
+      params["description"] = description;
+      params["color"] = color;
+      params["measureType"] = isScale ? "string" : "boolean";
+      params["achieveXDays"] = noOfDays;
+      params["achieveType"] = daysType;
+      params["goalImportance"] = importanceScale;
+      List<Map<String,String>> reminderList = [];
+      for(var reminder in timesList){
+        HashMap<String, String> timeMap = HashMap();
+        timeMap["day"] = reminder.day;
+        timeMap["time"] = DateFormat("HH:mm").format(reminder.time);
+        reminderList.add(timeMap);
+      }
+      params["reminders"] = reminderList;
+
+      var response = await http.post(Uri.parse(url),
+          body: json.encode(params),
+          headers: {
+            "Content-Type": "application/json",
+            'Authorization': 'Bearer $token',
+          });
+
+      if (response.statusCode == 200) {
+        var responseBody = json.decode(response.body);
+        UserResponse userResponse = UserResponse.fromJson(responseBody);
+        return BaseResponse(userResponse, null);
       } else {
         return _getErrorResponse(response.body);
       }

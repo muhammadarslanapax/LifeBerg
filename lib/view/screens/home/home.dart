@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:life_berg/constant/color.dart';
+import 'package:life_berg/controller/admin_controller/home_controller.dart';
 import 'package:life_berg/generated/assets.dart';
 import 'package:life_berg/main.dart';
 import 'package:life_berg/view/screens/bottom_nav_bar/bottom_nav_bar.dart';
@@ -24,13 +25,15 @@ import 'package:step_progress_indicator/step_progress_indicator.dart';
 class Home extends StatelessWidget {
   Home({Key? key}) : super(key: key);
 
+  final HomeController homeController = Get.put(HomeController());
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kSecondaryColor,
       appBar: AppBar(
         elevation: 1,
-        backgroundColor: kSecondaryColor,
+        backgroundColor: kTertiaryColor,
         toolbarHeight: 75,
         leadingWidth: 60,
         leading: Column(
@@ -125,11 +128,12 @@ class Home extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            MyText(
-              text: 'Good Evening, Timothy!',
+            Obx(() => MyText(
+              text: '${homeController.getGreeting()}, ${homeController.getFirstName(homeController.fullName.value)}!',
               size: 16,
               weight: FontWeight.w500,
-            ),
+              color: Colors.white,
+            )),
             SizedBox(
               height: 8,
             ),
@@ -147,22 +151,24 @@ class Home extends StatelessWidget {
                     Image.asset(
                       Assets.imagesStreakIcon,
                       height: 12,
+                      color: Colors.white,
                     ),
                     MyText(
                       text: 'Streak: 24 days',
                       size: 12,
                       paddingLeft: 4,
                       paddingRight: 10,
+                      color: Colors.white,
                     ),
-                    Image.asset(
-                      Assets.imagesStar,
-                      height: 12,
-                    ),
-                    MyText(
-                      paddingLeft: 4,
-                      text: '70',
-                      size: 12,
-                    ),
+                    // Image.asset(
+                    //   Assets.imagesStar,
+                    //   height: 12,
+                    // ),
+                    // MyText(
+                    //   paddingLeft: 4,
+                    //   text: '70',
+                    //   size: 12,
+                    // ),
                   ],
                 ),
               ),
@@ -179,6 +185,7 @@ class Home extends StatelessWidget {
                   child: Image.asset(
                     Assets.imagesNotificationBellHome,
                     height: 24,
+                    color: Colors.white,
                   ),
                 ),
                 GestureDetector(
@@ -186,6 +193,7 @@ class Home extends StatelessWidget {
                   child: Image.asset(
                     Assets.imagesIconMoreVert,
                     height: 24,
+                    color: Colors.white,
                   ),
                 ),
                 SizedBox(

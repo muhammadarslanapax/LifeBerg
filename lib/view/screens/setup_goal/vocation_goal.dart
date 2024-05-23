@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:life_berg/constant/sizes_constant.dart';
-import 'package:life_berg/controller/auth_controller/goal_controller.dart';
+import 'package:life_berg/controller/auth_controller/onboarding_controller.dart';
 import 'package:life_berg/generated/assets.dart';
 import 'package:life_berg/view/screens/setup_goal/personal_development_goal.dart';
 import 'package:life_berg/view/widget/my_border_button.dart';
@@ -18,7 +18,7 @@ import '../../../constant/color.dart';
 
 class VocationGoal extends StatelessWidget {
 
-  final GoalController goalController = Get.find<GoalController>();
+  final OnboardingController onboardingController = Get.find<OnboardingController>();
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +58,7 @@ class VocationGoal extends StatelessWidget {
                 Wrap(
                   spacing: 7.0,
                   runSpacing: 7.0,
-                  children: goalController.vocationGoalList
+                  children: onboardingController.vocationGoalList
                       .asMap()
                       .map((i, element) => MapEntry(
                             i,
@@ -68,16 +68,16 @@ class VocationGoal extends StatelessWidget {
                                       return ToggleButton(
                                         horizontalPadding: 10.0,
                                         onTap: () =>
-                                            goalController.getVocationGoal(i),
+                                            onboardingController.getVocationGoal(i),
                                         text: element,
                                         isSelected:
-                                            goalController.vocationalTaskIndex == i,
+                                        onboardingController.vocationalTaskIndex == i,
                                       );
                                     },
                                   )
                                 : GestureDetector(
                                     onTap: () {
-                                      goalController.openAddNewGoalPage("vocationalTasks");
+                                      onboardingController.openAddNewGoalPage("vocationalTasks");
                                     },
                                     child: Container(
                                       width: 42,
@@ -110,7 +110,7 @@ class VocationGoal extends StatelessWidget {
                     radius: 16,
                     isDisable: false,
                     text: 'Create your goal',
-                    onTap: () => goalController.openAddNewGoalPage("vocationalTasks"),
+                    onTap: () => onboardingController.openAddNewGoalPage("vocationalTasks"),
                   ),
                 ),
                 SizedBox(

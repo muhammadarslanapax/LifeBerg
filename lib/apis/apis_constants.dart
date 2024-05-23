@@ -8,4 +8,5 @@ class ApiConstants {
   static String FORGOT_PASS_STEP_TWO = "${BASE_URL}/api/user/verify-password-otp";
   static String FORGOT_PASS_STEP_THREE = "${BASE_URL}/api/user/restore-password";
   static String UPDATE_USER = "${BASE_URL}/api/user/profile/update";
+  static String ADD_GOAL = "${BASE_URL}/api/user/profile/create-goal";
 }

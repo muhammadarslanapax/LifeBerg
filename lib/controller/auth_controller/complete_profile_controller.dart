@@ -74,11 +74,25 @@ class CompleteProfileController extends GetxController {
   _getUserData() {
     if (PrefUtils().user.isNotEmpty) {
       user = User.fromJson(json.decode(PrefUtils().user));
+      if (user?.userName != null) {
+        userNameCon.text = user?.userName ?? "";
+      }
+      if (user?.country != null) {
+        countryCon.text = user?.country ?? "";
+      }
+      if (user?.primaryVocation != null) {
+        selectedVocation.value = user?.primaryVocation ?? "";
+      }
+      if (user?.lifeBergName != null) {
+        iceBergCon.text = user?.lifeBergName ?? "";
+      }
+      getIceBerg(iceBergCon.text);
+      validateUsernameVocation();
     }
   }
 
-    validateUsernameVocation() {
-    isUserNameVocationDisable.value =  selectedVocation.value.isEmpty ||
+  validateUsernameVocation() {
+    isUserNameVocationDisable.value = selectedVocation.value.isEmpty ||
         userNameCon.text.isEmpty ||
         countryCon.text.isEmpty;
   }
@@ -143,6 +157,9 @@ class CompleteProfileController extends GetxController {
         if (value.snapshot is! ErrorResponse) {
           UserResponse userResponse = value.snapshot;
           if (userResponse.success == true) {
+            if (iceberg != null) {
+              PrefUtils().loggedIn = true;
+            }
             PrefUtils().user = json.encode(userResponse.user);
             onNext();
           } else {

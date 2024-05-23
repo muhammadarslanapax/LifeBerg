@@ -15,10 +15,11 @@ import 'package:life_berg/view/widget/toggle_button.dart';
 import 'package:lottie/lottie.dart';
 
 import '../../../constant/color.dart';
+import '../../../controller/auth_controller/onboarding_controller.dart';
 
 class PersonalDevelopmentGoal extends StatelessWidget {
 
-  final GoalController goalController = Get.find<GoalController>();
+  final OnboardingController onboardingController = Get.find<OnboardingController>();
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +59,7 @@ class PersonalDevelopmentGoal extends StatelessWidget {
                 Wrap(
                   spacing: 7.0,
                   runSpacing: 7.0,
-                  children: goalController.personalDevelopmentList
+                  children: onboardingController.personalDevelopmentList
                       .asMap()
                       .map((i, element) => MapEntry(
                             i,
@@ -68,16 +69,16 @@ class PersonalDevelopmentGoal extends StatelessWidget {
                                       return ToggleButton(
                                         horizontalPadding: 10.0,
                                         onTap: () =>
-                                            goalController.getPersonalDevelopments(i),
+                                            onboardingController.getPersonalDevelopments(i),
                                         text: element,
                                         isSelected:
-                                            goalController.personalDevIndex == i,
+                                        onboardingController.personalDevIndex == i,
                                       );
                                     },
                                   )
                                 : GestureDetector(
                                     onTap: () {
-                                      goalController.openAddNewGoalPage("personalDevelopment");
+                                      onboardingController.openAddNewGoalPage("personalDevelopment");
                                     },
                                     child: Container(
                                       width: 42,
@@ -110,7 +111,7 @@ class PersonalDevelopmentGoal extends StatelessWidget {
                     radius: 16,
                     isDisable: false,
                     text: 'Create your goal',
-                    onTap: () => goalController.openAddNewGoalPage("personalDevelopment"),
+                    onTap: () => onboardingController.openAddNewGoalPage("personalDevelopment"),
                   ),
                 ),
                 SizedBox(

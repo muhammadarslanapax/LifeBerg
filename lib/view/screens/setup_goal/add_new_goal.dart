@@ -24,7 +24,8 @@ import 'package:life_berg/view/widget/simple_app_bar.dart';
 import '../../../model/reminder/reminder_date_time.dart';
 
 class AddNewGoal extends StatelessWidget {
-  final GoalController goalController = Get.find<GoalController>();
+
+  final GoalController goalController = Get.put(GoalController());
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +34,7 @@ class AddNewGoal extends StatelessWidget {
       appBar: simpleAppBar(
         title: 'Add a new goal',
       ),
-      body: Obx( (){
+      body: Obx(() {
         return ListView(
           shrinkWrap: true,
           physics: BouncingScrollPhysics(),
@@ -104,7 +105,7 @@ class AddNewGoal extends StatelessWidget {
                 ),
                 items: List.generate(
                   goalController.goals.length,
-                      (index) {
+                  (index) {
                     var data = goalController.goals[index];
                     return DropdownMenuItem<dynamic>(
                       value: goalController.goals[index],
@@ -122,10 +123,10 @@ class AddNewGoal extends StatelessWidget {
                                 color: data == 'Wellbeing'
                                     ? kWellBeingColor.withOpacity(0.2)
                                     : data == 'Vocation'
-                                    ? kPeachColor.withOpacity(0.2)
-                                    : data == 'Personal Development'
-                                    ? kCardioColor.withOpacity(0.2)
-                                    : kC3.withOpacity(0.2),
+                                        ? kPeachColor.withOpacity(0.2)
+                                        : data == 'Personal Development'
+                                            ? kCardioColor.withOpacity(0.2)
+                                            : kC3.withOpacity(0.2),
                                 shape: BoxShape.circle,
                               ),
                               child: Center(
@@ -134,10 +135,10 @@ class AddNewGoal extends StatelessWidget {
                                     color: data == 'Wellbeing'
                                         ? kWellBeingColor
                                         : data == 'Vocation'
-                                        ? kCardio2Color
-                                        : data == 'Personal Development'
-                                        ? kCardioColor
-                                        : kC3,
+                                            ? kCardio2Color
+                                            : data == 'Personal Development'
+                                                ? kCardioColor
+                                                : kC3,
                                     shape: BoxShape.circle,
                                   ),
                                   height: Get.height,
@@ -248,13 +249,13 @@ class AddNewGoal extends StatelessWidget {
                       items: goalController.items
                           .map(
                             (item) => DropdownMenuItem<dynamic>(
-                          value: item,
-                          child: MyText(
-                            text: item,
-                            size: 14,
-                          ),
-                        ),
-                      )
+                              value: item,
+                              child: MyText(
+                                text: item,
+                                size: 14,
+                              ),
+                            ),
+                          )
                           .toList(),
                       value: goalController.selectGoalDaysType.value,
                       onChanged: (newValue) {
@@ -419,7 +420,7 @@ class AddNewGoal extends StatelessWidget {
             ),
             ListView.builder(
               itemBuilder: (BuildContext ctx, index) {
-                return _buildTimeWidget(context,index);
+                return _buildTimeWidget(context, index);
               },
               itemCount: goalController.timeList.length + 1,
               shrinkWrap: true,
@@ -432,11 +433,11 @@ class AddNewGoal extends StatelessWidget {
               isDisable: false,
               text: 'Confirm',
               onTap: () {
-                SmartDialog.showLoading(msg: "Please wait...");
-                Future.delayed(Duration(seconds: 5), () {
-                  Get.back();
-                  SmartDialog.dismiss();
-                  _showGoalCreatedDialog(context);
+                goalController.addNewGoal((isCreated) {
+                  if (isCreated) {
+                    Get.back();
+                    _showGoalCreatedDialog(context);
+                  }
                 });
               },
             ),
@@ -445,19 +446,18 @@ class AddNewGoal extends StatelessWidget {
             ),
           ],
         );
-      }
-      ),
+      }),
     );
   }
 
-  _showGoalCreatedDialog(BuildContext context){
+  _showGoalCreatedDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (_) {
         return ImageDialog(
           heading: 'Goal Created',
           content:
-          'Great work! You’ve taken the 1st leap to achieving your goal!',
+              'Great work! You’ve taken the 1st leap to achieving your goal!',
           image: Assets.imagesGoalCreatedNewImage,
           imageSize: 100.0,
           onOkay: () {
@@ -486,7 +486,7 @@ class AddNewGoal extends StatelessWidget {
     );
   }
 
-  Widget _buildTimeWidget(BuildContext context,int index){
+  Widget _buildTimeWidget(BuildContext context, int index) {
     return GestureDetector(
       onTap: () {
         if (index == goalController.timeList.length) {
@@ -526,8 +526,8 @@ class AddNewGoal extends StatelessWidget {
                   text: index == 0 && goalController.timeList.length == 0
                       ? "Select date and time"
                       : index == goalController.timeList.length
-                      ? "Select another date and time"
-                      : goalController.timeList[index].day,
+                          ? "Select another date and time"
+                          : goalController.timeList[index].day,
                 ),
               ),
             ),
@@ -549,10 +549,10 @@ class AddNewGoal extends StatelessWidget {
                   ),
                 ),
                 child: MyText(
-                  text:
-                  goalController.timeList.length > 0 && index != goalController.timeList.length
+                  text: goalController.timeList.length > 0 &&
+                          index != goalController.timeList.length
                       ? DateFormat("HH:mma")
-                      .format(goalController.timeList[index].time)
+                          .format(goalController.timeList[index].time)
                       : "",
                 ),
               ),

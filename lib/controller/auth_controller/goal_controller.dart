@@ -1,15 +1,25 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:get/get_rx/get_rx.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/state_manager.dart';
+import 'package:life_berg/apis/http_manager.dart';
 import 'package:life_berg/model/setup_goal_model/setup_goal_model.dart';
+import 'package:life_berg/utils/pref_utils.dart';
 
+import '../../constant/color.dart';
 import '../../model/reminder/reminder_date_time.dart';
+import '../../utils/toast_utils.dart';
 import '../../view/screens/setup_goal/add_new_goal.dart';
 
 class GoalController extends GetxController {
+
+  dynamic argumentData = Get.arguments;
+
   static GoalController instance = Get.find<GoalController>();
+
+  final HttpManager httpManager = HttpManager();
 
   final TextEditingController goalNameCon = TextEditingController();
   final TextEditingController goalDesCon = TextEditingController();
@@ -155,6 +165,13 @@ class GoalController extends GetxController {
     selectedPersonalDev = personalDevelopmentList[index];
   }
 
+  @override
+  void onInit() {
+    super.onInit();
+    selectedGoal.value = argumentData["goalCategory"];
+    goalNameCon.text = argumentData["goalName"];
+  }
+
   openAddNewGoalPage(String from) {
     if (from == "wellbeing") {
       selectedGoal.value = "Wellbeing";
@@ -174,5 +191,32 @@ class GoalController extends GetxController {
     Get.to(
       () => AddNewGoal(),
     );
+  }
+
+  addNewGoal(Function(bool isSuccess) onGoalCreate) {
+    FocusManager.instance.primaryFocus?.unfocus();
+    SmartDialog.showLoading(msg: "Please wait...");
+    httpManager
+        .addNewGoal(
+            PrefUtils().token,
+            icon.value,
+            goalNameCon.text.toString(),
+            selectedGoal.value,
+            goalDesCon.text.toString(),
+            daysCon.text.toString(),
+            selectGoalDaysType.value,
+            seekbarValue.value.toInt().toString(),
+            isScale.value,
+            color!.toString(),
+            timeList)
+        .then((response) {
+      SmartDialog.dismiss();
+      if (response.error == null) {
+        onGoalCreate(true);
+      } else {
+        onGoalCreate(false);
+        ToastUtils.showToast("Some error occurred.", color: kRedColor);
+      }
+    });
   }
 }
