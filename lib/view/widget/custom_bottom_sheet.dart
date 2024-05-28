@@ -23,15 +23,15 @@ class CustomBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: height ?? 460,
       decoration: BoxDecoration(
-        color: kSecondaryColor,
+        color: kPrimaryColor,
         borderRadius: BorderRadius.only(
           topRight: Radius.circular(8),
           topLeft: Radius.circular(8),
         ),
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
@@ -44,16 +44,14 @@ class CustomBottomSheet extends StatelessWidget {
           SizedBox(
             height: 10,
           ),
-          Expanded(
-            child: child,
-          ),
+          child,
           Padding(
             padding: Platform.isIOS
                 ? EdgeInsets.fromLTRB(15, 10, 15, 30)
                 : EdgeInsets.fromLTRB(15, 10, 15, 15),
             child: MyButton(
               height: 56,
-              radius: 16,
+              radius: 8,
               isDisable: isButtonDisable,
               text: buttonText,
               onTap: onTap,

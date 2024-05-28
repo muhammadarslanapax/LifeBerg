@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 import 'package:life_berg/constant/color.dart';
 import 'package:life_berg/controller/auth_controller/goal_controller.dart';
 import 'package:life_berg/generated/assets.dart';
+import 'package:life_berg/utils/toast_utils.dart';
 import 'package:life_berg/view/screens/setup_goal/personal_development_goal.dart';
 import 'package:life_berg/view/screens/setup_goal/vocation_goal.dart';
 import 'package:life_berg/view/screens/setup_goal/we_are_off.dart';
@@ -24,7 +25,6 @@ import 'package:life_berg/view/widget/simple_app_bar.dart';
 import '../../../model/reminder/reminder_date_time.dart';
 
 class AddNewGoal extends StatelessWidget {
-
   final GoalController goalController = Get.put(GoalController());
 
   @override
@@ -437,6 +437,9 @@ class AddNewGoal extends StatelessWidget {
                   if (isCreated) {
                     Get.back();
                     _showGoalCreatedDialog(context);
+                  } else {
+                    ToastUtils.showToast("Some error occurred.",
+                        color: kRedColor);
                   }
                 });
               },
@@ -457,28 +460,32 @@ class AddNewGoal extends StatelessWidget {
         return ImageDialog(
           heading: 'Goal Created',
           content:
-              'Great work! You’ve taken the 1st leap to achieving your goal!',
+              'Great work! You’ve taken the first leap to achieving your goal!',
           image: Assets.imagesGoalCreatedNewImage,
           imageSize: 100.0,
           onOkay: () {
-            switch (goalController.selectedGoal.value) {
-              case 'Wellbeing':
-                Get.back();
-                Get.to(() => VocationGoal());
-                break;
-              case 'Vocation':
-                Get.back();
-                Get.to(() => PersonalDevelopmentGoal());
-                break;
-              case 'Personal Development':
-                Get.back();
-                Get.to(() => WeAreOff());
-                break;
-              case '':
-                Get.back();
-                break;
-              default:
-                Get.back();
+            if (goalController.isComingFromOnBoarding) {
+              switch (goalController.selectedGoal.value) {
+                case 'Wellbeing':
+                  Get.back();
+                  Get.to(() => VocationGoal());
+                  break;
+                case 'Vocation':
+                  Get.back();
+                  Get.to(() => PersonalDevelopmentGoal());
+                  break;
+                case 'Personal Development':
+                  Get.back();
+                  Get.to(() => WeAreOff());
+                  break;
+                case '':
+                  Get.back();
+                  break;
+                default:
+                  Get.back();
+              }
+            } else {
+              Get.back();
             }
           },
         );

@@ -101,7 +101,8 @@ class OnboardingController extends GetxController {
     }
     Get.to(() => AddNewGoal(), arguments: {
       "goalCategory": selectedGoalType.value,
-      "goalName": selectedGoalName.value
+      "goalName": selectedGoalName.value,
+      "isComingFromOnBoarding" : true
     });
   }
 }

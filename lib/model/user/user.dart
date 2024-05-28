@@ -13,6 +13,7 @@ class User {
   String? primaryVocation;
   String? userName;
   String? lifeBergName;
+  String? profilePicture;
 
   User(
       {this.sId,
@@ -28,7 +29,8 @@ class User {
       this.country,
       this.primaryVocation,
       this.userName,
-      this.lifeBergName,});
+      this.lifeBergName,
+      this.profilePicture});
 
   User.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
@@ -45,6 +47,7 @@ class User {
     primaryVocation = json['primaryVocation'];
     userName = json['userName'];
     lifeBergName = json['lifeBergName'];
+    profilePicture = json['profilePicture'];
   }
 
   Map<String, dynamic> toJson() {
@@ -63,6 +66,7 @@ class User {
     data['primaryVocation'] = this.primaryVocation;
     data['userName'] = this.userName;
     data['lifeBergName'] = this.lifeBergName;
+    data['profilePicture'] = this.profilePicture;
     return data;
   }
 }

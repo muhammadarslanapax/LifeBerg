@@ -45,6 +45,9 @@ dependencies:
   crypto: ^3.0.1
   flutter_facebook_auth: ^6.2.0
   country_picker: ^2.0.25
+  image_picker: ^1.0.7
+  mime: ^1.0.0
+  grouped_list: ^5.1.2
 
 
 dev_dependencies:

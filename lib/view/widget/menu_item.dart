@@ -29,7 +29,8 @@ PopupMenuItem<dynamic> menuItem({
                   MyText(
                     paddingTop: 12,
                     text: title,
-                    size: 14,
+                    size: 16,
+                    color: kTextColor,
                     paddingBottom: 12,
                   ),
                   if (icon!.isNotEmpty)

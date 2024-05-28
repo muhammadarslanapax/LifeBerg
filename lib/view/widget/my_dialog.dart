@@ -50,7 +50,7 @@ class MyDialog extends StatelessWidget {
                     children: [
                       MyText(
                         text: heading,
-                        size: 16,
+                        size: 18,
                         weight: FontWeight.w500,
                         paddingRight: 16,
                       ),
@@ -67,7 +67,7 @@ class MyDialog extends StatelessWidget {
                     text: content,
                     color: kPopupTextColor,
                     height: 1.5,
-                    size: 13,
+                    size: 16,
                   ),
                 ],
               ),
@@ -79,7 +79,7 @@ class MyDialog extends StatelessWidget {
                       onTap: onOkay,
                       align: TextAlign.end,
                       text: 'Okay',
-                      size: 13,
+                      size: 16,
                       weight: FontWeight.w500,
                       color: kTertiaryColor,
                     ),

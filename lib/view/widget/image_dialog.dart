@@ -33,38 +33,53 @@ class ImageDialog extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Container(
-          padding: EdgeInsets.fromLTRB(15, 13, 15, 10),
-          height: height ?? 171,
+          padding: EdgeInsets.fromLTRB(20, 13, 20, 10),
           width: Get.width,
           margin: EdgeInsets.all(15),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(8),
             color: kSecondaryColor,
           ),
-          child: Stack(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      MyText(
-                        text: heading,
-                        size: 16,
-                        weight: FontWeight.w500,
-                      ),
-                      if (content.isNotEmpty)
-                        MyText(
-                          paddingTop: 6,
-                          text: content,
-                          color: kPopupTextColor,
-                          height: 1.5,
-                          size: 13,
-                          paddingBottom: 8.0,
+                  MyText(
+                    text: heading,
+                    size: 18,
+                    color: kPrimaryTextColor,
+                    weight: FontWeight.w400,
+                  ),
+                  if (content.isNotEmpty)
+                    MyText(
+                      paddingTop: 6,
+                      text: content,
+                      color: kPopupTextColor,
+                      height: 1.5,
+                      size: 16,
+                      paddingBottom: 8.0,
+                    ),
+                  Padding(
+                    padding: EdgeInsets.only(
+                      top: content.isNotEmpty ? 0 : 8,
+                    ),
+                    child: Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Padding(
+                        padding: EdgeInsets.only(
+                          left: imagePaddingLeft!,
+                          bottom: imagePaddingBottom!,
                         ),
-                    ],
+                        child: Image.asset(
+                          image!,
+                          height: imageSize ?? 150,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                    ),
                   ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -76,8 +91,8 @@ class ImageDialog extends StatelessWidget {
                           : MyText(
                               onTap: onOkay,
                               align: TextAlign.end,
-                              text: 'Okay',
-                              size: 14,
+                              text: 'Okay!',
+                              size: 15,
                               weight: FontWeight.w500,
                               color: kTertiaryColor,
                             ),
@@ -87,25 +102,6 @@ class ImageDialog extends StatelessWidget {
                     ],
                   ),
                 ],
-              ),
-              Padding(
-                padding: EdgeInsets.only(
-                  top: content.isNotEmpty ? 0 : 8,
-                ),
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                      left: imagePaddingLeft!,
-                      bottom: imagePaddingBottom!,
-                    ),
-                    child: Image.asset(
-                      image!,
-                      height: imageSize ?? 150,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
               ),
             ],
           ),

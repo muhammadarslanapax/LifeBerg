@@ -19,7 +19,7 @@ class DialogActionButton extends StatelessWidget {
     return MyText(
       onTap: onTap,
       text: text,
-      size: 13,
+      size: 16,
       weight: FontWeight.w500,
       color: textColor ??  kTertiaryColor,
     );

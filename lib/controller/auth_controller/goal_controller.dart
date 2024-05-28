@@ -5,16 +5,17 @@ import 'package:get/get_rx/get_rx.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/state_manager.dart';
 import 'package:life_berg/apis/http_manager.dart';
+import 'package:life_berg/model/generic_response.dart';
 import 'package:life_berg/model/setup_goal_model/setup_goal_model.dart';
 import 'package:life_berg/utils/pref_utils.dart';
 
 import '../../constant/color.dart';
+import '../../model/goal/goal.dart';
 import '../../model/reminder/reminder_date_time.dart';
 import '../../utils/toast_utils.dart';
 import '../../view/screens/setup_goal/add_new_goal.dart';
 
 class GoalController extends GetxController {
-
   dynamic argumentData = Get.arguments;
 
   static GoalController instance = Get.find<GoalController>();
@@ -24,6 +25,8 @@ class GoalController extends GetxController {
   final TextEditingController goalNameCon = TextEditingController();
   final TextEditingController goalDesCon = TextEditingController();
   final TextEditingController daysCon = TextEditingController();
+
+  bool isComingFromOnBoarding = false;
 
   // Fields related to add new goal page..
   RxString icon = "".obs;
@@ -170,27 +173,7 @@ class GoalController extends GetxController {
     super.onInit();
     selectedGoal.value = argumentData["goalCategory"];
     goalNameCon.text = argumentData["goalName"];
-  }
-
-  openAddNewGoalPage(String from) {
-    if (from == "wellbeing") {
-      selectedGoal.value = "Wellbeing";
-      goalNameCon.text =
-          wellBeingIndex.value != -1 ? wellBeingList[wellBeingIndex.value] : "";
-    } else if (from == "vocationalTasks") {
-      selectedGoal.value = "Vocation";
-      goalNameCon.text = vocationalTaskIndex.value != -1
-          ? vocationGoalList[vocationalTaskIndex.value]
-          : "";
-    } else if (from == "personalDevelopment") {
-      selectedGoal.value = "Personal Development";
-      goalNameCon.text = personalDevIndex.value != -1
-          ? personalDevelopmentList[personalDevIndex.value]
-          : "";
-    }
-    Get.to(
-      () => AddNewGoal(),
-    );
+    isComingFromOnBoarding = argumentData["isComingFromOnBoarding"];
   }
 
   addNewGoal(Function(bool isSuccess) onGoalCreate) {
@@ -212,11 +195,17 @@ class GoalController extends GetxController {
         .then((response) {
       SmartDialog.dismiss();
       if (response.error == null) {
-        onGoalCreate(true);
+        GenericResponse genericResponse = response.snapshot;
+        if(genericResponse.success == true) {
+          onGoalCreate(true);
+        }else{
+          onGoalCreate(false);
+        }
       } else {
         onGoalCreate(false);
         ToastUtils.showToast("Some error occurred.", color: kRedColor);
       }
     });
   }
+
 }

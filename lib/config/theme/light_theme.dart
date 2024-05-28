@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:life_berg/constant/color.dart';
 
-
 final ThemeData lightTheme = ThemeData(
   scaffoldBackgroundColor: kPrimaryColor,
   fontFamily: 'Ubuntu',

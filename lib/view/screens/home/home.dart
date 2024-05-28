@@ -1,5 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:life_berg/apis/apis_constants.dart';
 import 'package:life_berg/constant/color.dart';
 import 'package:life_berg/controller/admin_controller/home_controller.dart';
 import 'package:life_berg/generated/assets.dart';
@@ -22,15 +26,19 @@ import 'package:life_berg/view/widget/profile_tile.dart';
 import 'package:life_berg/view/widget/progress_widget.dart';
 import 'package:step_progress_indicator/step_progress_indicator.dart';
 
+import '../../widget/home_goal_tile.dart';
+
 class Home extends StatelessWidget {
   Home({Key? key}) : super(key: key);
 
   final HomeController homeController = Get.put(HomeController());
 
+  final ImagePicker picker = ImagePicker();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kSecondaryColor,
+      backgroundColor: kPrimaryColor,
       appBar: AppBar(
         elevation: 1,
         backgroundColor: kTertiaryColor,
@@ -50,7 +58,6 @@ class Home extends StatelessWidget {
                     isScrollControlled: true,
                     builder: (context) {
                       return Container(
-                        height: 300,
                         padding: EdgeInsets.all(15),
                         decoration: BoxDecoration(
                           color: kSecondaryColor,
@@ -60,6 +67,7 @@ class Home extends StatelessWidget {
                           ),
                         ),
                         child: Column(
+                          mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             Image.asset(
@@ -69,44 +77,57 @@ class Home extends StatelessWidget {
                             SizedBox(
                               height: 26,
                             ),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  MyText(
-                                    text: 'Edit profile picture',
-                                    size: 18,
-                                    weight: FontWeight.w500,
-                                    paddingBottom: 30,
-                                  ),
-                                  MyText(
-                                    paddingLeft: 16,
-                                    paddingRight: 16,
-                                    text: 'Select from photos',
-                                  ),
-                                  Container(
-                                    margin: EdgeInsets.symmetric(vertical: 16),
-                                    height: 1,
-                                    color: kBorderColor,
-                                  ),
-                                  MyText(
-                                    onTap: () => Get.to(() => ChooseAvatar()),
-                                    paddingLeft: 16,
-                                    paddingRight: 16,
-                                    text: 'Use our avatars',
-                                  ),
-                                  Container(
-                                    margin: EdgeInsets.symmetric(vertical: 16),
-                                    height: 1,
-                                    color: kBorderColor,
-                                  ),
-                                  MyText(
-                                    paddingLeft: 16,
-                                    paddingRight: 16,
-                                    text: 'Remove current photo',
-                                  ),
-                                ],
-                              ),
+                            Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                MyText(
+                                  text: 'Edit profile picture',
+                                  size: 18,
+                                  weight: FontWeight.w500,
+                                  paddingBottom: 30,
+                                ),
+                                MyText(
+                                  onTap: () async {
+                                    var file = await picker.pickImage(
+                                        source: ImageSource.gallery);
+                                    if (file != null) {
+                                      homeController.xFile = file;
+                                      homeController.imageFilePath.value =
+                                          file.path;
+                                      homeController.updateUserImage();
+                                      Navigator.of(context).pop();
+                                    }
+                                  },
+                                  paddingLeft: 16,
+                                  paddingRight: 16,
+                                  text: 'Select from photos',
+                                ),
+                                Container(
+                                  margin: EdgeInsets.symmetric(vertical: 16),
+                                  height: 1,
+                                  color: kBorderColor,
+                                ),
+                                MyText(
+                                  onTap: () => Get.to(() => ChooseAvatar()),
+                                  paddingLeft: 16,
+                                  paddingRight: 16,
+                                  text: 'Use our avatars',
+                                ),
+                                Container(
+                                  margin: EdgeInsets.symmetric(vertical: 16),
+                                  height: 1,
+                                  color: kBorderColor,
+                                ),
+                                MyText(
+                                  paddingLeft: 16,
+                                  paddingRight: 16,
+                                  text: 'Remove current photo',
+                                ),
+                                SizedBox(
+                                  height: 10,
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -114,12 +135,21 @@ class Home extends StatelessWidget {
                     },
                   );
                 },
-                child: CommonImageView(
-                  height: 45,
-                  width: 45,
-                  radius: 100.0,
-                  url: dummyImg3,
-                ),
+                child: Obx(() => homeController.imageFilePath != ""
+                    ? CommonImageView(
+                        height: 45,
+                        width: 45,
+                        radius: 100.0,
+                        file: File(homeController.imageFilePath.value),
+                      )
+                    : CommonImageView(
+                        height: 45,
+                        width: 45,
+                        radius: 100.0,
+                        url: homeController.userProfileImageUrl.value.isNotEmpty
+                            ? "${ApiConstants.BASE_IMAGE_URL}${homeController.userProfileImageUrl.value}"
+                            : dummyImg3,
+                      )),
               ),
             ),
           ],
@@ -129,11 +159,12 @@ class Home extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Obx(() => MyText(
-              text: '${homeController.getGreeting()}, ${homeController.getFirstName(homeController.fullName.value)}!',
-              size: 16,
-              weight: FontWeight.w500,
-              color: Colors.white,
-            )),
+                  text:
+                      '${homeController.getGreeting()}, ${homeController.getFirstName(homeController.fullName.value)}!',
+                  size: 16,
+                  weight: FontWeight.w500,
+                  color: Colors.white,
+                )),
             SizedBox(
               height: 8,
             ),
@@ -210,7 +241,7 @@ class Home extends StatelessWidget {
         padding: EdgeInsets.all(15),
         children: [
           MainHeading(
-            text: 'Current Progress',
+            text: 'Today’s progress',
             paddingBottom: 22,
           ),
           Padding(
@@ -271,23 +302,160 @@ class Home extends StatelessWidget {
           ),
           MainHeading(
             paddingTop: 22,
-            text: 'Daily Mood Report',
+            text: 'How are you today?',
             paddingBottom: 12,
           ),
           DailyMoodReport(),
+          Obx(() => homeController.isLoadingGoals.value
+              ? Container(
+                  height: 300,
+                  child: Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                )
+              : Column(
+                  children: [
+                    homeController.isLoadingGoals.value == false &&
+                            homeController.wellBeingGoals.isNotEmpty
+                        ? ProfileHeading(
+                            marginTop: 24,
+                            heading: 'Wellbeing',
+                            leadingColor: kStreaksColor,
+                          )
+                        : Container(),
+                    ListView.builder(
+                      itemBuilder: (BuildContext ctx, index) {
+                        return HomeGoalTile(
+                          type: "wellbeing",
+                          index: index,
+                          progress: homeController
+                              .wellBeingGoals[index].sliderValue,
+                          onCheckBoxTap: (){
+                            homeController
+                                .wellBeingGoals[index].isChecked.value =
+                            !homeController
+                                .wellBeingGoals[index].isChecked.value;
+                          },
+                          onProgressChange: (value){
+                            homeController
+                                .wellBeingGoals[index].sliderValue.value = value;
+                          },
+                          haveCheckBox: homeController
+                                  .wellBeingGoals[index].goalMeasure!.type ==
+                              "boolean",
+                          checkBoxValue: homeController.wellBeingGoals[index].isChecked,
+                          haveSlider: homeController
+                                  .wellBeingGoals[index].goalMeasure!.type ==
+                              "string",
+                          goal: homeController.wellBeingGoals[index],
+                          title:
+                              homeController.wellBeingGoals[index].name ?? "",
+                          imageBgColor: kStreaksBgColor,
+                          leadingIcon:
+                              "assets/goal_icons/${homeController.wellBeingGoals[index].icon}",
+                          leadingColor: kStreaksColor,
+                        );
+                      },
+                      itemCount: homeController.wellBeingGoals.length,
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                    ),
+                    homeController.isLoadingGoals.value == false &&
+                            homeController.vocationalGoals.isNotEmpty
+                        ? ProfileHeading(
+                            marginTop: 18,
+                            heading: 'Vocational',
+                            leadingColor: kRACGPExamColor,
+                          )
+                        : Container(),
+                    ListView.builder(
+                      itemBuilder: (BuildContext ctx, index) {
+                        return HomeGoalTile(
+                          type: "vocation",
+                          index: index,
+                          goal: homeController.vocationalGoals[index],
+                          onCheckBoxTap: (){
+                            homeController
+                                .vocationalGoals[index].isChecked.value =
+                                !homeController
+                                    .vocationalGoals[index].isChecked.value;
+                          },
+                          onProgressChange: (value){
+                            homeController
+                                .vocationalGoals[index].sliderValue.value = value;
+                          },
+                          progress: homeController
+                              .vocationalGoals[index].sliderValue,
+                          haveCheckBox: homeController
+                                  .vocationalGoals[index].goalMeasure!.type ==
+                              "boolean",
+                          haveSlider: homeController
+                                  .vocationalGoals[index].goalMeasure!.type ==
+                              "string",
+                          imageBgColor: kRACGPBGExamColor,
+                          checkBoxValue: homeController
+                              .vocationalGoals[index].isChecked,
+                          title:
+                              homeController.vocationalGoals[index].name ?? "",
+                          leadingIcon:
+                              "assets/goal_icons/${homeController.vocationalGoals[index].icon}",
+                          leadingColor: kRACGPExamColor,
+                        );
+                      },
+                      itemCount: homeController.vocationalGoals.length,
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                    ),
+                    homeController.isLoadingGoals.value == false &&
+                            homeController.personalDevGoals.isNotEmpty
+                        ? ProfileHeading(
+                            marginTop: 18,
+                            heading: 'Personal Development',
+                            leadingColor: kDailyGratitudeColor,
+                          )
+                        : Container(),
+                    ListView.builder(
+                      itemBuilder: (BuildContext ctx, index) {
+                        return HomeGoalTile(
+                          type: "personal_development",
+                          index: index,
+                          onCheckBoxTap: (){
+                            homeController
+                                .personalDevGoals[index].isChecked.value =
+                            !homeController
+                                .personalDevGoals[index].isChecked.value;
+                          },
+                          progress: homeController
+                              .personalDevGoals[index].sliderValue,
+                          checkBoxValue: homeController
+                              .personalDevGoals[index].isChecked,
+                          goal: homeController.personalDevGoals[index],
+                          onProgressChange: (value){
+                            homeController
+                                .personalDevGoals[index].sliderValue.value = value;
+                          },
+                          haveCheckBox: homeController
+                                  .personalDevGoals[index].goalMeasure!.type ==
+                              "boolean",
+                          haveSlider: homeController
+                                  .personalDevGoals[index].goalMeasure!.type ==
+                              "string",
+                          imageBgColor: kDailyGratitudeBgColor,
+                          title:
+                              homeController.personalDevGoals[index].name ?? "",
+                          leadingIcon:
+                              "assets/goal_icons/${homeController.personalDevGoals[index].icon}",
+                          leadingColor: kDailyGratitudeColor,
+                        );
+                      },
+                      itemCount: homeController.personalDevGoals.length,
+                      shrinkWrap: true,
+                      physics: NeverScrollableScrollPhysics(),
+                    )
+                  ],
+                )),
 
-          //Wellbeing
-          ProfileHeading(
-            marginTop: 24,
-            heading: 'Wellbeing',
-            leadingColor: kStreaksColor,
-          ),
-          ProfileTile(
-            title: '20 mins cardio',
-            leadingIcon: Assets.imagesHeartRate,
-            leadingColor: kCoolGreyColor,
-          ),
-          ProfileTile(
+          /*ProfileTile(
             title: 'Quiet Time',
             leadingIcon: Assets.imagesQuiteTimeIcon,
             leadingColor: kStreaksColor,
@@ -403,7 +571,7 @@ class Home extends StatelessWidget {
             leadingColor: kTabIndicatorColor,
             haveCheckBox: true,
             checkBoxValue: true,
-          ),
+          ),*/
           SizedBox(
             height: 18,
           ),
@@ -421,7 +589,11 @@ class Home extends StatelessWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => Get.to(() => AddNewGoal()),
+        onPressed: () => Get.to(() => AddNewGoal(), arguments: {
+          "goalCategory": "Select category",
+          "goalName": "",
+          "isComingFromOnBoarding": false
+        }),
         elevation: 0,
         highlightElevation: 0,
         backgroundColor: Colors.transparent,

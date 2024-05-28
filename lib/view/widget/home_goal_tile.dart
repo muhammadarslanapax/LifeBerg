@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get/get_rx/get_rx.dart';
+import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:life_berg/constant/color.dart';
 import 'package:life_berg/generated/assets.dart';
 import 'package:life_berg/view/screens/archive_items/archive_items.dart';
@@ -13,31 +15,47 @@ import 'package:life_berg/view/widget/my_dialog.dart';
 import 'package:life_berg/view/widget/my_text.dart';
 import 'package:life_berg/view/widget/my_text_field.dart';
 
+import '../../controller/admin_controller/home_controller.dart';
+import '../../model/goal/goal.dart';
+
 // ignore: must_be_immutable
-class ProfileTile extends StatefulWidget {
-  ProfileTile({
-    Key? key,
-    this.title,
-    this.leadingColor,
-    this.haveCheckBox = false,
-    this.checkBoxValue = false,
-    this.haveSlider = false,
-    this.leadingIcon,
-    this.progress,
-    this.onCheckBoxTap,
-  }) : super(key: key);
+class HomeGoalTile extends StatefulWidget {
+  HomeGoalTile(
+      {Key? key,
+      this.title,
+      this.leadingColor,
+      this.haveCheckBox = false,
+      this.checkBoxValue,
+      this.haveSlider = false,
+      this.leadingIcon,
+      this.progress,
+      this.onCheckBoxTap,
+      this.imageBgColor,
+      this.onProgressChange,
+      this.goal,
+      this.type,
+      this.index,})
+      : super(key: key);
 
   Color? leadingColor;
   String? title, leadingIcon;
-  double? progress;
-  bool? haveCheckBox, checkBoxValue, haveSlider;
+  RxDouble? progress;
+  bool? haveCheckBox, haveSlider;
+  RxBool? checkBoxValue = false.obs;
   VoidCallback? onCheckBoxTap;
+  Color? imageBgColor;
+  Function(double value)? onProgressChange;
+  Goal? goal;
+  String? type;
+  int? index;
 
   @override
-  State<ProfileTile> createState() => _ProfileTileState();
+  State<HomeGoalTile> createState() => _HomeGoalTileState();
 }
 
-class _ProfileTileState extends State<ProfileTile> {
+class _HomeGoalTileState extends State<HomeGoalTile> {
+  final HomeController homeController = Get.find<HomeController>();
+
   Offset _tapPosition = Offset.zero;
 
   void _getTapPosition(TapDownDetails tapPosition) {
@@ -64,8 +82,9 @@ class _ProfileTileState extends State<ProfileTile> {
       ),
       elevation: 10,
       constraints: BoxConstraints(
-        maxWidth: 170,
+        maxWidth: 180,
       ),
+      color: Colors.white,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
@@ -194,7 +213,7 @@ class _ProfileTileState extends State<ProfileTile> {
           title: 'Delete goal',
           borderColor: Colors.transparent,
           onTap: () {
-            Get.back();
+            Navigator.of(context).pop();
             Get.dialog(
               MyDialog(
                 icon: Assets.imagesDeleteThisItem,
@@ -215,7 +234,11 @@ class _ProfileTileState extends State<ProfileTile> {
                     ),
                     DialogActionButton(
                       text: 'Delete',
-                      onTap: () => Get.back(),
+                      onTap: () {
+                        Get.back();
+                        homeController.deleteGoal(
+                            widget.goal!, widget.type!, widget.index!);
+                      },
                     ),
                   ],
                 ),
@@ -254,46 +277,69 @@ class _ProfileTileState extends State<ProfileTile> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            CommonImageView(
-              imagePath: widget.leadingIcon!,
-              height: 24,
+            Container(
               width: 24,
-              radius: 4.0,
-
+              height: 24,
+              decoration: BoxDecoration(
+                  color: widget.imageBgColor,
+                  borderRadius: BorderRadius.all(Radius.circular(4))),
+              padding: EdgeInsets.all(3.0),
+              child: Image.asset(
+                widget.leadingIcon!,
+                color: widget.leadingColor,
+              ),
             ),
+            // CommonImageView(
+            //   imagePath: widget.leadingIcon!,
+            //   height: 24,
+            //   width: 24,
+            //   radius: 4.0,
+            //
+            // ),
             Expanded(
               child: MyText(
                 text: widget.title,
-                size: 14,
+                size: 16,
                 color: kCoolGreyColor,
                 paddingLeft: 8,
+                paddingRight: 6,
+                maxLines: 1,
               ),
             ),
             widget.haveCheckBox!
-                ? GestureDetector(
-                    onTap: widget.onCheckBoxTap,
-                    child: Container(
-                      height: 16,
-                      width: 16,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(4.0),
-                        color: widget.checkBoxValue!
-                            ? kTertiaryColor
-                            : kUnSelectedColor,
+                ? Obx(() => GestureDetector(
+                      onTap: widget.onCheckBoxTap,
+                      child: Container(
+                        height: 18,
+                        width: 18,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4.0),
+                          border: Border.all(
+                              width: 1,
+                              color: widget.checkBoxValue!.value
+                                  ? Colors.transparent
+                                  : kBorderColor),
+                          color: widget.checkBoxValue!.value
+                              ? kTertiaryColor
+                              : Colors.white,
+                        ),
+                        child: widget.checkBoxValue!.value
+                            ? Icon(
+                                Icons.check,
+                                color: kPrimaryColor,
+                                size: 11,
+                              )
+                            : Container(),
                       ),
-                      child: Icon(
-                        Icons.check,
-                        color: kPrimaryColor,
-                        size: 11,
-                      ),
-                    ),
-                  )
+                    ))
                 : widget.haveSlider!
                     ? SizedBox(
                         width: 103,
                         child: CustomSlider(
-                          value: RxDouble(0.0),
-                          onChanged: (value) {},
+                          value: widget.progress,
+                          onChanged: (value) {
+                            widget.onProgressChange!(value);
+                          },
                         ),
                       )
                     : SizedBox(),
@@ -314,15 +360,14 @@ class AddComment extends StatelessWidget {
     return Padding(
       padding: MediaQuery.of(context).viewInsets,
       child: CustomBottomSheet(
-        height: 300,
         child: Padding(
           padding: EdgeInsets.symmetric(
             horizontal: 15,
             vertical: 6,
           ),
           child: MyTextField(
-            fillColor: kInputFillColor,
-            maxLines: 6,
+            fillColor: Colors.white,
+            maxLines: 1,
             hint: 'Add a short comment to your selected item',
             marginBottom: 0.0,
           ),

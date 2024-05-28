@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 const kPrimaryColor = Color(0xffF9FAFB);
+const kLightPrimaryColor = Color(0xffD8E8FC);
 const kSecondaryColor = Color(0xffFFFFFF);
+const kPrimaryTextColor = Color(0xff1C1B1F);
 const kTertiaryColor = Color(0xff377FAA);
 const kBorderColor = Color(0xffE2E8F0);
 const kTextColor = Color(0xff343B49);
@@ -21,6 +23,7 @@ const kRedColor = Color(0xffFF4B26);
 const kBlueColor = Color(0xff4EA2FF);
 const kMaroonColor = Color(0xffC7598E);
 const kStreaksColor = Color(0xff00BAC7);
+const kStreaksBgColor = Color(0xffF5FCFD);
 const kWellBeingColor = Color(0xff3BCAD4);
 const kCardioColor = Color(0xff7274F3);
 const kDarkBlueColor = Color(0xff4E94BE);
@@ -29,8 +32,10 @@ const kChartLabelColor = Color(0xff7B8794);
 const kSecondaryTextColor = Color(0xff75767F);
 
 const kDailyGratitudeColor = Color(0xffA98FE3);
+const kDailyGratitudeBgColor = Color(0xffF6F4FC);
 const kQuiteTimeColor = Color(0xff00BAC7);
 const kRACGPExamColor = Color(0xffF19D9C);
+const kRACGPBGExamColor = Color(0xffFEF5F5);
 const kDayStepColor = Color(0xffFED189);
 const kCardio2Color = Color(0xffF19D9C);
 const kLifeBergBlueColor = Color(0xffADC4F4);

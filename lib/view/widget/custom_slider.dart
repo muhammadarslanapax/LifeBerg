@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:life_berg/constant/color.dart';
 
 // ignore: must_be_immutable
 class CustomSlider extends StatelessWidget {
   ValueChanged<double>? onChanged;
-  double? value;
+  RxDouble? value = 0.0.obs;
 
   CustomSlider({
     Key? key,
@@ -14,7 +15,7 @@ class CustomSlider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SliderTheme(
+    return Obx(() => SliderTheme(
       data: SliderThemeData(
         trackHeight: 2,
         minThumbSeparation: 0.0,
@@ -30,13 +31,13 @@ class CustomSlider extends StatelessWidget {
       ),
       child: Slider(
         onChanged: onChanged,
-        value: value ?? 0,
+        value: value!.value ?? 0,
         min: 0,
-        max: 100,
+        max: 10,
         activeColor: kDarkBlueColor,
         inactiveColor: kUnSelectedColor,
       ),
-    );
+    ));
   }
 }
 
