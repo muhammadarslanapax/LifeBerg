@@ -11,6 +11,8 @@ class ApiConstants {
   static String UPDATE_USER = "${BASE_URL}/api/user/profile/update";
   static String SUBMIT_MOOD = "${BASE_URL}/api/user/profile/submit-mood";
   static String ADD_GOAL = "${BASE_URL}/api/user/profile/create-goal";
+  static String UPDATE_GOAL = "${BASE_URL}/api/user/profile/update-goal";
   static String GOAL_LIST = "${BASE_URL}/api/user/profile/user-goals";
   static String DELETE_GOAL = "${BASE_URL}/api/user/profile/delete-goal";
+  static String GOAL_COMMENT = "${BASE_URL}/api/user/profile/delete-goal";
 }

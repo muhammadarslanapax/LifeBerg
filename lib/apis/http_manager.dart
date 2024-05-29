@@ -181,7 +181,7 @@ class HttpManager {
       var params = HashMap();
       params["icon"] = icon;
       params["name"] = name;
-      params["category"] = "6638bf06584bab76b306e569";
+      params["category"] = category;
       params["description"] = description;
       params["color"] = color;
       params["measureType"] = isScale ? "string" : "boolean";
@@ -357,5 +357,111 @@ class HttpManager {
       return BaseResponse(null, e.toString());
     }
   }
+
+  Future<BaseResponse> addCommentOnGoal(
+      String token, String goalId,
+      String comment) async {
+    try {
+      var url = ApiConstants.UPDATE_GOAL;
+      var params = HashMap();
+      params["goalId"] = goalId;
+      params["comment"] = comment;
+      var response =
+      await http.put(Uri.parse(url), body: json.encode(params), headers: {
+        "Content-Type": "application/json",
+        'Authorization': 'Bearer $token',
+      });
+
+      if (response.statusCode == 200) {
+        var responseBody = json.decode(response.body);
+        GenericResponse genericResponse = GenericResponse.fromJson(responseBody);
+        return BaseResponse(genericResponse, null);
+      } else {
+        return _getErrorResponse(response.body);
+      }
+    } catch (e) {
+      return BaseResponse(null, e.toString());
+    }
+  }
+
+  Future<BaseResponse> updateGoalStatus(
+      String token, String goalId,
+      String status) async {
+    try {
+      var url = ApiConstants.UPDATE_GOAL;
+      var params = HashMap();
+      params["goalId"] = goalId;
+      params["status"] = status;
+      var response =
+      await http.put(Uri.parse(url), body: json.encode(params), headers: {
+        "Content-Type": "application/json",
+        'Authorization': 'Bearer $token',
+      });
+
+      if (response.statusCode == 200) {
+        var responseBody = json.decode(response.body);
+        GenericResponse genericResponse = GenericResponse.fromJson(responseBody);
+        return BaseResponse(genericResponse, null);
+      } else {
+        return _getErrorResponse(response.body);
+      }
+    } catch (e) {
+      return BaseResponse(null, e.toString());
+    }
+  }
+
+  Future<BaseResponse> editGoal(
+      String token,
+      String goalId,
+      String icon,
+      String name,
+      String category,
+      String description,
+      String noOfDays,
+      String daysType,
+      String importanceScale,
+      bool isScale,
+      String color,
+      List<ReminderDateTime> timesList) async {
+    try {
+      var url = ApiConstants.UPDATE_GOAL;
+      var params = HashMap();
+      params["goalId"] = goalId;
+      params["icon"] = icon;
+      params["name"] = name;
+      params["category"] = category;
+      params["description"] = description;
+      params["color"] = color;
+      params["measureType"] = isScale ? "string" : "boolean";
+      params["achieveXDays"] = noOfDays;
+      params["achieveType"] = daysType;
+      params["goalImportance"] = importanceScale;
+      List<Map<String, String>> reminderList = [];
+      for (var reminder in timesList) {
+        HashMap<String, String> timeMap = HashMap();
+        timeMap["day"] = reminder.day;
+        timeMap["time"] = DateFormat("HH:mm").format(reminder.time);
+        reminderList.add(timeMap);
+      }
+      params["reminders"] = reminderList;
+
+      var response =
+      await http.put(Uri.parse(url), body: json.encode(params), headers: {
+        "Content-Type": "application/json",
+        'Authorization': 'Bearer $token',
+      });
+
+      if (response.statusCode == 200) {
+        var responseBody = json.decode(response.body);
+        GenericResponse genericResponse = GenericResponse.fromJson(responseBody);
+        return BaseResponse(genericResponse, null);
+      } else {
+        return _getErrorResponse(response.body);
+      }
+    } catch (e) {
+      return BaseResponse(null, e.toString());
+    }
+  }
+
 
 }

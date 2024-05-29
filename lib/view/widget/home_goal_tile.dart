@@ -6,6 +6,7 @@ import 'package:life_berg/constant/color.dart';
 import 'package:life_berg/generated/assets.dart';
 import 'package:life_berg/view/screens/archive_items/archive_items.dart';
 import 'package:life_berg/view/screens/edit_goal/edit_goal.dart';
+import 'package:life_berg/view/screens/setup_goal/add_new_goal.dart';
 import 'package:life_berg/view/widget/common_image_view.dart';
 import 'package:life_berg/view/widget/custom_bottom_sheet.dart';
 import 'package:life_berg/view/widget/custom_slider.dart';
@@ -20,22 +21,22 @@ import '../../model/goal/goal.dart';
 
 // ignore: must_be_immutable
 class HomeGoalTile extends StatefulWidget {
-  HomeGoalTile(
-      {Key? key,
-      this.title,
-      this.leadingColor,
-      this.haveCheckBox = false,
-      this.checkBoxValue,
-      this.haveSlider = false,
-      this.leadingIcon,
-      this.progress,
-      this.onCheckBoxTap,
-      this.imageBgColor,
-      this.onProgressChange,
-      this.goal,
-      this.type,
-      this.index,})
-      : super(key: key);
+  HomeGoalTile({
+    Key? key,
+    this.title,
+    this.leadingColor,
+    this.haveCheckBox = false,
+    this.checkBoxValue,
+    this.haveSlider = false,
+    this.leadingIcon,
+    this.progress,
+    this.onCheckBoxTap,
+    this.imageBgColor,
+    this.onProgressChange,
+    this.goal,
+    this.type,
+    this.index,
+  }) : super(key: key);
 
   Color? leadingColor;
   String? title, leadingIcon;
@@ -158,7 +159,12 @@ class _HomeGoalTileState extends State<HomeGoalTile> {
         menuItem(
           icon: Assets.imagesEditItem,
           title: 'Edit goal',
-          onTap: () => Get.to(() => EditGoal()),
+          onTap: () => Get.to(() => AddNewGoal(), arguments: {
+            "goal": widget.goal!,
+            "goalCategory": widget.goal!.category!.name,
+            "goalName": widget.goal!.name,
+            "isComingFromOnBoarding": false
+          }),
         ),
         menuItem(
           icon: Assets.imagesAchive,
@@ -185,6 +191,8 @@ class _HomeGoalTileState extends State<HomeGoalTile> {
                     onTap: () {
                       Get.back();
                       Get.back();
+                      homeController.archiveGoal(
+                          widget.goal!, widget.type!, widget.index!);
                     },
                   ),
                 ],
@@ -203,7 +211,7 @@ class _HomeGoalTileState extends State<HomeGoalTile> {
               backgroundColor: Colors.transparent,
               elevation: 0,
               builder: (_) {
-                return AddComment();
+                return AddComment(widget.goal!, widget.type!, widget.index!);
               },
             );
           },
@@ -351,7 +359,15 @@ class _HomeGoalTileState extends State<HomeGoalTile> {
 }
 
 class AddComment extends StatelessWidget {
-  const AddComment({
+  final HomeController homeController = Get.find<HomeController>();
+  final Goal goal;
+  final String type;
+  final int index;
+
+  AddComment(
+    this.goal,
+    this.type,
+    this.index, {
     super.key,
   });
 
@@ -368,11 +384,13 @@ class AddComment extends StatelessWidget {
           child: MyTextField(
             fillColor: Colors.white,
             maxLines: 1,
+            controller: homeController.goalCommentController,
             hint: 'Add a short comment to your selected item',
             marginBottom: 0.0,
           ),
         ),
         onTap: () {
+          homeController.addCommentOnGoal(goal, type, index);
           Get.dialog(
             MyDialog(
               icon: Assets.imagesComment,

@@ -24,6 +24,7 @@ class HomeController extends GetxController {
   final HttpManager httpManager = HttpManager();
 
   final TextEditingController moodCommentController = TextEditingController();
+  final TextEditingController goalCommentController = TextEditingController();
 
   User? user;
   RxString fullName = "".obs;
@@ -36,9 +37,9 @@ class HomeController extends GetxController {
 
   RxBool isLoadingGoals = true.obs;
 
-  List<Goal> wellBeingGoals = [];
-  List<Goal> vocationalGoals = [];
-  List<Goal> personalDevGoals = [];
+  List<Goal> wellBeingGoals = <Goal>[].obs;
+  List<Goal> vocationalGoals = <Goal>[].obs;
+  List<Goal> personalDevGoals = <Goal>[].obs;
 
   @override
   void onInit() {
@@ -174,17 +175,18 @@ class HomeController extends GetxController {
     });
   }
 
-  deleteGoal(Goal goal,String type, int index) {
+  deleteGoal(Goal goal, String type, int index) {
     FocusManager.instance.primaryFocus?.unfocus();
     httpManager
         .deleteGoal(
       PrefUtils().token,
-      goal.sId!,)
+      goal.sId!,
+    )
         .then((response) {
       if (response.error == null) {
         GenericResponse genericResponse = response.snapshot;
-        if(genericResponse.success == true){
-          switch(type){
+        if (genericResponse.success == true) {
+          switch (type) {
             case "wellbeing":
               wellBeingGoals.removeAt(index);
               break;
@@ -193,6 +195,63 @@ class HomeController extends GetxController {
               break;
             case "personal_development":
               personalDevGoals.removeAt(index);
+              break;
+          }
+        }
+      } else {
+        ToastUtils.showToast("Some error occurred.", color: kRedColor);
+      }
+    });
+  }
+
+  archiveGoal(Goal goal, String type, int index) {
+    FocusManager.instance.primaryFocus?.unfocus();
+    httpManager
+        .updateGoalStatus(PrefUtils().token, goal.sId!, "archive")
+        .then((response) {
+      if (response.error == null) {
+        GenericResponse genericResponse = response.snapshot;
+        if (genericResponse.success == true) {
+          switch (type) {
+            case "wellbeing":
+              wellBeingGoals.removeAt(index);
+              break;
+            case "vocation":
+              vocationalGoals.removeAt(index);
+              break;
+            case "personal_development":
+              personalDevGoals.removeAt(index);
+              break;
+          }
+        }
+      } else {
+        ToastUtils.showToast("Some error occurred.", color: kRedColor);
+      }
+    });
+  }
+
+  addCommentOnGoal(Goal goal, String type, int index) {
+    FocusManager.instance.primaryFocus?.unfocus();
+    httpManager
+        .addCommentOnGoal(
+            PrefUtils().token, goal.sId!, goalCommentController.text.toString())
+        .then((response) {
+      if (response.error == null) {
+        GenericResponse genericResponse = response.snapshot;
+        goalCommentController.text = "";
+        if (genericResponse.success == true) {
+          switch (type) {
+            case "wellbeing":
+              goal.comment = goalCommentController.text.toString();
+              wellBeingGoals[index] = goal;
+              break;
+            case "vocation":
+              goal.comment = goalCommentController.text.toString();
+              vocationalGoals[index] = goal;
+              break;
+            case "personal_development":
+              goal.comment = goalCommentController.text.toString();
+              personalDevGoals[index] = goal;
               break;
           }
         }

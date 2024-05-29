@@ -1,5 +1,20 @@
 import 'package:flutter/material.dart';
 
+Color hexToColor(String hexString) {
+  final buffer = StringBuffer();
+  if (hexString.length == 6 || hexString.length == 7) buffer.write('ff');
+  buffer.write(hexString.replaceFirst('#', ''));
+  return Color(int.parse(buffer.toString(), radix: 16));
+}
+
+String colorToHex(Color color) {
+  return '#'
+      '${color.alpha.toRadixString(16).padLeft(2, '0')}'
+      '${color.red.toRadixString(16).padLeft(2, '0')}'
+      '${color.green.toRadixString(16).padLeft(2, '0')}'
+      '${color.blue.toRadixString(16).padLeft(2, '0')}';
+}
+
 const kPrimaryColor = Color(0xffF9FAFB);
 const kLightPrimaryColor = Color(0xffD8E8FC);
 const kSecondaryColor = Color(0xffFFFFFF);

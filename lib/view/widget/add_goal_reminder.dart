@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
 import 'package:get/get.dart';
@@ -7,6 +9,8 @@ import 'package:life_berg/view/widget/custom_bottom_sheet.dart';
 import 'package:life_berg/view/widget/main_heading.dart';
 import 'package:life_berg/view/widget/my_dialog.dart';
 import 'package:life_berg/view/widget/my_text.dart';
+
+import 'my_button.dart';
 
 class AddGoalReminder extends StatefulWidget {
   final Function(String? day, DateTime? time) onDaySelect;
@@ -37,7 +41,117 @@ class _AddGoalReminderState extends State<AddGoalReminder> {
 
   @override
   Widget build(BuildContext context) {
-    return CustomBottomSheet(
+    return Container(
+      height: Get.height * 0.5,
+      decoration: BoxDecoration(
+        color: kPrimaryColor,
+        borderRadius: BorderRadius.only(
+          topRight: Radius.circular(8),
+          topLeft: Radius.circular(8),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Image.asset(
+              Assets.imagesBottomSheetHandle,
+              height: 8,
+            ),
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          MainHeading(
+            text: 'Add a reminder',
+            paddingBottom: 20,
+            paddingLeft: 15,
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: Row(
+              children: List.generate(
+                days.length,
+                    (index) {
+                  return weekDaysToggleButton(
+                    onTap: () {
+                      day = days[index];
+                      if(mounted){
+                        setState(() {
+
+                        });
+                      }
+                    },
+                    isSelected: day == days[index],
+                    weekDay: days[index],
+                  );
+                },
+              ),
+            ),
+          ),
+          // MyText(
+          //   paddingTop: 16.0,
+          //   paddingLeft: 15,
+          //   text: 'Time',
+          //   size: 20,
+          //   weight: FontWeight.w500,
+          // ),
+          Expanded(
+            child: TimePickerSpinner(
+              is24HourMode: false,
+              normalTextStyle: TextStyle(
+                fontSize: 16,
+                color: kTextColor,
+              ),
+              highlightedTextStyle: TextStyle(
+                fontSize: 20,
+                color: kTextColor,
+                fontWeight: FontWeight.w500,
+              ),
+              spacing: 40,
+              itemHeight: 40,
+              isForce2Digits: false,
+              minutesInterval: 1,
+              onTimeChange: (time) {
+                this.time = time;
+                if(mounted){
+                  setState(() {
+
+                  });
+                }
+              },
+            ),
+          ),
+          Padding(
+            padding: Platform.isIOS
+                ? EdgeInsets.fromLTRB(15, 10, 15, 30)
+                : EdgeInsets.fromLTRB(15, 10, 15, 15),
+            child: MyButton(
+              height: 56,
+              radius: 8,
+              isDisable: false,
+              text: "Confirm",
+              onTap: (){
+                Get.back();
+                widget.onDaySelect(day,time);
+                showDialog(
+                  context: context,
+                  builder: (_) {
+                    return MyDialog(
+                      icon: Assets.imagesReminderBell,
+                      heading: 'Reminder Added',
+                      content: 'LifeBerg will give you a nudge at your nominated time!',
+                      onOkay: () => Get.back(),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    ); CustomBottomSheet(
       buttonText: 'Confirm',
       height: Get.height * 0.5,
       child: Column(

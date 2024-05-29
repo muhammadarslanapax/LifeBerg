@@ -4,12 +4,14 @@ import 'package:get/get.dart';
 import 'package:get/get_rx/get_rx.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/state_manager.dart';
+import 'package:intl/intl.dart';
 import 'package:life_berg/apis/http_manager.dart';
 import 'package:life_berg/model/generic_response.dart';
 import 'package:life_berg/model/setup_goal_model/setup_goal_model.dart';
 import 'package:life_berg/utils/pref_utils.dart';
 
 import '../../constant/color.dart';
+import '../../model/error/error_response.dart';
 import '../../model/goal/goal.dart';
 import '../../model/reminder/reminder_date_time.dart';
 import '../../utils/toast_utils.dart';
@@ -28,6 +30,8 @@ class GoalController extends GetxController {
 
   bool isComingFromOnBoarding = false;
 
+  Goal? goal;
+
   // Fields related to add new goal page..
   RxString icon = "".obs;
   Color? color;
@@ -44,7 +48,7 @@ class GoalController extends GetxController {
   List<String> goals = [
     'Select category',
     'Wellbeing',
-    'Vocation',
+    'Vocational',
     'Personal Development',
   ];
 
@@ -174,6 +178,22 @@ class GoalController extends GetxController {
     selectedGoal.value = argumentData["goalCategory"];
     goalNameCon.text = argumentData["goalName"];
     isComingFromOnBoarding = argumentData["isComingFromOnBoarding"];
+    if (argumentData.containsKey("goal")) {
+      goal = argumentData["goal"];
+      if (goal != null) {
+        goalDesCon.text = goal!.description ?? "";
+        daysCon.text = goal!.achieveXDays ?? "";
+        selectGoalDaysType.value = goal!.achieveType ?? "";
+        icon.value = "${goal!.icon ?? ""}";
+        isScale.value = goal!.goalMeasure!.type == "string";
+        seekbarValue.value = double.parse(goal!.goalImportance ?? "0.0");
+        for (var date in goal!.reminders!) {
+          timeList.add(ReminderDateTime(
+              date.day!, DateFormat("hh:mm").parse(date.time!)));
+        }
+        color = hexToColor(goal!.color!);
+      }
+    }
   }
 
   addNewGoal(Function(bool isSuccess) onGoalCreate) {
@@ -184,21 +204,56 @@ class GoalController extends GetxController {
             PrefUtils().token,
             icon.value,
             goalNameCon.text.toString(),
-            selectedGoal.value,
+            categoryId(selectedGoal.value),
             goalDesCon.text.toString(),
             daysCon.text.toString(),
             selectGoalDaysType.value,
             seekbarValue.value.toInt().toString(),
             isScale.value,
-            color!.toString(),
+            colorToHex(color!),
+            timeList)
+        .then((response) {
+      SmartDialog.dismiss();
+      if (response.error == null) {
+        if(response.snapshot! is! ErrorResponse){
+          GenericResponse genericResponse = response.snapshot;
+          if (genericResponse.success == true) {
+            onGoalCreate(true);
+          } else {
+            onGoalCreate(false);
+          }
+        }
+      } else {
+        onGoalCreate(false);
+        ToastUtils.showToast("Some error occurred.", color: kRedColor);
+      }
+    });
+  }
+
+  editGoal(Function(bool isSuccess) onGoalCreate) {
+    FocusManager.instance.primaryFocus?.unfocus();
+    SmartDialog.showLoading(msg: "Please wait...");
+    httpManager
+        .editGoal(
+            PrefUtils().token,
+            goal!.sId.toString(),
+            icon.value,
+            goalNameCon.text.toString(),
+            categoryId(selectedGoal.value),
+            goalDesCon.text.toString(),
+            daysCon.text.toString(),
+            selectGoalDaysType.value,
+            seekbarValue.value.toInt().toString(),
+            isScale.value,
+            colorToHex(color!),
             timeList)
         .then((response) {
       SmartDialog.dismiss();
       if (response.error == null) {
         GenericResponse genericResponse = response.snapshot;
-        if(genericResponse.success == true) {
+        if (genericResponse.success == true) {
           onGoalCreate(true);
-        }else{
+        } else {
           onGoalCreate(false);
         }
       } else {
@@ -208,4 +263,15 @@ class GoalController extends GetxController {
     });
   }
 
+  String categoryId(String category) {
+    switch (category) {
+      case 'Wellbeing':
+        return "6628e19cb0f93ad8fddbd7a4";
+      case 'Vocational':
+        return "6638bf06584bab76b306e569";
+      case 'Personal Development':
+        return "6628e1ac00b9551011466195";
+    }
+    return '';
+  }
 }

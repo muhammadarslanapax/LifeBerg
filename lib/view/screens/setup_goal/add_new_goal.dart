@@ -23,6 +23,7 @@ import 'package:life_berg/view/widget/my_text_field.dart';
 import 'package:life_berg/view/widget/simple_app_bar.dart';
 
 import '../../../model/reminder/reminder_date_time.dart';
+import '../../widget/my_dialog.dart';
 
 class AddNewGoal extends StatelessWidget {
   final GoalController goalController = Get.put(GoalController());
@@ -32,7 +33,7 @@ class AddNewGoal extends StatelessWidget {
     return Scaffold(
       backgroundColor: kPrimaryColor,
       appBar: simpleAppBar(
-        title: 'Add a new goal',
+        title: goalController.goal == null ? 'Add a new goal' : "Edit goal",
       ),
       body: Obx(() {
         return ListView(
@@ -122,7 +123,7 @@ class AddNewGoal extends StatelessWidget {
                               decoration: BoxDecoration(
                                 color: data == 'Wellbeing'
                                     ? kWellBeingColor.withOpacity(0.2)
-                                    : data == 'Vocation'
+                                    : data == 'Vocational'
                                         ? kPeachColor.withOpacity(0.2)
                                         : data == 'Personal Development'
                                             ? kCardioColor.withOpacity(0.2)
@@ -134,7 +135,7 @@ class AddNewGoal extends StatelessWidget {
                                   decoration: BoxDecoration(
                                     color: data == 'Wellbeing'
                                         ? kWellBeingColor
-                                        : data == 'Vocation'
+                                        : data == 'Vocational'
                                             ? kCardio2Color
                                             : data == 'Personal Development'
                                                 ? kCardioColor
@@ -433,15 +434,36 @@ class AddNewGoal extends StatelessWidget {
               isDisable: false,
               text: 'Confirm',
               onTap: () {
-                goalController.addNewGoal((isCreated) {
-                  if (isCreated) {
-                    Get.back();
-                    _showGoalCreatedDialog(context);
-                  } else {
-                    ToastUtils.showToast("Some error occurred.",
-                        color: kRedColor);
-                  }
-                });
+                if(goalController.goal != null){
+                  goalController.editGoal((isCreated) {
+                    if (isCreated) {
+                      Get.back();
+                      Get.dialog(
+                        MyDialog(
+                          icon: Assets.imagesEditItem,
+                          heading: 'Edit goal',
+                          content: 'Your selected item has been edited.',
+                          onOkay: () {
+                            Get.back();
+                          },
+                        ),
+                      );
+                    } else {
+                      ToastUtils.showToast("Some error occurred.",
+                          color: kRedColor);
+                    }
+                  });
+                }else {
+                  goalController.addNewGoal((isCreated) {
+                    if (isCreated) {
+                      Get.back();
+                      _showGoalCreatedDialog(context);
+                    } else {
+                      ToastUtils.showToast("Some error occurred.",
+                          color: kRedColor);
+                    }
+                  });
+                }
               },
             ),
             SizedBox(
@@ -470,7 +492,7 @@ class AddNewGoal extends StatelessWidget {
                   Get.back();
                   Get.to(() => VocationGoal());
                   break;
-                case 'Vocation':
+                case 'Vocational':
                   Get.back();
                   Get.to(() => PersonalDevelopmentGoal());
                   break;

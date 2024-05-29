@@ -89,7 +89,7 @@ class OnboardingController extends GetxController {
       selectedGoalName.value =
           wellBeingIndex.value != -1 ? wellBeingList[wellBeingIndex.value] : "";
     } else if (from == "vocationalTasks") {
-      selectedGoalType.value = "Vocation";
+      selectedGoalType.value = "Vocational";
       selectedGoalName.value = vocationalTaskIndex.value != -1
           ? vocationGoalList[vocationalTaskIndex.value]
           : "";

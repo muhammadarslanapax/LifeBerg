@@ -11,6 +11,7 @@ class Goal {
   String? user;
   String? icon;
   String? name;
+  String? comment;
   Category? category;
   String? achieveXDays;
   String? achieveType;
@@ -22,12 +23,14 @@ class Goal {
   String? color;
   RxBool isChecked = false.obs;
   RxDouble sliderValue = 0.0.obs;
+  RxBool isSkipped = false.obs;
 
   Goal(
       {this.sId,
       this.user,
       this.icon,
       this.name,
+        this.comment,
       this.category,
       this.achieveXDays,
       this.achieveType,
@@ -43,6 +46,7 @@ class Goal {
     user = json['user'];
     icon = json['icon'];
     name = json['name'];
+    comment = json['comment'];
     category = json['category'] != null
         ? new Category.fromJson(json['category'])
         : null;
@@ -69,6 +73,7 @@ class Goal {
     data['user'] = this.user;
     data['icon'] = this.icon;
     data['name'] = this.name;
+    data['comment'] = this.comment;
     if (this.category != null) {
       data['category'] = this.category!.toJson();
     }
