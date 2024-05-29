@@ -43,4 +43,28 @@ class PrefUtils {
     _sharedPreferences!.setBool(isLoggedIn, value);
   }
 
+  String get submittedGoals => _sharedPreferences!.getString(goalData) ?? "";
+
+  set submittedGoals(String value) {
+    _sharedPreferences!.setString(goalData, value);
+  }
+
+  String get lastSavedDate => _sharedPreferences!.getString(savedDate) ?? "";
+
+  set lastSavedDate(String value) {
+    _sharedPreferences!.setString(savedDate, value);
+  }
+
+  String get newGoalStartTime => _sharedPreferences!.getString(newDayTime) ?? "02:00 AM";
+
+  set newGoalStartTime(String value) {
+    _sharedPreferences!.setString(newDayTime, value);
+  }
+
+  bool get isNewDataLoaded => _sharedPreferences!.getBool(newDataLoaded) ?? false;
+
+  set isNewDataLoaded(bool value) {
+    _sharedPreferences!.setBool(newDataLoaded, value);
+  }
+
 }

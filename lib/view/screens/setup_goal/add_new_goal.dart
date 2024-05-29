@@ -28,10 +28,13 @@ import '../../widget/my_dialog.dart';
 
 class AddNewGoal extends StatelessWidget {
   final GoalController goalController = Get.put(GoalController());
-  final HomeController homeController = Get.find<HomeController>();
+  late HomeController homeController;
 
   @override
   Widget build(BuildContext context) {
+    if (!goalController.isComingFromOnBoarding) {
+      homeController = Get.find<HomeController>();
+    }
     return Scaffold(
       backgroundColor: kPrimaryColor,
       appBar: simpleAppBar(

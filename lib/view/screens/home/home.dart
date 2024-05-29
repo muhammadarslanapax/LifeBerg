@@ -363,7 +363,7 @@ class Home extends StatelessWidget {
                     homeController.isLoadingGoals.value == false &&
                             homeController.vocationalGoals.isNotEmpty
                         ? ProfileHeading(
-                            marginTop: 18,
+                            marginTop: 24,
                             heading: 'Vocational',
                             leadingColor: kRACGPExamColor,
                           )
@@ -409,7 +409,7 @@ class Home extends StatelessWidget {
                     homeController.isLoadingGoals.value == false &&
                             homeController.personalDevGoals.isNotEmpty
                         ? ProfileHeading(
-                            marginTop: 18,
+                            marginTop: 24,
                             heading: 'Personal Development',
                             leadingColor: kDailyGratitudeColor,
                           )

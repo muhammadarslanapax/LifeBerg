@@ -6,6 +6,7 @@ import 'package:get/get.dart';
 import 'package:get/get_rx/get_rx.dart';
 import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:life_berg/apis/http_manager.dart';
 import 'package:life_berg/model/generic_response.dart';
 import 'package:life_berg/model/goal/goals_list_response.dart';
@@ -15,6 +16,7 @@ import 'package:life_berg/model/mood/mood_data.dart';
 import '../../constant/color.dart';
 import '../../model/error/error_response.dart';
 import '../../model/goal/goal.dart';
+import '../../model/goal/goal_submit/goal_submit_data.dart';
 import '../../model/user/user.dart';
 import '../../model/user/user_response.dart';
 import '../../utils/pref_utils.dart';
@@ -41,6 +43,8 @@ class HomeController extends GetxController {
   List<Goal> vocationalGoals = <Goal>[].obs;
   List<Goal> personalDevGoals = <Goal>[].obs;
 
+  List<GoalSubmitData> goalSubmitData = [];
+
   @override
   void onInit() {
     super.onInit();
@@ -57,8 +61,73 @@ class HomeController extends GetxController {
       user = User.fromJson(json.decode(PrefUtils().user));
       fullName.value = user?.fullName ?? "";
       userProfileImageUrl.value = user?.profilePicture ?? "";
+      if (PrefUtils().submittedGoals.isNotEmpty) {
+        List<dynamic> jsonList = jsonDecode(PrefUtils().submittedGoals);
+        List<GoalSubmitData> goalSubmitDataList = jsonList
+            .map((jsonItem) => GoalSubmitData.fromJson(jsonItem))
+            .toList();
+        goalSubmitData.addAll(goalSubmitDataList);
+      }
       getUserGoals();
     }
+  }
+
+  _checkTimeToStartNewDay(){
+    DateTime now = DateTime.now();
+
+    String timeString = PrefUtils().newGoalStartTime;
+    DateFormat timeFormat = DateFormat.jm();
+
+    // Parse the "saved" time string
+    DateTime parsedTime = timeFormat.parse(timeString);
+
+    // Combine parsed time with today's date to get the full DateTime object
+    DateTime targetTime = DateTime(now.year, now.month, now.day, parsedTime.hour, parsedTime.minute);
+
+    // Check if current time is greater than the target time
+    if (now.isAfter(targetTime)) {
+      
+    }
+  }
+
+  saveLocalData(Goal goal, bool isChecked, String trackValue) {
+    bool isFound = false;
+    for (var goals in goalSubmitData) {
+      if (goals.goalId == goal.sId) {
+        if (goal.goalMeasure!.type == "string") {
+          goals.measureValue = trackValue;
+        } else {
+          goals.isChecked = isChecked;
+        }
+        isFound = true;
+      }
+    }
+    if (!isFound) {
+      GoalSubmitData goalData = GoalSubmitData(
+          goal.sId!, goal.goalMeasure!.type!, isChecked, trackValue);
+      goalSubmitData.add(goalData);
+    }
+    String jsonString =
+        jsonEncode(goalSubmitData.map((goal) => goal.toJson()).toList());
+    PrefUtils().submittedGoals = jsonString;
+  }
+
+  bool checkIsGoalChecked(Goal goal) {
+    for (var goalData in goalSubmitData) {
+      if (goalData.goalId == goal.sId!) {
+        return goalData.isChecked;
+      }
+    }
+    return false;
+  }
+
+  String checkGoalTrackValue(Goal goal) {
+    for (var goalData in goalSubmitData) {
+      if (goalData.goalId == goal.sId!) {
+        return goalData.measureValue;
+      }
+    }
+    return "0.0";
   }
 
   String getFirstName(String fullName) {
@@ -151,14 +220,28 @@ class HomeController extends GetxController {
           if (goalsListResponse.success == true) {
             if (goalsListResponse.data != null) {
               if (goalsListResponse.data!.vocational != null) {
-                vocationalGoals.addAll(goalsListResponse.data!.vocational!);
+                for (var goal in goalsListResponse.data!.vocational!) {
+                  goal.isChecked.value = checkIsGoalChecked(goal);
+                  goal.sliderValue.value =
+                      double.parse(checkGoalTrackValue(goal));
+                  vocationalGoals.add(goal);
+                }
               }
               if (goalsListResponse.data!.personalDevelopment != null) {
-                personalDevGoals
-                    .addAll(goalsListResponse.data!.personalDevelopment!);
+                for (var goal in goalsListResponse.data!.personalDevelopment!) {
+                  goal.isChecked.value = checkIsGoalChecked(goal);
+                  goal.sliderValue.value =
+                      double.parse(checkGoalTrackValue(goal));
+                  personalDevGoals.add(goal);
+                }
               }
               if (goalsListResponse.data!.wellBeing != null) {
-                wellBeingGoals.addAll(goalsListResponse.data!.wellBeing!);
+                for (var goal in goalsListResponse.data!.wellBeing!) {
+                  goal.isChecked.value = checkIsGoalChecked(goal);
+                  goal.sliderValue.value =
+                      double.parse(checkGoalTrackValue(goal));
+                  wellBeingGoals.add(goal);
+                }
               }
             }
           } else {
@@ -242,7 +325,7 @@ class HomeController extends GetxController {
             PrefUtils().token, goal.sId!, goalCommentController.text.toString())
         .then((response) {
       if (response.error == null) {
-        if(response.snapshot! is! ErrorResponse) {
+        if (response.snapshot! is! ErrorResponse) {
           GenericResponse genericResponse = response.snapshot;
           if (genericResponse.success == true) {
             switch (type) {

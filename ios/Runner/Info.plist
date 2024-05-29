@@ -65,5 +65,11 @@
     <string>5d2d2085be5eb29b55ed27607f72f828</string>
     <key>FacebookDisplayName</key>
     <string>LifeBerg</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Please allow access to Photo Library to upload profile picture.</string>
+    <key>NSCameraUsageDescription</key>
+    <string>Please allow access to Camera to upload profile picture.</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Please allow access to Microphone to upload profile picture.</string>
 </dict>
 </plist>

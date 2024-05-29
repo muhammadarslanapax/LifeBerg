@@ -9,9 +9,9 @@ class GoalsListResponseData {
       {this.wellBeing, this.vocational, this.personalDevelopment});
 
   GoalsListResponseData.fromJson(Map<String, dynamic> json) {
-    if (json['Well Being'] != null) {
+    if (json['Wellbeing'] != null) {
       wellBeing = <Goal>[];
-      json['Well Being'].forEach((v) {
+      json['Wellbeing'].forEach((v) {
         wellBeing!.add(new Goal.fromJson(v));
       });
     }
@@ -32,7 +32,7 @@ class GoalsListResponseData {
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     if (this.wellBeing != null) {
-      data['Well Being'] = this.wellBeing!.map((v) => v.toJson()).toList();
+      data['Wellbeing'] = this.wellBeing!.map((v) => v.toJson()).toList();
     }
     if (this.vocational != null) {
       data['Vocational'] = this.vocational!.map((v) => v.toJson()).toList();

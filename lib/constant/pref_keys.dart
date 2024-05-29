@@ -3,3 +3,7 @@ const String isLoggedIn = "is_logged_in";
 const String userToken = "user_token";
 const String id = "id";
 const String userDetail = "user_detail";
+const String goalData = "goal_data";
+const String newDayTime = "new_day_time";
+const String newDataLoaded = "new_data_loaded";
+const String savedDate = "saved_date";

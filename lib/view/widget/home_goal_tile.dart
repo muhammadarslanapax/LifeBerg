@@ -217,7 +217,8 @@ class _HomeGoalTileState extends State<HomeGoalTile> {
           title: 'Add comment',
           onTap: () {
             Navigator.of(context).pop();
-            homeController.goalCommentController.text = widget.goal!.comment ?? "";
+            homeController.goalCommentController.text =
+                widget.goal!.comment ?? "";
             showModalBottomSheet(
               context: context,
               isScrollControlled: true,
@@ -283,8 +284,8 @@ class _HomeGoalTileState extends State<HomeGoalTile> {
           bottom: 8,
         ),
         padding: EdgeInsets.symmetric(
-          horizontal: 8,
-          vertical: 8,
+          horizontal: 10,
+          vertical: 10,
         ),
         // height: 40,
         decoration: BoxDecoration(
@@ -331,7 +332,9 @@ class _HomeGoalTileState extends State<HomeGoalTile> {
                 ? Obx(() => GestureDetector(
                       onTap: () {
                         if (widget.goal!.isSkipped.value == false) {
-                          widget.onCheckBoxTap;
+                          homeController.saveLocalData(widget.goal!,
+                              !widget.checkBoxValue!.value, "0.0");
+                          widget.onCheckBoxTap!();
                         }
                       },
                       child: Container(
@@ -368,6 +371,8 @@ class _HomeGoalTileState extends State<HomeGoalTile> {
                           value: widget.progress,
                           isSkipped: widget.goal!.isSkipped,
                           onChanged: (value) {
+                            homeController.saveLocalData(widget.goal!,
+                                !widget.checkBoxValue!.value, value.toString());
                             widget.onProgressChange!(value);
                           },
                         ),
