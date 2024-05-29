@@ -244,7 +244,6 @@ class HomeController extends GetxController {
       if (response.error == null) {
         if(response.snapshot! is! ErrorResponse) {
           GenericResponse genericResponse = response.snapshot;
-          goalCommentController.text = "";
           if (genericResponse.success == true) {
             switch (type) {
               case "wellbeing":
@@ -261,6 +260,7 @@ class HomeController extends GetxController {
                 break;
             }
           }
+          goalCommentController.text = "";
         }
       } else {
         ToastUtils.showToast("Some error occurred.", color: kRedColor);

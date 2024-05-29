@@ -6,38 +6,44 @@ import 'package:life_berg/constant/color.dart';
 class CustomSlider extends StatelessWidget {
   ValueChanged<double>? onChanged;
   RxDouble? value = 0.0.obs;
+  RxBool? isSkipped = false.obs;
 
   CustomSlider({
     Key? key,
     this.onChanged,
     this.value,
+    this.isSkipped,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Obx(() => SliderTheme(
-      data: SliderThemeData(
-        trackHeight: 2,
-        minThumbSeparation: 0.0,
-        overlayShape: RoundSliderOverlayShape(
-          overlayRadius: 0.0,
-        ),
-        thumbShape: RoundSliderThumbShape(
-          enabledThumbRadius: 5,
-        ),
-        overlayColor: Colors.transparent,
-        overlappingShapeStrokeColor: Colors.transparent,
-        trackShape: CustomTrackShape(),
-      ),
-      child: Slider(
-        onChanged: onChanged,
-        value: value!.value ?? 0,
-        min: 0,
-        max: 10,
-        activeColor: kDarkBlueColor,
-        inactiveColor: kUnSelectedColor,
-      ),
-    ));
+          data: SliderThemeData(
+            trackHeight: 4,
+            minThumbSeparation: 0.0,
+            overlayShape: RoundSliderOverlayShape(
+              overlayRadius: 0.0,
+            ),
+            thumbShape: RoundSliderThumbShape(
+              enabledThumbRadius: 5,
+            ),
+            overlayColor: Colors.transparent,
+            overlappingShapeStrokeColor: Colors.transparent,
+            trackShape: CustomTrackShape(),
+          ),
+          child: Slider(
+            onChanged: isSkipped!.value == false
+                ? (value) {
+                    onChanged!(value);
+                  }
+                : null,
+            value: value!.value ?? 0,
+            min: 0,
+            max: 10,
+            activeColor: kDarkBlueColor,
+            inactiveColor: kUnSelectedColor,
+          ),
+        ));
   }
 }
 

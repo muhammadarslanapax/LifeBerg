@@ -116,7 +116,10 @@ class _HomeGoalTileState extends State<HomeGoalTile> {
                       ),
                       DialogActionButton(
                         text: 'Skip',
-                        onTap: () => Get.back(),
+                        onTap: () {
+                          Get.back();
+                          widget.goal!.isSkipped.value = true;
+                        },
                       ),
                     ],
                   ),
@@ -150,7 +153,10 @@ class _HomeGoalTileState extends State<HomeGoalTile> {
                       ),
                       DialogActionButton(
                         text: 'Restore',
-                        onTap: () => Get.back(),
+                        onTap: () {
+                          Get.back();
+                          widget.goal!.isSkipped.value = false;
+                        },
                       ),
                     ],
                   ),
@@ -211,6 +217,7 @@ class _HomeGoalTileState extends State<HomeGoalTile> {
           title: 'Add comment',
           onTap: () {
             Navigator.of(context).pop();
+            homeController.goalCommentController.text = widget.goal!.comment ?? "";
             showModalBottomSheet(
               context: context,
               isScrollControlled: true,
@@ -322,7 +329,11 @@ class _HomeGoalTileState extends State<HomeGoalTile> {
             ),
             widget.haveCheckBox!
                 ? Obx(() => GestureDetector(
-                      onTap: widget.onCheckBoxTap,
+                      onTap: () {
+                        if (widget.goal!.isSkipped.value == false) {
+                          widget.onCheckBoxTap;
+                        }
+                      },
                       child: Container(
                         height: 18,
                         width: 18,
@@ -330,14 +341,18 @@ class _HomeGoalTileState extends State<HomeGoalTile> {
                           borderRadius: BorderRadius.circular(4.0),
                           border: Border.all(
                               width: 1,
-                              color: widget.checkBoxValue!.value
+                              color: widget.checkBoxValue!.value ||
+                                      widget.goal!.isSkipped.value
                                   ? Colors.transparent
                                   : kBorderColor),
-                          color: widget.checkBoxValue!.value
-                              ? kTertiaryColor
-                              : Colors.white,
+                          color: widget.goal!.isSkipped.value
+                              ? kUnSelectedColor
+                              : widget.checkBoxValue!.value
+                                  ? kTertiaryColor
+                                  : Colors.white,
                         ),
-                        child: widget.checkBoxValue!.value
+                        child: widget.checkBoxValue!.value ||
+                                widget.goal!.isSkipped.value
                             ? Icon(
                                 Icons.check,
                                 color: kPrimaryColor,
@@ -351,6 +366,7 @@ class _HomeGoalTileState extends State<HomeGoalTile> {
                         width: 103,
                         child: CustomSlider(
                           value: widget.progress,
+                          isSkipped: widget.goal!.isSkipped,
                           onChanged: (value) {
                             widget.onProgressChange!(value);
                           },
