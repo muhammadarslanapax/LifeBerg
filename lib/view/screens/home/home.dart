@@ -451,7 +451,22 @@ class Home extends StatelessWidget {
                       itemCount: homeController.personalDevGoals.length,
                       shrinkWrap: true,
                       physics: NeverScrollableScrollPhysics(),
-                    )
+                    ),
+                    SizedBox(
+                      height: 18,
+                    ),
+                    homeController.wellBeingGoals.isEmpty &&
+                        homeController.vocationalGoals.isEmpty &&
+                        homeController.personalDevGoals.isEmpty ?
+                        Container() :
+                    MyButton(
+                      text: 'Submit',
+                      radius: 16,
+                      // height: 56,
+                      onTap: () => Get.to(
+                            () => EndOfDayReport(),
+                      ),
+                    ),
                   ],
                 )),
 
@@ -572,17 +587,6 @@ class Home extends StatelessWidget {
             haveCheckBox: true,
             checkBoxValue: true,
           ),*/
-          SizedBox(
-            height: 18,
-          ),
-          MyButton(
-            text: 'Submit',
-            radius: 16,
-            // height: 56,
-            onTap: () => Get.to(
-              () => EndOfDayReport(),
-            ),
-          ),
           SizedBox(
             height: 80,
           ),

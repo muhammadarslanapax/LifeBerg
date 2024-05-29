@@ -139,6 +139,9 @@ class HomeController extends GetxController {
   }
 
   getUserGoals() async {
+    vocationalGoals.clear();
+    personalDevGoals.clear();
+    wellBeingGoals.clear();
     isLoadingGoals.value = true;
     FocusManager.instance.primaryFocus?.unfocus();
     httpManager.getUserGoalsList(PrefUtils().token).then((value) {
@@ -210,18 +213,20 @@ class HomeController extends GetxController {
         .updateGoalStatus(PrefUtils().token, goal.sId!, "archive")
         .then((response) {
       if (response.error == null) {
-        GenericResponse genericResponse = response.snapshot;
-        if (genericResponse.success == true) {
-          switch (type) {
-            case "wellbeing":
-              wellBeingGoals.removeAt(index);
-              break;
-            case "vocation":
-              vocationalGoals.removeAt(index);
-              break;
-            case "personal_development":
-              personalDevGoals.removeAt(index);
-              break;
+        if (response.snapshot! is! ErrorResponse) {
+          GenericResponse genericResponse = response.snapshot;
+          if (genericResponse.success == true) {
+            switch (type) {
+              case "wellbeing":
+                wellBeingGoals.removeAt(index);
+                break;
+              case "vocation":
+                vocationalGoals.removeAt(index);
+                break;
+              case "personal_development":
+                personalDevGoals.removeAt(index);
+                break;
+            }
           }
         }
       } else {
@@ -237,22 +242,24 @@ class HomeController extends GetxController {
             PrefUtils().token, goal.sId!, goalCommentController.text.toString())
         .then((response) {
       if (response.error == null) {
-        GenericResponse genericResponse = response.snapshot;
-        goalCommentController.text = "";
-        if (genericResponse.success == true) {
-          switch (type) {
-            case "wellbeing":
-              goal.comment = goalCommentController.text.toString();
-              wellBeingGoals[index] = goal;
-              break;
-            case "vocation":
-              goal.comment = goalCommentController.text.toString();
-              vocationalGoals[index] = goal;
-              break;
-            case "personal_development":
-              goal.comment = goalCommentController.text.toString();
-              personalDevGoals[index] = goal;
-              break;
+        if(response.snapshot! is! ErrorResponse) {
+          GenericResponse genericResponse = response.snapshot;
+          goalCommentController.text = "";
+          if (genericResponse.success == true) {
+            switch (type) {
+              case "wellbeing":
+                goal.comment = goalCommentController.text.toString();
+                wellBeingGoals[index] = goal;
+                break;
+              case "vocation":
+                goal.comment = goalCommentController.text.toString();
+                vocationalGoals[index] = goal;
+                break;
+              case "personal_development":
+                goal.comment = goalCommentController.text.toString();
+                personalDevGoals[index] = goal;
+                break;
+            }
           }
         }
       } else {

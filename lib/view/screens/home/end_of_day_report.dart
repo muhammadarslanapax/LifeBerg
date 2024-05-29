@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:life_berg/constant/color.dart';
+import 'package:life_berg/controller/admin_controller/home_controller.dart';
 import 'package:life_berg/generated/assets.dart';
 import 'package:life_berg/utils/instance.dart';
 import 'package:life_berg/view/screens/admin/wellbeing_action_plan/wellbeing_action_plan.dart';
@@ -18,12 +20,14 @@ import 'package:life_berg/view/widget/toggle_button.dart';
 import 'package:step_progress_indicator/step_progress_indicator.dart';
 
 class EndOfDayReport extends StatelessWidget {
-  const EndOfDayReport({Key? key}) : super(key: key);
+  final HomeController homeController = Get.find<HomeController>();
+
+  EndOfDayReport({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: kSecondaryColor,
+      backgroundColor: kPrimaryColor,
       appBar: simpleAppBar(
         title: 'Daily Check-in',
       ),
@@ -82,7 +86,7 @@ class EndOfDayReport extends StatelessWidget {
                       size: 10,
                       height: 1.7,
                       text:
-                          'Fantastic work\nUser. You achieved\nyour daily\nhighlight!',
+                          'Fantastic work!\nYou achieved your\ndaily highlight!',
                     ),
                   ],
                 ),
@@ -92,7 +96,7 @@ class EndOfDayReport extends StatelessWidget {
           MyText(
             paddingTop: 8,
             align: TextAlign.center,
-            text: 'Timmy-Berg',
+            text: homeController.user!.lifeBergName ?? "",
             size: 12,
             paddingBottom: 32,
           ),
@@ -107,7 +111,7 @@ class EndOfDayReport extends StatelessWidget {
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Column(
                   children: [
@@ -130,7 +134,7 @@ class EndOfDayReport extends StatelessWidget {
                         ),
                       ),
                     ),
-                    SizedBox(
+                    /*SizedBox(
                       height: 16,
                     ),
                     Row(
@@ -157,7 +161,7 @@ class EndOfDayReport extends StatelessWidget {
                           weight: FontWeight.w500,
                         ),
                       ],
-                    ),
+                    ),*/
                   ],
                 ),
                 SizedBox(
@@ -197,29 +201,35 @@ class EndOfDayReport extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 MainHeading(
-                  text: 'Few sentences about today',
+                  text: 'What were you grateful for today?',
                 ),
-                Image.asset(
-                  Assets.imagesAddImage,
-                  height: 24,
-                )
               ],
             ),
           ),
           MyTextField(
-            fillColor: kInputFillColor,
+            fillColor: Colors.white,
             hint:
-                'Write away, your entry will automatically added to your journal timeline...',
+                'Your entry will automatically added to your gratitude timeline.',
             maxLines: 2,
             marginBottom: 32,
+          ),
+          MainHeading(
+            text: 'What have you learnt from today?',
+            paddingBottom: 10,
+          ),
+          MyTextField(
+            fillColor: Colors.white,
+            hint: 'Your entry will automatically added to your development timeline.',
+            maxLines: 2,
+            marginBottom: 24,
           ),
           MainHeading(
             text: 'Tomorrow’s daily highlight',
             paddingBottom: 10,
           ),
           MyTextField(
-            fillColor: kInputFillColor,
-            hint: 'What is one thing you would like to achieve tomorrow? ',
+            fillColor: Colors.white,
+            hint: 'What is one thing you would like to achieve tomorrow?',
             maxLines: 2,
             marginBottom: 24,
           ),
@@ -227,33 +237,30 @@ class EndOfDayReport extends StatelessWidget {
             radius: 16.0,
             text: 'Submit',
             onTap: () {
-              Get.dialog(
-                ImageDialog(
-                  height: 182,
-                  heading: 'Daily Check-in Complete!',
-                  content:
-                      'Awesome work! Keep your streak going to optimise your holistic wellbeing!',
-                  imageSize: 92,
-                  image: Assets.imagesDailyCheckIn,
-                  onOkay: () {
-                    Get.back();
-                    Get.offAll(
-                      () => BottomNavBar(
-                        currentIndex: 4,
-                        currentRoute: '/personal_statistics',
-                      ),
-                    );
-                  },
-                ),
-              );
+              SmartDialog.showLoading(msg: 'Please wait...');
+              Future.delayed(Duration(seconds: 4),(){
+                SmartDialog.dismiss();
+                Get.dialog(
+                  ImageDialog(
+                    height: 182,
+                    heading: 'Daily Check-in Complete!',
+                    content:
+                    'Awesome work! Keep your streak going to optimise your holistic wellbeing!',
+                    imageSize: 92,
+                    image: Assets.imagesDailyCheckIn,
+                    onOkay: () {
+                      Get.back();
+                      Get.offAll(
+                        () => BottomNavBar(
+                          currentIndex: 4,
+                          currentRoute: '/personal_statistics',
+                        ),
+                      );
+                    },
+                  ),
+                );
+              });
             },
-          ),
-          SizedBox(
-            height: 16,
-          ),
-          MyBorderButton(
-            onTap: () => Get.back(),
-            text: 'Go back',
           ),
           SizedBox(
             height: 30,

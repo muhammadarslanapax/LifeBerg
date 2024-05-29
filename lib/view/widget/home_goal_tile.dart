@@ -90,121 +90,127 @@ class _HomeGoalTileState extends State<HomeGoalTile> {
         borderRadius: BorderRadius.circular(16),
       ),
       items: <PopupMenuItem>[
-        menuItem(
-          icon: Assets.imagesSkip,
-          title: 'Skip goal',
-          onTap: () {
-            Get.back();
-            Get.dialog(
-              MyDialog(
-                icon: Assets.imagesSkip,
-                heading: 'Skip Goal',
-                content:
-                    'Selected goal will be skipped for today. To revert changes please click undo.',
-                haveCustomActionButtons: true,
-                customAction: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    DialogActionButton(
-                      text: 'Undo',
-                      textColor: kRedColor,
-                      onTap: () => Get.back(),
-                    ),
-                    SizedBox(
-                      width: 16,
-                    ),
-                    DialogActionButton(
-                      text: 'Skip',
-                      onTap: () => Get.back(),
-                    ),
-                  ],
+        if (widget.goal!.isSkipped.value == false)
+          menuItem(
+            icon: Assets.imagesSkip,
+            title: 'Skip goal',
+            onTap: () {
+              Navigator.of(context).pop();
+              Get.dialog(
+                MyDialog(
+                  icon: Assets.imagesSkip,
+                  heading: 'Skip Goal',
+                  content:
+                      'Selected goal will be skipped for today. To revert changes please click undo.',
+                  haveCustomActionButtons: true,
+                  customAction: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      DialogActionButton(
+                        text: 'Undo',
+                        textColor: kRedColor,
+                        onTap: () => Get.back(),
+                      ),
+                      SizedBox(
+                        width: 16,
+                      ),
+                      DialogActionButton(
+                        text: 'Skip',
+                        onTap: () => Get.back(),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            );
-          },
-        ),
-        menuItem(
-          icon: Assets.imagesUnSkip,
-          title: 'Restore goal',
-          onTap: () {
-            Get.back();
-            Get.dialog(
-              MyDialog(
-                icon: Assets.imagesUnSkip,
-                heading: 'Restore Goal',
-                content:
-                    'Selected goal will be restored. To skip it, please click undo',
-                haveCustomActionButtons: true,
-                customAction: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    DialogActionButton(
-                      text: 'Undo',
-                      textColor: kRedColor,
-                      onTap: () => Get.back(),
-                    ),
-                    SizedBox(
-                      width: 16,
-                    ),
-                    DialogActionButton(
-                      text: 'Restore',
-                      onTap: () => Get.back(),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        ),
-        menuItem(
-          icon: Assets.imagesEditItem,
-          title: 'Edit goal',
-          onTap: () => Get.to(() => AddNewGoal(), arguments: {
-            "goal": widget.goal!,
-            "goalCategory": widget.goal!.category!.name,
-            "goalName": widget.goal!.name,
-            "isComingFromOnBoarding": false
-          }),
-        ),
-        menuItem(
-          icon: Assets.imagesAchive,
-          title: 'Archive goal',
-          onTap: () => Get.dialog(
-            MyDialog(
-              icon: Assets.imagesArchive2,
-              heading: 'Archive Goal',
-              content: 'Selected goal will be archived and made inactive.',
-              haveCustomActionButtons: true,
-              customAction: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  DialogActionButton(
-                    text: 'Undo',
-                    textColor: kRedColor,
-                    onTap: () => Get.back(),
-                  ),
-                  SizedBox(
-                    width: 16,
-                  ),
-                  DialogActionButton(
-                    text: 'Okay',
-                    onTap: () {
-                      Get.back();
-                      Get.back();
-                      homeController.archiveGoal(
-                          widget.goal!, widget.type!, widget.index!);
-                    },
-                  ),
-                ],
-              ),
-            ),
+              );
+            },
           ),
-        ),
+        if (widget.goal!.isSkipped.value == true)
+          menuItem(
+            icon: Assets.imagesUnSkip,
+            title: 'Restore goal',
+            onTap: () {
+              Navigator.of(context).pop();
+              Get.dialog(
+                MyDialog(
+                  icon: Assets.imagesUnSkip,
+                  heading: 'Restore Goal',
+                  content:
+                      'Selected goal will be restored. To skip it, please click undo',
+                  haveCustomActionButtons: true,
+                  customAction: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      DialogActionButton(
+                        text: 'Undo',
+                        textColor: kRedColor,
+                        onTap: () => Get.back(),
+                      ),
+                      SizedBox(
+                        width: 16,
+                      ),
+                      DialogActionButton(
+                        text: 'Restore',
+                        onTap: () => Get.back(),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        menuItem(
+            icon: Assets.imagesEditItem,
+            title: 'Edit goal',
+            onTap: () {
+              Navigator.of(context).pop();
+              Get.to(() => AddNewGoal(), arguments: {
+                "goal": widget.goal!,
+                "goalCategory": widget.goal!.category!.name,
+                "goalName": widget.goal!.name,
+                "isComingFromOnBoarding": false
+              });
+            }),
+        menuItem(
+            icon: Assets.imagesAchive,
+            title: 'Archive goal',
+            onTap: () {
+              Navigator.of(context).pop();
+              Get.dialog(
+                MyDialog(
+                  icon: Assets.imagesArchive2,
+                  heading: 'Archive Goal',
+                  content: 'Selected goal will be archived and made inactive.',
+                  haveCustomActionButtons: true,
+                  customAction: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      DialogActionButton(
+                        text: 'Undo',
+                        textColor: kRedColor,
+                        onTap: () => Get.back(),
+                      ),
+                      SizedBox(
+                        width: 16,
+                      ),
+                      DialogActionButton(
+                        text: 'Okay',
+                        onTap: () {
+                          Get.back();
+                          Get.back();
+                          homeController.archiveGoal(
+                              widget.goal!, widget.type!, widget.index!);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }),
         menuItem(
           icon: Assets.imagesComment,
           title: 'Add comment',
           onTap: () {
-            Get.back();
+            Navigator.of(context).pop();
             showModalBottomSheet(
               context: context,
               isScrollControlled: true,

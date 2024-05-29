@@ -6,6 +6,7 @@ import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:life_berg/constant/color.dart';
+import 'package:life_berg/controller/admin_controller/home_controller.dart';
 import 'package:life_berg/controller/auth_controller/goal_controller.dart';
 import 'package:life_berg/generated/assets.dart';
 import 'package:life_berg/utils/toast_utils.dart';
@@ -27,6 +28,7 @@ import '../../widget/my_dialog.dart';
 
 class AddNewGoal extends StatelessWidget {
   final GoalController goalController = Get.put(GoalController());
+  final HomeController homeController = Get.find<HomeController>();
 
   @override
   Widget build(BuildContext context) {
@@ -434,8 +436,9 @@ class AddNewGoal extends StatelessWidget {
               isDisable: false,
               text: 'Confirm',
               onTap: () {
-                if(goalController.goal != null){
+                if (goalController.goal != null) {
                   goalController.editGoal((isCreated) {
+                    homeController.getUserGoals();
                     if (isCreated) {
                       Get.back();
                       Get.dialog(
@@ -453,7 +456,7 @@ class AddNewGoal extends StatelessWidget {
                           color: kRedColor);
                     }
                   });
-                }else {
+                } else {
                   goalController.addNewGoal((isCreated) {
                     if (isCreated) {
                       Get.back();
@@ -507,6 +510,7 @@ class AddNewGoal extends StatelessWidget {
                   Get.back();
               }
             } else {
+              homeController.getUserGoals();
               Get.back();
             }
           },
