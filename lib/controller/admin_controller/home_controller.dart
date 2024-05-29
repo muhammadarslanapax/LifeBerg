@@ -86,7 +86,7 @@ class HomeController extends GetxController {
 
     // Check if current time is greater than the target time
     if (now.isAfter(targetTime)) {
-      
+
     }
   }
 
