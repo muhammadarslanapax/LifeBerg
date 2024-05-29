@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:life_berg/constant/color.dart';
 import 'package:life_berg/generated/assets.dart';
 import 'package:life_berg/view/screens/admin/main_life_administration.dart';
@@ -8,6 +9,8 @@ import 'package:life_berg/view/screens/home/home.dart';
 import 'package:life_berg/view/screens/journal/journal.dart';
 import 'package:life_berg/view/screens/personal_development/personal_development.dart';
 import 'package:life_berg/view/screens/personal_statistics/personal_statistics.dart';
+
+import '../../../utils/pref_utils.dart';
 
 class BottomNavBar extends StatefulWidget {
   BottomNavBar({
@@ -54,6 +57,14 @@ class _BottomNavBarState extends State<BottomNavBar> {
     '/personal_development': GlobalKey<NavigatorState>(),
     '/personal_statistics': GlobalKey<NavigatorState>(),
   };
+
+  @override
+  void initState() {
+    super.initState();
+    if (PrefUtils().lastSavedDate.isEmpty) {
+      PrefUtils().lastSavedDate = DateTime.now().toIso8601String();
+    }
+  }
 
   void getCurrentScreens(String currentPage, int index) {
     if (currentPage == widget.currentRoute) {

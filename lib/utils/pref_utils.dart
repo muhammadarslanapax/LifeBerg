@@ -61,10 +61,10 @@ class PrefUtils {
     _sharedPreferences!.setString(newDayTime, value);
   }
 
-  bool get isNewDataLoaded => _sharedPreferences!.getBool(newDataLoaded) ?? false;
+  String get isNewDataLoaded => _sharedPreferences!.getString(lastDate) ?? "";
 
-  set isNewDataLoaded(bool value) {
-    _sharedPreferences!.setBool(newDataLoaded, value);
+  set isNewDataLoaded(String value) {
+    _sharedPreferences!.setString(lastDate, value);
   }
 
 }

@@ -117,7 +117,7 @@ class EndOfDayReport extends StatelessWidget {
                   children: [
                     CircularStepProgressIndicator(
                       totalSteps: 100,
-                      currentStep: 80,
+                      currentStep: 0,
                       selectedStepSize: 7,
                       unselectedStepSize: 5,
                       padding: 0,
@@ -129,7 +129,7 @@ class EndOfDayReport extends StatelessWidget {
                       unselectedColor: kUnSelectedColor,
                       child: Center(
                         child: MyText(
-                          text: '80%',
+                          text: '0%',
                           size: 24,
                         ),
                       ),
@@ -173,17 +173,17 @@ class EndOfDayReport extends StatelessWidget {
                     children: [
                       ProgressWidget(
                         title: 'Wellbeing',
-                        currentStep: 78,
+                        currentStep: 0,
                         selectedColor: kStreaksColor,
                       ),
                       ProgressWidget(
                         title: 'Vocational',
-                        currentStep: 48,
+                        currentStep: 0,
                         selectedColor: kRACGPExamColor,
                       ),
                       ProgressWidget(
                         title: 'Development',
-                        currentStep: 58,
+                        currentStep: 0,
                         selectedColor: kDailyGratitudeColor,
                       ),
                     ],

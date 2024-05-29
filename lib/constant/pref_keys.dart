@@ -5,5 +5,5 @@ const String id = "id";
 const String userDetail = "user_detail";
 const String goalData = "goal_data";
 const String newDayTime = "new_day_time";
-const String newDataLoaded = "new_data_loaded";
+const String lastDate = "last_date";
 const String savedDate = "saved_date";

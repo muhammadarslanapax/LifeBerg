@@ -58,6 +58,7 @@ class HomeController extends GetxController {
 
   _getUserData() {
     if (PrefUtils().user.isNotEmpty) {
+      checkAndResetGoals();
       user = User.fromJson(json.decode(PrefUtils().user));
       fullName.value = user?.fullName ?? "";
       userProfileImageUrl.value = user?.profilePicture ?? "";
@@ -72,22 +73,29 @@ class HomeController extends GetxController {
     }
   }
 
-  _checkTimeToStartNewDay(){
+  checkAndResetGoals() async {
     DateTime now = DateTime.now();
+    DateTime? lastCheckedDate = PrefUtils().lastSavedDate.isNotEmpty
+        ? DateTime.parse(PrefUtils().lastSavedDate)
+        : null;
 
-    String timeString = PrefUtils().newGoalStartTime;
-    DateFormat timeFormat = DateFormat.jm();
-
-    // Parse the "saved" time string
-    DateTime parsedTime = timeFormat.parse(timeString);
-
-    // Combine parsed time with today's date to get the full DateTime object
-    DateTime targetTime = DateTime(now.year, now.month, now.day, parsedTime.hour, parsedTime.minute);
-
-    // Check if current time is greater than the target time
-    if (now.isAfter(targetTime)) {
-
+    if (lastCheckedDate == null || _isResetTimeReached(now, lastCheckedDate)) {
+      PrefUtils().submittedGoals = "";
+      PrefUtils().lastSavedDate = now.toIso8601String();
     }
+  }
+
+  bool _isResetTimeReached(DateTime now, DateTime lastCheckedDate) {
+    DateTime resetTimeToday = DateTime(now.year, now.month, now.day, 2, 0);
+
+    // Check if current time is at or after 02:00 AM today
+    bool isAfterResetToday =
+        now.isAfter(resetTimeToday) || now.isAtSameMomentAs(resetTimeToday);
+
+    // Check if the last checked date is before today
+    bool isLastCheckedBeforeToday = lastCheckedDate.isBefore(resetTimeToday);
+
+    return isAfterResetToday && isLastCheckedBeforeToday;
   }
 
   saveLocalData(Goal goal, bool isChecked, String trackValue) {
