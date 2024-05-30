@@ -78,7 +78,6 @@ class HomeController extends GetxController {
     DateTime? lastCheckedDate = PrefUtils().lastSavedDate.isNotEmpty
         ? DateTime.parse(PrefUtils().lastSavedDate)
         : null;
-
     if (lastCheckedDate == null || _isResetTimeReached(now, lastCheckedDate)) {
       PrefUtils().submittedGoals = "";
       PrefUtils().lastSavedDate = now.toIso8601String();

@@ -22,10 +22,34 @@
 	<string>$(FLUTTER_BUILD_NAME)</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>fb8413684118647867</string>
+				<string>com.googleusercontent.apps.648558078003-u5c7t6c0pdvovov67j5lbjji79v2u9ti</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>FacebookAppID</key>
+	<string>8413684118647867</string>
+	<key>FacebookClientToken</key>
+	<string>5d2d2085be5eb29b55ed27607f72f828</string>
+	<key>FacebookDisplayName</key>
+	<string>LifeBerg</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Please allow access to Camera to upload profile picture.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Please allow access to Microphone to upload profile picture.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Please allow access to Photo Library to upload profile picture.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
@@ -47,29 +71,5 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-    <key>CFBundleURLTypes</key>
-    <array>
-        <dict>
-            <key>CFBundleTypeRole</key>
-            <string>Editor</string>
-            <key>CFBundleURLSchemes</key>
-            <array>
-                <string>fb8413684118647867</string>
-                <string>com.googleusercontent.apps.648558078003-tjmghk3j3c1pkgo5h3ui4bgkk0s1uokt</string>
-            </array>
-        </dict>
-    </array>
-    <key>FacebookAppID</key>
-    <string>8413684118647867</string>
-    <key>FacebookClientToken</key>
-    <string>5d2d2085be5eb29b55ed27607f72f828</string>
-    <key>FacebookDisplayName</key>
-    <string>LifeBerg</string>
-    <key>NSPhotoLibraryUsageDescription</key>
-    <string>Please allow access to Photo Library to upload profile picture.</string>
-    <key>NSCameraUsageDescription</key>
-    <string>Please allow access to Camera to upload profile picture.</string>
-    <key>NSMicrophoneUsageDescription</key>
-    <string>Please allow access to Microphone to upload profile picture.</string>
 </dict>
 </plist>
