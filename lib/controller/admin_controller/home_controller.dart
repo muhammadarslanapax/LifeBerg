@@ -3,17 +3,16 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
-import 'package:get/get_rx/get_rx.dart';
-import 'package:get/get_state_manager/src/simple/get_controllers.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
 import 'package:life_berg/apis/http_manager.dart';
 import 'package:life_berg/model/generic_response.dart';
 import 'package:life_berg/model/goal/goals_list_response.dart';
-import 'package:life_berg/model/goal/goals_list_response_data.dart';
 import 'package:life_berg/model/mood/mood_data.dart';
+import 'package:life_berg/utils/date_utility.dart';
 
 import '../../constant/color.dart';
+import '../../constant/strings.dart';
+import '../../generated/assets.dart';
 import '../../model/error/error_response.dart';
 import '../../model/goal/goal.dart';
 import '../../model/goal/goal_submit/goal_submit_data.dart';
@@ -27,6 +26,11 @@ class HomeController extends GetxController {
 
   final TextEditingController moodCommentController = TextEditingController();
   final TextEditingController goalCommentController = TextEditingController();
+  final TextEditingController greatFulController = TextEditingController();
+  final TextEditingController learnedTodayController = TextEditingController();
+  final TextEditingController tomorrowHighlightController = TextEditingController();
+
+  RxBool isLoadingGoals = true.obs;
 
   User? user;
   RxString fullName = "".obs;
@@ -37,18 +41,58 @@ class HomeController extends GetxController {
 
   RxMoodData selectedMood = RxMoodData(emoji: "", value: -1);
 
-  RxBool isLoadingGoals = true.obs;
-
   List<Goal> wellBeingGoals = <Goal>[].obs;
   List<Goal> vocationalGoals = <Goal>[].obs;
   List<Goal> personalDevGoals = <Goal>[].obs;
 
   List<GoalSubmitData> goalSubmitData = [];
 
+  RxString selectedAvatar = "".obs;
+  final List<String> avatars = [
+    Assets.avatarA1,
+    Assets.avatarA2,
+    Assets.avatarA3,
+    Assets.avatarA3,
+    Assets.avatarA5,
+    Assets.avatarA6,
+    Assets.avatarA7,
+    Assets.avatarA8,
+    Assets.avatarA9,
+    Assets.avatarA10,
+    Assets.avatarA11,
+    Assets.avatarA12,
+    Assets.avatarA13,
+    Assets.avatarA14,
+    Assets.avatarA15,
+    Assets.avatarA16,
+    Assets.avatarA17,
+    Assets.avatarA18,
+    Assets.avatarA19,
+    Assets.avatarA20,
+    Assets.avatarA21,
+    Assets.avatarA22,
+    Assets.avatarA23,
+    Assets.avatarA24,
+    Assets.avatarA25,
+    Assets.avatarA26,
+    Assets.avatarA27,
+    Assets.avatarA28,
+  ];
+
   @override
   void onInit() {
     super.onInit();
     _getUserData();
+  }
+
+  @override
+  void onClose() {
+    moodCommentController.dispose();
+    goalCommentController.dispose();
+    learnedTodayController.dispose();
+    greatFulController.dispose();
+    tomorrowHighlightController.dispose();
+    super.onClose();
   }
 
   updateEmoji(String emoji, int value) {
@@ -78,29 +122,17 @@ class HomeController extends GetxController {
     DateTime? lastCheckedDate = PrefUtils().lastSavedDate.isNotEmpty
         ? DateTime.parse(PrefUtils().lastSavedDate)
         : null;
-    if (lastCheckedDate == null || _isResetTimeReached(now, lastCheckedDate)) {
+    if (lastCheckedDate == null ||
+        DateUtility.isResetTimeReached(now, lastCheckedDate)) {
       PrefUtils().submittedGoals = "";
       PrefUtils().lastSavedDate = now.toIso8601String();
     }
   }
 
-  bool _isResetTimeReached(DateTime now, DateTime lastCheckedDate) {
-    DateTime resetTimeToday = DateTime(now.year, now.month, now.day, 2, 0);
-
-    // Check if current time is at or after 02:00 AM today
-    bool isAfterResetToday =
-        now.isAfter(resetTimeToday) || now.isAtSameMomentAs(resetTimeToday);
-
-    // Check if the last checked date is before today
-    bool isLastCheckedBeforeToday = lastCheckedDate.isBefore(resetTimeToday);
-
-    return isAfterResetToday && isLastCheckedBeforeToday;
-  }
-
   saveLocalData(Goal goal, bool isChecked, String trackValue) {
     bool isFound = false;
     for (var goals in goalSubmitData) {
-      if (goals.goalId == goal.sId) {
+      if (goals.goalId == goal.sId && goal.goalMeasure != null) {
         if (goal.goalMeasure!.type == "string") {
           goals.measureValue = trackValue;
         } else {
@@ -138,10 +170,7 @@ class HomeController extends GetxController {
   }
 
   String getFirstName(String fullName) {
-    // Split the full name by space
     List<String> nameParts = fullName.split(' ');
-
-    // Return the first part of the name, which is the first name
     return nameParts[0];
   }
 
@@ -149,21 +178,81 @@ class HomeController extends GetxController {
     final hour = DateTime.now().hour;
 
     if (hour < 12) {
-      return 'Good morning';
+      return goodMorning;
     } else if (hour < 17) {
-      return 'Good afternoon';
+      return goodAfternoon;
     } else if (hour < 20) {
-      return 'Good evening';
+      return goodEvening;
     } else {
-      return 'Good night';
+      return goodNight;
     }
   }
 
-  updateUserImage() async {
+  updateImageFromAsset() async {
     SmartDialog.showLoading(msg: "Please wait..");
     FocusManager.instance.primaryFocus?.unfocus();
     httpManager
+        .updateUserImageFromAsset(
+            PrefUtils().token, PrefUtils().userId, selectedAvatar.value)
+        .then((value) {
+      SmartDialog.dismiss();
+      if (value.error == null) {
+        if (value.snapshot is! ErrorResponse) {
+          UserResponse userResponse = value.snapshot;
+          if (userResponse.success == true) {
+            this.user?.profilePicture = userResponse.user?.profilePicture;
+            userProfileImageUrl.value = user?.profilePicture ?? "";
+            PrefUtils().user = json.encode(user);
+            Get.back();
+          } else {
+            SmartDialog.dismiss();
+            ToastUtils.showToast(userResponse.message ?? "", color: kRedColor);
+          }
+        } else {
+          ErrorResponse errorResponse = value.snapshot;
+          ToastUtils.showToast(errorResponse.error!.details!.message ?? "",
+              color: kRedColor);
+        }
+      } else {
+        ToastUtils.showToast(value.error ?? "", color: kRedColor);
+      }
+    });
+  }
+
+  updateUserImage() async {
+    SmartDialog.showLoading(msg: pleaseWait);
+    FocusManager.instance.primaryFocus?.unfocus();
+    httpManager
         .updateUserImage(PrefUtils().token, PrefUtils().userId, xFile!)
+        .then((value) {
+      SmartDialog.dismiss();
+      if (value.error == null) {
+        if (value.snapshot is! ErrorResponse) {
+          UserResponse userResponse = value.snapshot;
+          if (userResponse.success == true) {
+            this.user?.profilePicture = userResponse.user?.profilePicture;
+            userProfileImageUrl.value = user?.profilePicture ?? "";
+            PrefUtils().user = json.encode(user);
+          } else {
+            SmartDialog.dismiss();
+            ToastUtils.showToast(userResponse.message ?? "", color: kRedColor);
+          }
+        } else {
+          ErrorResponse errorResponse = value.snapshot;
+          ToastUtils.showToast(errorResponse.error!.details!.message ?? "",
+              color: kRedColor);
+        }
+      } else {
+        ToastUtils.showToast(value.error ?? "", color: kRedColor);
+      }
+    });
+  }
+
+  deleteUserImage() async {
+    SmartDialog.showLoading(msg: pleaseWait);
+    FocusManager.instance.primaryFocus?.unfocus();
+    httpManager
+        .deleteUserProfilePicture(PrefUtils().token, )
         .then((value) {
       SmartDialog.dismiss();
       if (value.error == null) {

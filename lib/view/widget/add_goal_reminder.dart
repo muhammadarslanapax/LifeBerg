@@ -5,6 +5,7 @@ import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
 import 'package:get/get.dart';
 import 'package:life_berg/constant/color.dart';
 import 'package:life_berg/generated/assets.dart';
+import 'package:life_berg/model/reminder/reminder_date_time.dart';
 import 'package:life_berg/view/widget/custom_bottom_sheet.dart';
 import 'package:life_berg/view/widget/main_heading.dart';
 import 'package:life_berg/view/widget/my_dialog.dart';
@@ -13,10 +14,12 @@ import 'package:life_berg/view/widget/my_text.dart';
 import 'my_button.dart';
 
 class AddGoalReminder extends StatefulWidget {
-  final Function(String? day, DateTime? time) onDaySelect;
+  final ReminderDateTime? reminderDateTime;
+  final Function(List<String> day, DateTime? time) onDaySelect;
 
   AddGoalReminder(
     this.onDaySelect, {
+    this.reminderDateTime,
     Key? key,
   }) : super(key: key);
 
@@ -35,9 +38,16 @@ class _AddGoalReminderState extends State<AddGoalReminder> {
     'Sat',
   ];
 
-  String? day;
+  List<String> selectedDays = [];
 
   DateTime? time;
+
+  @override
+  void initState() {
+    super.initState();
+    time = widget.reminderDateTime!.time;
+    selectedDays.add(widget.reminderDateTime!.day);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -73,17 +83,30 @@ class _AddGoalReminderState extends State<AddGoalReminder> {
             child: Row(
               children: List.generate(
                 days.length,
-                    (index) {
+                (index) {
                   return weekDaysToggleButton(
                     onTap: () {
-                      day = days[index];
-                      if(mounted){
-                        setState(() {
-
-                        });
+                      if (widget.reminderDateTime != null) {
+                        if (selectedDays.contains(days[index])) {
+                          selectedDays.remove(days[index]);
+                        } else {
+                          if (selectedDays.length > 0) {
+                            selectedDays.clear();
+                          }
+                          selectedDays.add(days[index]);
+                        }
+                      } else {
+                        if (selectedDays.contains(days[index])) {
+                          selectedDays.remove(days[index]);
+                        } else {
+                          selectedDays.add(days[index]);
+                        }
+                      }
+                      if (mounted) {
+                        setState(() {});
                       }
                     },
-                    isSelected: day == days[index],
+                    isSelected: selectedDays.contains(days[index]),
                     weekDay: days[index],
                   );
                 },
@@ -115,10 +138,8 @@ class _AddGoalReminderState extends State<AddGoalReminder> {
               minutesInterval: 1,
               onTimeChange: (time) {
                 this.time = time;
-                if(mounted){
-                  setState(() {
-
-                  });
+                if (mounted) {
+                  setState(() {});
                 }
               },
             ),
@@ -132,16 +153,17 @@ class _AddGoalReminderState extends State<AddGoalReminder> {
               radius: 8,
               isDisable: false,
               text: "Confirm",
-              onTap: (){
+              onTap: () {
                 Get.back();
-                widget.onDaySelect(day,time);
+                widget.onDaySelect(selectedDays, time);
                 showDialog(
                   context: context,
                   builder: (_) {
                     return MyDialog(
                       icon: Assets.imagesReminderBell,
                       heading: 'Reminder Added',
-                      content: 'LifeBerg will give you a nudge at your nominated time!',
+                      content:
+                          'LifeBerg will give you a nudge at your nominated time!',
                       onOkay: () => Get.back(),
                     );
                   },
@@ -151,7 +173,8 @@ class _AddGoalReminderState extends State<AddGoalReminder> {
           ),
         ],
       ),
-    ); CustomBottomSheet(
+    );
+    /*CustomBottomSheet(
       buttonText: 'Confirm',
       height: Get.height * 0.5,
       child: Column(
@@ -235,7 +258,7 @@ class _AddGoalReminderState extends State<AddGoalReminder> {
           },
         );
       },
-    );
+    );*/
   }
 
   Widget weekDaysToggleButton({
@@ -299,8 +322,6 @@ Widget hourMinute12HCustomStyle() {
     itemHeight: 40,
     isForce2Digits: false,
     minutesInterval: 1,
-    onTimeChange: (time) {
-
-    },
+    onTimeChange: (time) {},
   );
 }

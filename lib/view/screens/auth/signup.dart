@@ -64,7 +64,7 @@ class Signup extends StatelessWidget {
                     shrinkWrap: true,
                     physics: ClampingScrollPhysics(),
                     padding: EdgeInsets.symmetric(
-                      horizontal: 15,
+                      horizontal: 20,
                       vertical: 20,
                     ),
                     children: [
@@ -166,7 +166,7 @@ class Signup extends StatelessWidget {
             ),
             Padding(
               padding: EdgeInsets.symmetric(
-                horizontal: 12,
+                horizontal: 15,
                 vertical: Platform.isIOS ? IOS_BOTTOM_MARGIN : 12,
               ),
               child: Wrap(

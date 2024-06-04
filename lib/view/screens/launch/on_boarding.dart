@@ -124,7 +124,7 @@ class OnBoarding extends StatelessWidget {
             ),
             Padding(
               padding: EdgeInsets.symmetric(
-                horizontal: 10,
+                horizontal: 15,
                 vertical: Platform.isIOS ? IOS_BOTTOM_MARGIN : 15,
               ),
               child: Obx(() {
@@ -139,6 +139,9 @@ class OnBoarding extends StatelessWidget {
                   onTap: () => controller.onTap(),
                 );
               }),
+            ),
+            SizedBox(
+              height: 20,
             ),
           ],
         ),

@@ -1,5 +1,7 @@
 import 'dart:collection';
 import 'dart:convert';
+import 'dart:io';
+import 'package:flutter/services.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:crypto/crypto.dart';
 import 'package:http/http.dart' as http;
@@ -254,6 +256,48 @@ class HttpManager {
     }
   }
 
+  Future<BaseResponse> updateUserImageFromAsset(
+      String token, String userId, String assetImage) async {
+    try {
+      var url = ApiConstants.UPDATE_USER;
+      var request = http.MultipartRequest("PUT", Uri.parse(url));
+      request.fields["userId"] = userId;
+      final tempFile = await createTempFileFromAsset(assetImage);
+
+      request.files.add(await http.MultipartFile.fromPath(
+        'file',
+        tempFile.path,
+        contentType: MediaType.parse(
+            lookupMimeType(tempFile.path) ?? 'application/octet-stream'),
+      ));
+
+      request.headers.addAll({
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        'Authorization': 'Bearer $token',
+      });
+      var response = await request.send();
+      final res = await http.Response.fromStream(response);
+      if (response.statusCode == 200) {
+        var responseBody = json.decode(res.body);
+        UserResponse userResponse = UserResponse.fromJson(responseBody);
+        return BaseResponse(userResponse, null);
+      } else {
+        return _getErrorResponse(res.body);
+      }
+    } catch (e) {
+      return BaseResponse(null, e.toString());
+    }
+  }
+
+  Future<File> createTempFileFromAsset(String imagePath) async {
+    final byteData = await rootBundle.load(imagePath);
+    final tempDir = Directory.systemTemp;
+    final tempFile = File('${tempDir.path}/${DateTime.now().millisecondsSinceEpoch}.jpg');
+    await tempFile.writeAsBytes(byteData.buffer.asUint8List());
+    return tempFile;
+  }
+
   Future<BaseResponse> updateUserImage(
       String token, String userId, XFile file) async {
     try {
@@ -463,5 +507,26 @@ class HttpManager {
     }
   }
 
+  Future<BaseResponse> deleteUserProfilePicture(String token,) async {
+    try {
+      var url = ApiConstants.DELETE_PROFILE_PIC;
+
+      var response =
+      await http.delete(Uri.parse(url),  headers: {
+        "Content-Type": "application/json",
+        'Authorization': 'Bearer $token',
+      });
+
+      if (response.statusCode == 200) {
+        var responseBody = json.decode(response.body);
+        UserResponse userResponse = UserResponse.fromJson(responseBody);
+        return BaseResponse(userResponse, null);
+      } else {
+        return _getErrorResponse(response.body);
+      }
+    } catch (e) {
+      return BaseResponse(null, e.toString());
+    }
+  }
 
 }

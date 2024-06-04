@@ -26,6 +26,7 @@ class CompleteProfileController extends GetxController {
   TextEditingController iceBergCon = TextEditingController();
   RxBool isUserNameVocationDisable = true.obs;
   RxBool isIceBergDisable = true.obs;
+  RxString userFullName = "".obs;
   final pageController = PageController();
   RxInt currentIndex = 0.obs;
   RxBool showOtherField = false.obs;
@@ -74,7 +75,8 @@ class CompleteProfileController extends GetxController {
   _getUserData() {
     if (PrefUtils().user.isNotEmpty) {
       user = User.fromJson(json.decode(PrefUtils().user));
-      if (user?.userName != null) {
+      if (user?.fullName != null) {
+        userFullName.value = user?.fullName ?? "";
         userNameCon.text = user?.userName ?? "";
       }
       if (user?.country != null) {
@@ -89,6 +91,14 @@ class CompleteProfileController extends GetxController {
       getIceBerg(iceBergCon.text);
       validateUsernameVocation();
     }
+  }
+
+  String getFirstName(String fullName) {
+    // Split the full name by space
+    List<String> nameParts = fullName.split(' ');
+
+    // Return the first part of the name, which is the first name
+    return nameParts[0];
   }
 
   validateUsernameVocation() {

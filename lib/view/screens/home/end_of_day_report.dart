@@ -8,9 +8,7 @@ import 'package:life_berg/utils/instance.dart';
 import 'package:life_berg/view/screens/admin/wellbeing_action_plan/wellbeing_action_plan.dart';
 import 'package:life_berg/view/screens/bottom_nav_bar/bottom_nav_bar.dart';
 import 'package:life_berg/view/widget/custom_bottom_sheet.dart';
-import 'package:life_berg/view/widget/image_dialog.dart';
 import 'package:life_berg/view/widget/main_heading.dart';
-import 'package:life_berg/view/widget/my_border_button.dart';
 import 'package:life_berg/view/widget/my_button.dart';
 import 'package:life_berg/view/widget/my_text.dart';
 import 'package:life_berg/view/widget/my_text_field.dart';
@@ -18,6 +16,8 @@ import 'package:life_berg/view/widget/progress_widget.dart';
 import 'package:life_berg/view/widget/simple_app_bar.dart';
 import 'package:life_berg/view/widget/toggle_button.dart';
 import 'package:step_progress_indicator/step_progress_indicator.dart';
+
+import '../../../constant/strings.dart';
 
 class EndOfDayReport extends StatelessWidget {
   final HomeController homeController = Get.find<HomeController>();
@@ -29,7 +29,7 @@ class EndOfDayReport extends StatelessWidget {
     return Scaffold(
       backgroundColor: kPrimaryColor,
       appBar: simpleAppBar(
-        title: 'Daily Check-in',
+        title: dailyCheckIn,
       ),
       body: ListView(
         shrinkWrap: true,
@@ -101,7 +101,7 @@ class EndOfDayReport extends StatelessWidget {
             paddingBottom: 32,
           ),
           MainHeading(
-            text: 'Today’s score',
+            text: todayProgress,
             paddingBottom: 22,
           ),
           Padding(
@@ -134,34 +134,6 @@ class EndOfDayReport extends StatelessWidget {
                         ),
                       ),
                     ),
-                    /*SizedBox(
-                      height: 16,
-                    ),
-                    Row(
-                      children: [
-                        MyText(
-                          text: '+1',
-                          size: 16,
-                          weight: FontWeight.w500,
-                          color: kDarkBlueColor,
-                        ),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 4,
-                          ),
-                          child: Image.asset(
-                            Assets.imagesStar,
-                            color: kTabIndicatorColor,
-                            height: 16,
-                          ),
-                        ),
-                        MyText(
-                          text: '70',
-                          size: 12,
-                          weight: FontWeight.w500,
-                        ),
-                      ],
-                    ),*/
                   ],
                 ),
                 SizedBox(
@@ -172,17 +144,17 @@ class EndOfDayReport extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       ProgressWidget(
-                        title: 'Wellbeing',
+                        title: wellBeing,
                         currentStep: 0,
                         selectedColor: kStreaksColor,
                       ),
                       ProgressWidget(
-                        title: 'Vocational',
+                        title: vocational,
                         currentStep: 0,
                         selectedColor: kRACGPExamColor,
                       ),
                       ProgressWidget(
-                        title: 'Development',
+                        title: development,
                         currentStep: 0,
                         selectedColor: kDailyGratitudeColor,
                       ),
@@ -201,64 +173,136 @@ class EndOfDayReport extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 MainHeading(
-                  text: 'What were you grateful for today?',
+                  text: greatfulHeading,
                 ),
               ],
             ),
           ),
           MyTextField(
             fillColor: Colors.white,
+            controller: homeController.greatFulController,
             hint:
-                'Your entry will automatically added to your gratitude timeline.',
+            greatfulDes,
             maxLines: 2,
             marginBottom: 32,
           ),
           MainHeading(
-            text: 'What have you learnt from today?',
+            text: learnedHeading,
             paddingBottom: 10,
           ),
           MyTextField(
             fillColor: Colors.white,
-            hint: 'Your entry will automatically added to your development timeline.',
+            hint:
+                learnedDes,
+            controller: homeController.learnedTodayController,
             maxLines: 2,
             marginBottom: 24,
           ),
           MainHeading(
-            text: 'Tomorrow’s daily highlight',
+            text: tomorrowHighlightHeading,
             paddingBottom: 10,
           ),
           MyTextField(
             fillColor: Colors.white,
-            hint: 'What is one thing you would like to achieve tomorrow?',
+            hint:tomorrowHighlightDes,
+            controller: homeController.tomorrowHighlightController,
             maxLines: 2,
             marginBottom: 24,
           ),
           MyButton(
             radius: 16.0,
-            text: 'Submit',
+            height: 56,
+            text: submit,
             onTap: () {
-              SmartDialog.showLoading(msg: 'Please wait...');
-              Future.delayed(Duration(seconds: 4),(){
+              SmartDialog.showLoading(msg: pleaseWait);
+              Future.delayed(Duration(seconds: 4), () {
                 SmartDialog.dismiss();
-                Get.dialog(
-                  ImageDialog(
-                    height: 182,
-                    heading: 'Daily Check-in Complete!',
-                    content:
-                    'Awesome work! Keep your streak going to optimise your holistic wellbeing!',
-                    imageSize: 92,
-                    image: Assets.imagesDailyCheckIn,
-                    onOkay: () {
-                      Get.back();
-                      Get.offAll(
-                        () => BottomNavBar(
-                          currentIndex: 4,
-                          currentRoute: '/personal_statistics',
-                        ),
-                      );
-                    },
-                  ),
-                );
+                Get.dialog(Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: EdgeInsets.fromLTRB(20, 13, 20, 10),
+                      width: Get.width,
+                      margin: EdgeInsets.all(15),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        color: kSecondaryColor,
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              MyText(
+                                text: dailyCheckInComplete,
+                                size: 18,
+                                color: kPopupTextColor,
+                                weight: FontWeight.w500,
+                              ),
+                              MyText(
+                                paddingTop: 6,
+                                text:
+                                dailyCheckInCompleteDes,
+                                color: kPopupTextColor,
+                                height: 1.5,
+                                size: 16,
+                                paddingBottom: 17.0,
+                              ),
+                              Stack(
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsets.only(
+                                      top: 0,
+                                    ),
+                                    child: Align(
+                                      alignment: Alignment.bottomCenter,
+                                      child: Padding(
+                                        padding: EdgeInsets.only(
+                                          left: 0.0,
+                                          bottom: 0.0,
+                                        ),
+                                        child: Image.asset(
+                                          Assets.imagesDailyCheckIn,
+                                          height: 92,
+                                          fit: BoxFit.contain,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Positioned(
+                                    bottom: 0,
+                                    right:0,
+                                    child: MyText(
+                                      onTap: (){
+                                        Get.back();
+                                        Get.offAll(
+                                              () => BottomNavBar(
+                                            currentIndex: 4,
+                                            currentRoute: '/personal_statistics',
+                                          ),
+                                        );
+                                      },
+                                      align: TextAlign.end,
+                                      text: okay_,
+                                      size: 16,
+                                      weight: FontWeight.w500,
+                                      color: kTertiaryColor,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                height: 8,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ));
               });
             },
           ),

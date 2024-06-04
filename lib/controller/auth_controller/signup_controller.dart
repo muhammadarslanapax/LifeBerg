@@ -15,6 +15,7 @@ import '../../model/error/error_response.dart';
 import '../../model/user/apple_user_credential.dart';
 import '../../utils/pref_utils.dart';
 import '../../view/screens/auth/complete_profile/complete_profile.dart';
+import '../../view/screens/bottom_nav_bar/bottom_nav_bar.dart';
 
 class SignupController extends GetxController {
   final HttpManager httpManager = HttpManager();
@@ -94,14 +95,6 @@ class SignupController extends GetxController {
             displayName = userInfo.displayName ?? "";
           }
         }
-        // if (displayName.isNotEmpty) {
-        //   if (displayName.contains(" ")) {
-        //     firstName = displayName.split(" ")[0];
-        //     lastName = displayName.split(" ")[1];
-        //   } else {
-        //     firstName = displayName;
-        //   }
-        // }
         httpManager
             .socialLogin(appleUserCredential.userCredential.user?.email ?? "",
             "apple", displayName)
@@ -115,7 +108,13 @@ class SignupController extends GetxController {
                 PrefUtils().token = userResponse.token ?? '';
                 PrefUtils().userId = userResponse.token ?? '';
 
-                Get.to(() => CompleteProfile());
+                if(userResponse.user?.userName == null ||
+                    userResponse.user?.lifeBergName == null) {
+                  Get.to(() => CompleteProfile());
+                }else{
+                  Get.offAll(() => BottomNavBar());
+                  PrefUtils().loggedIn = true;
+                }
               } else {
                 ToastUtils.showToast(userResponse.message ?? "",
                     color: kRedColor);
@@ -148,14 +147,6 @@ class SignupController extends GetxController {
             displayName = userInfo.displayName ?? "";
           }
         }
-        // String firstName = "";
-        // String lastName = "";
-        // if (displayName.contains(" ")) {
-        //   firstName = displayName.split(" ")[0];
-        //   lastName = displayName.split(" ")[1];
-        // } else {
-        //   firstName = displayName;
-        // }
         httpManager
             .socialLogin(
             userCredential.user?.email ?? "", "google", displayName)
@@ -169,7 +160,13 @@ class SignupController extends GetxController {
                 PrefUtils().token = userResponse.token ?? '';
                 PrefUtils().userId = userResponse.token ?? '';
 
-                Get.to(() => CompleteProfile());
+                if(userResponse.user?.userName == null ||
+                    userResponse.user?.lifeBergName == null) {
+                  Get.to(() => CompleteProfile());
+                }else{
+                  Get.offAll(() => BottomNavBar());
+                  PrefUtils().loggedIn = true;
+                }
               } else {
                 ToastUtils.showToast(userResponse.message ?? "",
                     color: kRedColor);
@@ -202,14 +199,6 @@ class SignupController extends GetxController {
             displayName = userInfo.displayName ?? "";
           }
         }
-        // String firstName = "";
-        // String lastName = "";
-        // if (displayName.contains(" ")) {
-        //   firstName = displayName.split(" ")[0];
-        //   lastName = displayName.split(" ")[1];
-        // } else {
-        //   firstName = displayName;
-        // }
         httpManager
             .socialLogin(
             userCredential.user?.email ?? "", "facebook", displayName)
@@ -222,8 +211,13 @@ class SignupController extends GetxController {
                 PrefUtils().user = json.encode(userResponse.user);
                 PrefUtils().token = userResponse.token ?? '';
                 PrefUtils().userId = userResponse.token ?? '';
-
-                Get.to(() => CompleteProfile());
+                if(userResponse.user?.userName == null ||
+                    userResponse.user?.lifeBergName == null) {
+                  Get.to(() => CompleteProfile());
+                }else{
+                  Get.offAll(() => BottomNavBar());
+                  PrefUtils().loggedIn = true;
+                }
               } else {
                 ToastUtils.showToast(userResponse.message ?? "",
                     color: kRedColor);

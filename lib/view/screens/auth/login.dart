@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:keyboard_dismisser/keyboard_dismisser.dart';
@@ -42,7 +43,7 @@ class Login extends StatelessWidget {
                     shrinkWrap: true,
                     physics: BouncingScrollPhysics(),
                     padding: EdgeInsets.symmetric(
-                      horizontal: 15,
+                      horizontal: 20,
                       vertical: 20,
                     ),
                     children: [
@@ -129,8 +130,8 @@ class Login extends StatelessWidget {
             ),
             Padding(
               padding: EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: Platform.isIOS ? IOS_BOTTOM_MARGIN : 12,
+                horizontal: 15,
+                vertical: Platform.isIOS ? IOS_BOTTOM_MARGIN : 20,
               ),
               child: Wrap(
                 crossAxisAlignment: WrapCrossAlignment.center,

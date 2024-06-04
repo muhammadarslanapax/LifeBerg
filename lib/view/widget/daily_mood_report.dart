@@ -183,7 +183,7 @@ class DailyMoodSheet extends StatelessWidget {
                       homeController.updateUserMood();
                       Get.dialog(
                         ImageDialog(
-                          heading: 'Your day has been captured',
+                          heading: 'Your mood has been captured',
                           content: 'Continue to track your mood for trends',
                           imageSize: 107,
                           image: Assets.imagesMoodCaptured,

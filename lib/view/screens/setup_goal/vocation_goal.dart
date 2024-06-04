@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
@@ -55,50 +56,53 @@ class VocationGoal extends StatelessWidget {
                   size: 16,
                   paddingBottom: 20,
                 ),
-                Wrap(
-                  spacing: 7.0,
-                  runSpacing: 7.0,
-                  children: onboardingController.vocationGoalList
-                      .asMap()
-                      .map((i, element) => MapEntry(
-                            i,
-                            element != "Other"
-                                ? Obx(
-                                    () {
-                                      return ToggleButton(
-                                        horizontalPadding: 10.0,
-                                        onTap: () =>
-                                            onboardingController.getVocationGoal(i),
-                                        text: element,
-                                        isSelected:
-                                        onboardingController.vocationalTaskIndex == i,
-                                      );
-                                    },
-                                  )
-                                : GestureDetector(
-                                    onTap: () {
-                                      onboardingController.openAddNewGoalPage("vocationalTasks");
-                                    },
-                                    child: Container(
-                                      width: 42,
-                                      height: 42,
-                                      decoration: BoxDecoration(
-                                          color: kSecondaryColor,
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(8.0)),
-                                          border: Border.all(
-                                            width: 1.0,
-                                            color: kBorderColor,
-                                          )),
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 12.0, vertical: 12.0),
-                                      child: SvgPicture.asset(
-                                          "assets/vectors/ic_plus.svg"),
+                Container(
+                  margin: EdgeInsets.symmetric(horizontal: 4.0),
+                  child: Wrap(
+                    spacing: 8.0,
+                    runSpacing: 8.0,
+                    children: onboardingController.vocationGoalList
+                        .asMap()
+                        .map((i, element) => MapEntry(
+                              i,
+                              element != "Other"
+                                  ? Obx(
+                                      () {
+                                        return ToggleButton(
+                                          horizontalPadding: 10.0,
+                                          onTap: () =>
+                                              onboardingController.getVocationGoal(i),
+                                          text: element,
+                                          isSelected:
+                                          onboardingController.vocationalTaskIndex == i,
+                                        );
+                                      },
+                                    )
+                                  : GestureDetector(
+                                      onTap: () {
+                                        onboardingController.openAddNewGoalPage("vocationalTasks");
+                                      },
+                                      child: Container(
+                                        width: 42,
+                                        height: 42,
+                                        decoration: BoxDecoration(
+                                            color: kSecondaryColor,
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(8.0)),
+                                            border: Border.all(
+                                              width: 1.0,
+                                              color: kBorderColor,
+                                            )),
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 12.0, vertical: 12.0),
+                                        child: SvgPicture.asset(
+                                            "assets/vectors/ic_plus.svg"),
+                                      ),
                                     ),
-                                  ),
-                          ))
-                      .values
-                      .toList(),
+                            ))
+                        .values
+                        .toList(),
+                  ),
                 ),
                 SizedBox(
                   height: 30,

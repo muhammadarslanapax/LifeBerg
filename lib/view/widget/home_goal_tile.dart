@@ -1,13 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_rx/get_rx.dart';
-import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:life_berg/constant/color.dart';
 import 'package:life_berg/generated/assets.dart';
-import 'package:life_berg/view/screens/archive_items/archive_items.dart';
-import 'package:life_berg/view/screens/edit_goal/edit_goal.dart';
 import 'package:life_berg/view/screens/setup_goal/add_new_goal.dart';
-import 'package:life_berg/view/widget/common_image_view.dart';
 import 'package:life_berg/view/widget/custom_bottom_sheet.dart';
 import 'package:life_berg/view/widget/custom_slider.dart';
 import 'package:life_berg/view/widget/dialog_action_button.dart';
@@ -16,6 +11,7 @@ import 'package:life_berg/view/widget/my_dialog.dart';
 import 'package:life_berg/view/widget/my_text.dart';
 import 'package:life_berg/view/widget/my_text_field.dart';
 
+import '../../constant/strings.dart';
 import '../../controller/admin_controller/home_controller.dart';
 import '../../model/goal/goal.dart';
 
@@ -93,29 +89,28 @@ class _HomeGoalTileState extends State<HomeGoalTile> {
         if (widget.goal!.isSkipped.value == false)
           menuItem(
             icon: Assets.imagesSkip,
-            title: 'Skip goal',
+            title: skipGoal,
             onTap: () {
               Navigator.of(context).pop();
               Get.dialog(
                 MyDialog(
                   icon: Assets.imagesSkip,
-                  heading: 'Skip Goal',
-                  content:
-                      'Selected goal will be skipped for today. To revert changes please click undo.',
+                  heading: SKIPGOAL,
+                  content: skipGoalDes,
                   haveCustomActionButtons: true,
                   customAction: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       DialogActionButton(
-                        text: 'Undo',
-                        textColor: kRedColor,
+                        text: undo,
                         onTap: () => Get.back(),
                       ),
                       SizedBox(
                         width: 16,
                       ),
                       DialogActionButton(
-                        text: 'Skip',
+                        text: skip,
+                        textColor: kRedColor,
                         onTap: () {
                           Get.back();
                           widget.goal!.isSkipped.value = true;
@@ -130,29 +125,28 @@ class _HomeGoalTileState extends State<HomeGoalTile> {
         if (widget.goal!.isSkipped.value == true)
           menuItem(
             icon: Assets.imagesUnSkip,
-            title: 'Restore goal',
+            title: restoreGoal,
             onTap: () {
               Navigator.of(context).pop();
               Get.dialog(
                 MyDialog(
                   icon: Assets.imagesUnSkip,
-                  heading: 'Restore Goal',
-                  content:
-                      'Selected goal will be restored. To skip it, please click undo',
+                  heading: RESTOREGOAL,
+                  content: restoreGoalDes,
                   haveCustomActionButtons: true,
                   customAction: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       DialogActionButton(
-                        text: 'Undo',
-                        textColor: kRedColor,
+                        text: undo,
                         onTap: () => Get.back(),
                       ),
                       SizedBox(
                         width: 16,
                       ),
                       DialogActionButton(
-                        text: 'Restore',
+                        text: restore,
+                        textColor: kRedColor,
                         onTap: () {
                           Get.back();
                           widget.goal!.isSkipped.value = false;
@@ -166,40 +160,40 @@ class _HomeGoalTileState extends State<HomeGoalTile> {
           ),
         menuItem(
             icon: Assets.imagesEditItem,
-            title: 'Edit goal',
+            title: editGoal,
             onTap: () {
               Navigator.of(context).pop();
               Get.to(() => AddNewGoal(), arguments: {
-                "goal": widget.goal!,
-                "goalCategory": widget.goal!.category!.name,
+                "goal": widget.goal,
+                "goalCategory": widget.goal?.category?.name,
                 "goalName": widget.goal!.name,
                 "isComingFromOnBoarding": false
               });
             }),
         menuItem(
             icon: Assets.imagesAchive,
-            title: 'Archive goal',
+            title: archiveGoal,
             onTap: () {
               Navigator.of(context).pop();
               Get.dialog(
                 MyDialog(
                   icon: Assets.imagesArchive2,
-                  heading: 'Archive Goal',
-                  content: 'Selected goal will be archived and made inactive.',
+                  heading: ARCHIVEGOAL,
+                  content: archiveGoalDes,
                   haveCustomActionButtons: true,
                   customAction: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       DialogActionButton(
-                        text: 'Undo',
-                        textColor: kRedColor,
+                        text: undo,
                         onTap: () => Get.back(),
                       ),
                       SizedBox(
                         width: 16,
                       ),
                       DialogActionButton(
-                        text: 'Okay',
+                        text: okay,
+                        textColor: kRedColor,
                         onTap: () {
                           Get.back();
                           Get.back();
@@ -214,7 +208,7 @@ class _HomeGoalTileState extends State<HomeGoalTile> {
             }),
         menuItem(
           icon: Assets.imagesComment,
-          title: 'Add comment',
+          title: addComment,
           onTap: () {
             Navigator.of(context).pop();
             homeController.goalCommentController.text =
@@ -232,30 +226,29 @@ class _HomeGoalTileState extends State<HomeGoalTile> {
         ),
         menuItem(
           icon: Assets.imagesDeleteThisItem,
-          title: 'Delete goal',
+          title: deleteGoal,
           borderColor: Colors.transparent,
           onTap: () {
             Navigator.of(context).pop();
             Get.dialog(
               MyDialog(
                 icon: Assets.imagesDeleteThisItem,
-                heading: 'Delete Goal',
-                content:
-                    'Are you sure? The selected goal will be deleted. To revert changes click undo.',
+                heading: DELETEGOAL,
+                content: deleteGoalDes,
                 haveCustomActionButtons: true,
                 customAction: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     DialogActionButton(
-                      text: 'Undo',
-                      textColor: kRedColor,
+                      text: undo,
                       onTap: () => Get.back(),
                     ),
                     SizedBox(
                       width: 16,
                     ),
                     DialogActionButton(
-                      text: 'Delete',
+                      text: delete,
+                      textColor: kRedColor,
                       onTap: () {
                         Get.back();
                         homeController.deleteGoal(
@@ -287,7 +280,6 @@ class _HomeGoalTileState extends State<HomeGoalTile> {
           horizontal: 10,
           vertical: 10,
         ),
-        // height: 40,
         decoration: BoxDecoration(
           color: kSecondaryColor,
           borderRadius: BorderRadius.circular(8),
@@ -311,13 +303,6 @@ class _HomeGoalTileState extends State<HomeGoalTile> {
                 color: widget.leadingColor,
               ),
             ),
-            // CommonImageView(
-            //   imagePath: widget.leadingIcon!,
-            //   height: 24,
-            //   width: 24,
-            //   radius: 4.0,
-            //
-            // ),
             Expanded(
               child: MyText(
                 text: widget.title,
@@ -412,7 +397,7 @@ class AddComment extends StatelessWidget {
             fillColor: Colors.white,
             maxLines: 1,
             controller: homeController.goalCommentController,
-            hint: 'Add a short comment to your selected item',
+            hint: addCommentDes,
             marginBottom: 0.0,
           ),
         ),
@@ -421,8 +406,8 @@ class AddComment extends StatelessWidget {
           Get.dialog(
             MyDialog(
               icon: Assets.imagesComment,
-              heading: 'Comment Added',
-              content: 'Your comment has been added to the selected goal.',
+              heading: commentAdded,
+              content: commentAddedDes,
               onOkay: () {
                 Get.back();
                 Navigator.pop(context);
@@ -430,7 +415,7 @@ class AddComment extends StatelessWidget {
             ),
           );
         },
-        buttonText: 'Submit',
+        buttonText: submit,
         isButtonDisable: false,
       ),
     );

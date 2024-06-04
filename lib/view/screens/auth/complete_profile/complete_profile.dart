@@ -33,38 +33,18 @@ class CompleteProfile extends StatelessWidget {
           onBackTap: () => controller.onBackTap(),
         ),
         body: Column(
-          // shrinkWrap: true,
-          // physics: BouncingScrollPhysics(),
-          // padding: EdgeInsets.zero,
           children: [
             Expanded(
               child: Obx(() {
                 return IndexedStack(
                   index: controller.currentIndex.value,
                   children: controller.profileSteps,
-                  // PageView.builder(
-                  //   controller: completeProfileController.pageController,
-                  //   onPageChanged: (index) =>
-                  //       completeProfileController.getCurrentIndex(index),
-                  //   physics: NeverScrollableScrollPhysics(),
-                  //   itemCount: completeProfileController.profileSteps.length,
-                  //   itemBuilder: (context, index) {
-                  //     return completeProfileController.profileSteps[index];
-                  //   },
-                  // ),
                 );
               }),
             ),
-            // Obx(() {
-            //   return SizedBox(
-            //     height: completeProfileController.currentIndex.value == 2
-            //         ? Get.height * 0.13
-            //         : Get.height * 0.17,
-            //   );
-            // }),
             Padding(
               padding: EdgeInsets.symmetric(
-                horizontal: 15,
+                horizontal: 20,
                 vertical: Platform.isIOS ? IOS_BOTTOM_MARGIN : 20,
               ),
               child: Obx(() {

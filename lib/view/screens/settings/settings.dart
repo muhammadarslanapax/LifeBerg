@@ -1,7 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:life_berg/constant/color.dart';
 import 'package:life_berg/generated/assets.dart';
+import 'package:life_berg/utils/pref_utils.dart';
+import 'package:life_berg/view/screens/auth/login.dart';
 import 'package:life_berg/view/screens/bottom_nav_bar/bottom_nav_bar.dart';
 import 'package:life_berg/view/screens/settings/historical_reporting_goals.dart';
 import 'package:life_berg/view/screens/settings/legal.dart';
@@ -94,7 +97,16 @@ class Settings extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
                               MyText(
-                                onTap: () {},
+                                onTap: () async {
+                                  await FirebaseAuth.instance.signOut();
+                                  PrefUtils().user = "";
+                                  PrefUtils().userId = "";
+                                  PrefUtils().token = "";
+                                  PrefUtils().loggedIn = false;
+                                  PrefUtils().lastSavedDate = "";
+                                  PrefUtils().submittedGoals = "";
+                                  Get.offAll(() => Login());
+                                },
                                 align: TextAlign.end,
                                 text: 'Log Out',
                                 size: 14,
@@ -129,7 +141,10 @@ class Settings extends StatelessWidget {
           ),
           Padding(
             padding: EdgeInsets.symmetric(vertical: 20),
-            child: Image.asset(Assets.imagesLogo,height: 60,),
+            child: Image.asset(
+              Assets.imagesLogo,
+              height: 60,
+            ),
           ),
         ],
       ),

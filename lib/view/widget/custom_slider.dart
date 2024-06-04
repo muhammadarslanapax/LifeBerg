@@ -22,7 +22,7 @@ class CustomSlider extends StatelessWidget {
             trackHeight: 4,
             minThumbSeparation: 0.0,
             overlayShape: RoundSliderOverlayShape(
-              overlayRadius: 0.0,
+              overlayRadius: 4.0,
             ),
             thumbShape: RoundSliderThumbShape(
               enabledThumbRadius: 5,

@@ -11,6 +11,7 @@ import 'package:life_berg/model/setup_goal_model/setup_goal_model.dart';
 import 'package:life_berg/utils/pref_utils.dart';
 
 import '../../constant/color.dart';
+import '../../generated/assets.dart';
 import '../../model/error/error_response.dart';
 import '../../model/goal/goal.dart';
 import '../../model/reminder/reminder_date_time.dart';

@@ -35,6 +35,7 @@ const kCoolGreyColor3 = Color(0xffEAEEF6);
 const kBlackColor = Color(0xff000000);
 const kUnSelectedColor = Color(0xffDCEAF2);
 const kRedColor = Color(0xffFF4B26);
+const kDarkRedColor = Color(0xffC5513D);
 const kBlueColor = Color(0xff4EA2FF);
 const kMaroonColor = Color(0xffC7598E);
 const kStreaksColor = Color(0xff00BAC7);

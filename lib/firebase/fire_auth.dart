@@ -70,14 +70,51 @@ class FireAuth {
   }
 
   static Future<UserCredential?> signInWithFacebook() async {
-    final LoginResult loginResult = await FacebookAuth.instance.login();
-    if(loginResult.accessToken != null) {
-      final OAuthCredential facebookAuthCredential = FacebookAuthProvider
-          .credential(loginResult.accessToken!.token);
-
-      return FirebaseAuth.instance.signInWithCredential(facebookAuthCredential);
+    final rawNonce = generateNonce();
+    final nonce = sha256ofString(rawNonce);
+    final result = await FacebookAuth.instance.login(
+      loginTracking: LoginTracking.limited,
+      nonce: nonce,
+    );
+    if (result.status == LoginStatus.success) {
+      print('${await FacebookAuth.instance.getUserData()}');
+      final token = result.accessToken as LimitedToken;
+// Create a credential from the access token
+      OAuthCredential credential = OAuthCredential(
+        providerId: 'facebook.com',
+        signInMethod: 'oauth',
+        idToken: token.tokenString,
+        rawNonce: rawNonce,
+      );
+      return await FirebaseAuth.instance.signInWithCredential(credential);
     }
     return null;
+    /*final LoginResult loginResult = await FacebookAuth.instance.login();
+    if(loginResult.accessToken != null) {
+      final AccessToken accessToken = loginResult.accessToken!;
+
+      final AuthCredential credential;
+      switch (accessToken.type) {
+        case AccessTokenType.classic:
+          final token = accessToken as ClassicToken;
+          credential = FacebookAuthProvider.credential(token.authenticationToken!,);
+          break;
+        case AccessTokenType.limited:
+          final token = accessToken as LimitedToken;
+          credential = OAuthCredential(
+            providerId: 'facebook.com',
+            signInMethod: 'oauth',
+            idToken: token.tokenString,
+            rawNonce: token.nonce,
+          );
+          break;
+      }
+      // final OAuthCredential facebookAuthCredential = FacebookAuthProvider
+      //     .credential(loginResult.accessToken!.token);
+
+      return FirebaseAuth.instance.signInWithCredential(credential);
+    }
+    return null;*/
   }
 
 }

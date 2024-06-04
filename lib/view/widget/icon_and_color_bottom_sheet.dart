@@ -497,8 +497,8 @@ class _IconAndColorBottomSheetState extends State<IconAndColorBottomSheet> {
             ),
             Padding(
               padding: Platform.isIOS
-                  ? EdgeInsets.fromLTRB(15, 10, 15, 30)
-                  : EdgeInsets.fromLTRB(15, 10, 15, 15),
+                  ? EdgeInsets.fromLTRB(0, 10, 0, 30)
+                  : EdgeInsets.fromLTRB(0, 10, 0, 15),
               child: MyButton(
                 height: 56,
                 radius: 8,

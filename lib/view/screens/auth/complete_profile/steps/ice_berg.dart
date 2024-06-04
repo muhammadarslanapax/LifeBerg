@@ -18,7 +18,7 @@ class IceBerg extends StatelessWidget {
       shrinkWrap: true,
       physics: BouncingScrollPhysics(),
       padding: const EdgeInsets.symmetric(
-        horizontal: 10,
+        horizontal: 20,
         vertical: 30,
       ),
       children: [
@@ -29,13 +29,13 @@ class IceBerg extends StatelessWidget {
           Assets.imagesIceBag,
           height: 157,
         ),
-        MyText(
+        Obx(() => MyText(
           paddingTop: 25,
-          text: 'Hello, ${controller.user?.fullName ?? ""}!',
+          text: 'Hello, ${controller.getFirstName(controller.userFullName.value)}!',
           size: 24,
           weight: FontWeight.w500,
           align: TextAlign.center,
-        ),
+        ),),
         MyText(
           paddingTop: 6,
           text: 'I will be your companion! Would you like to name me?',

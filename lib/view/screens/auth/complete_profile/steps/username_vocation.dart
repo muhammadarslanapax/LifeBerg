@@ -19,7 +19,7 @@ class UserNameVocation extends StatelessWidget {
       shrinkWrap: true,
       physics: BouncingScrollPhysics(),
       padding: const EdgeInsets.symmetric(
-        horizontal: 10,
+        horizontal: 20,
         vertical: 30,
       ),
       children: [
