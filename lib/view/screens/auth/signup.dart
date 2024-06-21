@@ -153,7 +153,7 @@ class Signup extends StatelessWidget {
                           controller.signInWithGoogle();
                         },
                         onFacebook: () {
-                          controller.signInWithFacebook();
+                          controller.signInWithFacebook(context);
                         },
                         onApple: () {
                           controller.signInWithApple();

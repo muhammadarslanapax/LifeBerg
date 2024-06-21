@@ -73,7 +73,8 @@ class Assets {
   static const String goalIconsBlazer = 'assets/goal_icons/blazer.png';
   static const String goalIconsBlouse = 'assets/goal_icons/blouse.png';
   static const String goalIconsBook1 = 'assets/goal_icons/book_1.png';
-  static const String goalIconsBookmarkFolder = 'assets/goal_icons/bookmark_folder.png';
+  static const String goalIconsBookmarkFolder =
+      'assets/goal_icons/bookmark_folder.png';
   static const String goalIconsBottle = 'assets/goal_icons/bottle.png';
   static const String goalIconsBox = 'assets/goal_icons/box.png';
   static const String goalIconsBread = 'assets/goal_icons/bread.png';
@@ -98,32 +99,41 @@ class Assets {
   static const String goalIconsCar2 = 'assets/goal_icons/car_2.png';
   static const String goalIconsCarrot = 'assets/goal_icons/carrot.png';
   static const String goalIconsCemetery = 'assets/goal_icons/cemetery.png';
-  static const String goalIconsCertificate = 'assets/goal_icons/certificate.png';
+  static const String goalIconsCertificate =
+      'assets/goal_icons/certificate.png';
   static const String goalIconsChat1 = 'assets/goal_icons/chat_1.png';
   static const String goalIconsChat2 = 'assets/goal_icons/chat_2.png';
   static const String goalIconsCheck = 'assets/goal_icons/check.png';
   static const String goalIconsChefHat = 'assets/goal_icons/chef_hat.png';
-  static const String goalIconsChristmasTree = 'assets/goal_icons/christmas_tree.png';
+  static const String goalIconsChristmasTree =
+      'assets/goal_icons/christmas_tree.png';
   static const String goalIconsCitrus = 'assets/goal_icons/citrus.png';
-  static const String goalIconsCleaningBrush = 'assets/goal_icons/cleaning_brush.png';
+  static const String goalIconsCleaningBrush =
+      'assets/goal_icons/cleaning_brush.png';
   static const String goalIconsClock = 'assets/goal_icons/clock.png';
   static const String goalIconsClock1 = 'assets/goal_icons/clock_1.png';
   static const String goalIconsCloud = 'assets/goal_icons/cloud.png';
   static const String goalIconsCoffee = 'assets/goal_icons/coffee.png';
   static const String goalIconsCoffee1 = 'assets/goal_icons/coffee_1.png';
   static const String goalIconsCoffee2 = 'assets/goal_icons/coffee_2.png';
-  static const String goalIconsCoffeeMachine = 'assets/goal_icons/coffee_machine.png';
+  static const String goalIconsCoffeeMachine =
+      'assets/goal_icons/coffee_machine.png';
   static const String goalIconsCoffeePot = 'assets/goal_icons/coffee_pot.png';
-  static const String goalIconsCoffeePot1 = 'assets/goal_icons/coffee_pot_1.png';
+  static const String goalIconsCoffeePot1 =
+      'assets/goal_icons/coffee_pot_1.png';
   static const String goalIconsColdCoffee = 'assets/goal_icons/cold_coffee.png';
   static const String goalIconsColdDrink = 'assets/goal_icons/cold_drink.png';
   static const String goalIconsCompass = 'assets/goal_icons/compass.png';
-  static const String goalIconsConstruction = 'assets/goal_icons/construction.png';
-  static const String goalIconsCosmeticsBottle = 'assets/goal_icons/cosmetics_bottle.png';
-  static const String goalIconsCosmeticsCream = 'assets/goal_icons/cosmetics_cream.png';
+  static const String goalIconsConstruction =
+      'assets/goal_icons/construction.png';
+  static const String goalIconsCosmeticsBottle =
+      'assets/goal_icons/cosmetics_bottle.png';
+  static const String goalIconsCosmeticsCream =
+      'assets/goal_icons/cosmetics_cream.png';
   static const String goalIconsCradle = 'assets/goal_icons/cradle.png';
   static const String goalIconsCube = 'assets/goal_icons/cube.png';
-  static const String goalIconsDeadBattery = 'assets/goal_icons/dead_battery.png';
+  static const String goalIconsDeadBattery =
+      'assets/goal_icons/dead_battery.png';
   static const String goalIconsDesk = 'assets/goal_icons/desk.png';
   static const String goalIconsDesk1 = 'assets/goal_icons/desk_1.png';
   static const String goalIconsDesk2 = 'assets/goal_icons/desk_2.png';
@@ -132,7 +142,8 @@ class Assets {
   static const String goalIconsDetergent = 'assets/goal_icons/detergent.png';
   static const String goalIconsDiamond = 'assets/goal_icons/diamond.png';
   static const String goalIconsDna = 'assets/goal_icons/dna.png';
-  static const String goalIconsDownloadCloud = 'assets/goal_icons/download_cloud.png';
+  static const String goalIconsDownloadCloud =
+      'assets/goal_icons/download_cloud.png';
   static const String goalIconsDrawer = 'assets/goal_icons/drawer.png';
   static const String goalIconsDrawer1 = 'assets/goal_icons/drawer_1.png';
   static const String goalIconsDress = 'assets/goal_icons/dress.png';
@@ -145,12 +156,14 @@ class Assets {
   static const String goalIconsEarphones = 'assets/goal_icons/earphones.png';
   static const String goalIconsEgg = 'assets/goal_icons/egg.png';
   static const String goalIconsEgg1 = 'assets/goal_icons/egg_1.png';
-  static const String goalIconsElectricKettle = 'assets/goal_icons/electric_kettle.png';
+  static const String goalIconsElectricKettle =
+      'assets/goal_icons/electric_kettle.png';
   static const String goalIconsEnvelope = 'assets/goal_icons/envelope.png';
   static const String goalIconsEnvelope1 = 'assets/goal_icons/envelope_1.png';
   static const String goalIconsEnvelope2 = 'assets/goal_icons/envelope_2.png';
   static const String goalIconsExcavator = 'assets/goal_icons/excavator.png';
-  static const String goalIconsExclamation = 'assets/goal_icons/exclamation.png';
+  static const String goalIconsExclamation =
+      'assets/goal_icons/exclamation.png';
   static const String goalIconsEye = 'assets/goal_icons/eye.png';
   static const String goalIconsFacebook2 = 'assets/goal_icons/facebook_2.png';
   static const String goalIconsFacebook3 = 'assets/goal_icons/facebook_3.png';
@@ -170,7 +183,8 @@ class Assets {
   static const String goalIconsFolder = 'assets/goal_icons/folder.png';
   static const String goalIconsFolder1 = 'assets/goal_icons/folder_1.png';
   static const String goalIconsFoodBowl = 'assets/goal_icons/food_bowl.png';
-  static const String goalIconsFootballField = 'assets/goal_icons/football_field.png';
+  static const String goalIconsFootballField =
+      'assets/goal_icons/football_field.png';
   static const String goalIconsFork = 'assets/goal_icons/fork.png';
   static const String goalIconsForklift = 'assets/goal_icons/forklift.png';
   static const String goalIconsFridge = 'assets/goal_icons/fridge.png';
@@ -178,7 +192,8 @@ class Assets {
   static const String goalIconsGarland = 'assets/goal_icons/garland.png';
   static const String goalIconsGas = 'assets/goal_icons/gas.png';
   static const String goalIconsGift = 'assets/goal_icons/gift.png';
-  static const String goalIconsGraduationCap1 = 'assets/goal_icons/graduation_cap_1.png';
+  static const String goalIconsGraduationCap1 =
+      'assets/goal_icons/graduation_cap_1.png';
   static const String goalIconsGraph = 'assets/goal_icons/graph.png';
   static const String goalIconsGraph1 = 'assets/goal_icons/graph_1.png';
   static const String goalIconsGraph2 = 'assets/goal_icons/graph_2.png';
@@ -189,7 +204,8 @@ class Assets {
   static const String goalIconsHelmet = 'assets/goal_icons/helmet.png';
   static const String goalIconsHockey = 'assets/goal_icons/hockey.png';
   static const String goalIconsHospital = 'assets/goal_icons/hospital.png';
-  static const String goalIconsHotAirBalloon = 'assets/goal_icons/hot_air_balloon.png';
+  static const String goalIconsHotAirBalloon =
+      'assets/goal_icons/hot_air_balloon.png';
   static const String goalIconsHouse = 'assets/goal_icons/house.png';
   static const String goalIconsHouse1 = 'assets/goal_icons/house_1.png';
   static const String goalIconsIce = 'assets/goal_icons/ice.png';
@@ -201,7 +217,8 @@ class Assets {
   static const String goalIconsKey = 'assets/goal_icons/key.png';
   static const String goalIconsKite = 'assets/goal_icons/kite.png';
   static const String goalIconsKiwi = 'assets/goal_icons/kiwi.png';
-  static const String goalIconsKnittingBall = 'assets/goal_icons/knitting_ball.png';
+  static const String goalIconsKnittingBall =
+      'assets/goal_icons/knitting_ball.png';
   static const String goalIconsLamp = 'assets/goal_icons/lamp.png';
   static const String goalIconsLaptop = 'assets/goal_icons/laptop.png';
   static const String goalIconsLaw = 'assets/goal_icons/law.png';
@@ -243,7 +260,8 @@ class Assets {
   static const String goalIconsPizza = 'assets/goal_icons/pizza.png';
   static const String goalIconsPizza1 = 'assets/goal_icons/pizza_1.png';
   static const String goalIconsPlane = 'assets/goal_icons/plane.png';
-  static const String goalIconsPlaneLanding = 'assets/goal_icons/plane_landing.png';
+  static const String goalIconsPlaneLanding =
+      'assets/goal_icons/plane_landing.png';
   static const String goalIconsPlanet = 'assets/goal_icons/planet.png';
   static const String goalIconsPlant = 'assets/goal_icons/plant.png';
   static const String goalIconsPool = 'assets/goal_icons/pool.png';
@@ -254,7 +272,8 @@ class Assets {
   static const String goalIconsRake = 'assets/goal_icons/rake.png';
   static const String goalIconsRake1 = 'assets/goal_icons/rake_1.png';
   static const String goalIconsRattle = 'assets/goal_icons/rattle.png';
-  static const String goalIconsRemoteControl = 'assets/goal_icons/remote_control.png';
+  static const String goalIconsRemoteControl =
+      'assets/goal_icons/remote_control.png';
   static const String goalIconsRoad = 'assets/goal_icons/road.png';
   static const String goalIconsRotation = 'assets/goal_icons/rotation.png';
   static const String goalIconsSandwich = 'assets/goal_icons/sandwich.png';
@@ -263,7 +282,8 @@ class Assets {
   static const String goalIconsScales = 'assets/goal_icons/scales.png';
   static const String goalIconsScissors = 'assets/goal_icons/scissors.png';
   static const String goalIconsShopping = 'assets/goal_icons/shopping.png';
-  static const String goalIconsShoppingCart = 'assets/goal_icons/shopping_cart.png';
+  static const String goalIconsShoppingCart =
+      'assets/goal_icons/shopping_cart.png';
   static const String goalIconsShoulders = 'assets/goal_icons/shoulders.png';
   static const String goalIconsShovel = 'assets/goal_icons/shovel.png';
   static const String goalIconsShower = 'assets/goal_icons/shower.png';
@@ -271,8 +291,10 @@ class Assets {
   static const String goalIconsSkimmer = 'assets/goal_icons/skimmer.png';
   static const String goalIconsSlippers = 'assets/goal_icons/slippers.png';
   static const String goalIconsSmartWatch = 'assets/goal_icons/smart_watch.png';
-  static const String goalIconsSmartWatch1 = 'assets/goal_icons/smart_watch_1.png';
-  static const String goalIconsSmartWatch2 = 'assets/goal_icons/smart_watch_2.png';
+  static const String goalIconsSmartWatch1 =
+      'assets/goal_icons/smart_watch_1.png';
+  static const String goalIconsSmartWatch2 =
+      'assets/goal_icons/smart_watch_2.png';
   static const String goalIconsSmartphone = 'assets/goal_icons/smartphone.png';
   static const String goalIconsSnowflake = 'assets/goal_icons/snowflake.png';
   static const String goalIconsSnowman = 'assets/goal_icons/snowman.png';
@@ -295,7 +317,8 @@ class Assets {
   static const String goalIconsSurprise = 'assets/goal_icons/surprise.png';
   static const String goalIconsTable = 'assets/goal_icons/table.png';
   static const String goalIconsTable1 = 'assets/goal_icons/table_1.png';
-  static const String goalIconsTableTennis = 'assets/goal_icons/table_tennis.png';
+  static const String goalIconsTableTennis =
+      'assets/goal_icons/table_tennis.png';
   static const String goalIconsTag = 'assets/goal_icons/tag.png';
   static const String goalIconsTelescope = 'assets/goal_icons/telescope.png';
   static const String goalIconsTent = 'assets/goal_icons/tent.png';
@@ -304,7 +327,8 @@ class Assets {
   static const String goalIconsToaster1 = 'assets/goal_icons/toaster_1.png';
   static const String goalIconsToilet = 'assets/goal_icons/toilet.png';
   static const String goalIconsToothbrush = 'assets/goal_icons/toothbrush.png';
-  static const String goalIconsToothbrush1 = 'assets/goal_icons/toothbrush_1.png';
+  static const String goalIconsToothbrush1 =
+      'assets/goal_icons/toothbrush_1.png';
   static const String goalIconsToothpaste = 'assets/goal_icons/toothpaste.png';
   static const String goalIconsTowerCrane = 'assets/goal_icons/tower_crane.png';
   static const String goalIconsTractor = 'assets/goal_icons/tractor.png';
@@ -322,10 +346,13 @@ class Assets {
   static const String goalIconsTwitter = 'assets/goal_icons/twitter.png';
   static const String goalIconsUmbrella = 'assets/goal_icons/umbrella.png';
   static const String goalIconsUsers = 'assets/goal_icons/users.png';
-  static const String goalIconsVacuumCleaner = 'assets/goal_icons/vacuum_cleaner.png';
-  static const String goalIconsVacuumCleaner1 = 'assets/goal_icons/vacuum_cleaner_1.png';
+  static const String goalIconsVacuumCleaner =
+      'assets/goal_icons/vacuum_cleaner.png';
+  static const String goalIconsVacuumCleaner1 =
+      'assets/goal_icons/vacuum_cleaner_1.png';
   static const String goalIconsVolleyball = 'assets/goal_icons/volleyball.png';
-  static const String goalIconsVolleyball1 = 'assets/goal_icons/volleyball_1.png';
+  static const String goalIconsVolleyball1 =
+      'assets/goal_icons/volleyball_1.png';
   static const String goalIconsWatering = 'assets/goal_icons/watering.png';
   static const String goalIconsWaves = 'assets/goal_icons/waves.png';
   static const String goalIconsWhatsapp = 'assets/goal_icons/whatsapp.png';
@@ -340,7 +367,8 @@ class Assets {
   static const String imagesAddButton = 'assets/images/add_button.png';
   static const String imagesAddIcon = 'assets/images/add_icon.png';
   static const String imagesAddImage = 'assets/images/add_image.png';
-  static const String imagesAdminTaskCreated = 'assets/images/admin_task_created.png';
+  static const String imagesAdminTaskCreated =
+      'assets/images/admin_task_created.png';
   static const String imagesApple = 'assets/images/apple.png';
   static const String imagesArchive2 = 'assets/images/archive_2.png';
   static const String imagesArrowBack = 'assets/images/arrow_back.png';
@@ -348,7 +376,8 @@ class Assets {
   static const String imagesArrowForward = 'assets/images/arrow_forward.png';
   static const String imagesArrowNext = 'assets/images/arrow_next.png';
   static const String imagesArrowUp = 'assets/images/arrow_up.png';
-  static const String imagesArticleIconNew = 'assets/images/article_icon_new.png';
+  static const String imagesArticleIconNew =
+      'assets/images/article_icon_new.png';
   static const String imagesAverage = 'assets/images/average.png';
   static const String imagesB1 = 'assets/images/b1.png';
   static const String imagesB2 = 'assets/images/b2.png';
@@ -362,13 +391,15 @@ class Assets {
   static const String imagesBold = 'assets/images/bold.png';
   static const String imagesBookmarkEmpty = 'assets/images/bookmark_empty.png';
   static const String imagesBorder = 'assets/images/border.png';
-  static const String imagesBottomSheetHandle = 'assets/images/bottom_sheet_handle.png';
+  static const String imagesBottomSheetHandle =
+      'assets/images/bottom_sheet_handle.png';
   static const String imagesBox = 'assets/images/box.png';
   static const String imagesBrain = 'assets/images/brain.png';
   static const String imagesCalender = 'assets/images/calender.png';
   static const String imagesCertificate = 'assets/images/Certificate.png';
   static const String imagesChecklist = 'assets/images/checklist.png';
-  static const String imagesClarityHistoryLine = 'assets/images/clarity_history_line.png';
+  static const String imagesClarityHistoryLine =
+      'assets/images/clarity_history_line.png';
   static const String imagesClear = 'assets/images/clear.png';
   static const String imagesClinical = 'assets/images/clinical.png';
   static const String imagesClock = 'assets/images/clock.png';
@@ -379,18 +410,22 @@ class Assets {
   static const String imagesComment = 'assets/images/comment.png';
   static const String imagesContactEmail = 'assets/images/contact_email.png';
   static const String imagesContactUs = 'assets/images/contact_us.png';
-  static const String imagesCountDownAdded = 'assets/images/count_down_added.png';
+  static const String imagesCountDownAdded =
+      'assets/images/count_down_added.png';
   static const String imagesCpd = 'assets/images/cpd.png';
   static const String imagesCpdPoints = 'assets/images/cpd_points.png';
   static const String imagesDailyCheckIn = 'assets/images/daily_check_in.png';
-  static const String imagesDailyGratitude = 'assets/images/daily_gratitude.png';
+  static const String imagesDailyGratitude =
+      'assets/images/daily_gratitude.png';
   static const String imagesDeleteIconNew = 'assets/images/delete_icon_new.png';
-  static const String imagesDeleteThisItem = 'assets/images/delete_this_item.png';
+  static const String imagesDeleteThisItem =
+      'assets/images/delete_this_item.png';
   static const String imagesDevelopment = 'assets/images/development.png';
   static const String imagesDropDownIcon = 'assets/images/drop_down_icon.png';
   static const String imagesDropIcon = 'assets/images/drop_icon.png';
   static const String imagesEditItem = 'assets/images/edit_item.png';
-  static const String imagesEmploymentForms = 'assets/images/employment_forms.png';
+  static const String imagesEmploymentForms =
+      'assets/images/employment_forms.png';
   static const String imagesExcellent = 'assets/images/excellent.png';
   static const String imagesExpandedIcon = 'assets/images/expanded_icon.png';
   static const String imagesFacebook = 'assets/images/facebook.png';
@@ -399,29 +434,38 @@ class Assets {
   static const String imagesFileAddedNew = 'assets/images/file_added_new.png';
   static const String imagesFileEdit = 'assets/images/file_edit.png';
   static const String imagesFilesAreAdded = 'assets/images/files_are_added.png';
-  static const String imagesFillingCabinet = 'assets/images/filling_cabinet.png';
+  static const String imagesFillingCabinet =
+      'assets/images/filling_cabinet.png';
   static const String imagesFilterButtom = 'assets/images/filter_buttom.png';
   static const String imagesFilterIcon = 'assets/images/filter_icon.png';
   static const String imagesFluentSleep = 'assets/images/fluent_sleep.png';
   static const String imagesFolderAdded = 'assets/images/folder_added.png';
   static const String imagesForgotPass = 'assets/images/forgot_pass.png';
-  static const String imagesForgotPassNew1 = 'assets/images/forgot_pass_new_1.png';
-  static const String imagesForgotPassNew2 = 'assets/images/forgot_pass_new_2.png';
-  static const String imagesForgotPassNew3 = 'assets/images/forgot_pass_new_3.png';
-  static const String imagesForgotPassNew4 = 'assets/images/forgot_pass_new_4.png';
+  static const String imagesForgotPassNew1 =
+      'assets/images/forgot_pass_new_1.png';
+  static const String imagesForgotPassNew2 =
+      'assets/images/forgot_pass_new_2.png';
+  static const String imagesForgotPassNew3 =
+      'assets/images/forgot_pass_new_3.png';
+  static const String imagesForgotPassNew4 =
+      'assets/images/forgot_pass_new_4.png';
   static const String imagesGlasses = 'assets/images/glasses.png';
   static const String imagesGoalCreated = 'assets/images/goal_created.png';
-  static const String imagesGoalCreatedHoriz = 'assets/images/goal_created_horiz.png';
-  static const String imagesGoalCreatedNewImage = 'assets/images/goal_created_new_image.png';
+  static const String imagesGoalCreatedHoriz =
+      'assets/images/goal_created_horiz.png';
+  static const String imagesGoalCreatedNewImage =
+      'assets/images/goal_created_new_image.png';
   static const String imagesGoalsAchieve = 'assets/images/goals_achieve.png';
   static const String imagesGoogle = 'assets/images/google.png';
-  static const String imagesGratitudeSaved = 'assets/images/gratitude_saved.png';
+  static const String imagesGratitudeSaved =
+      'assets/images/gratitude_saved.png';
   static const String imagesGrin = 'assets/images/grin.png';
   static const String imagesHeartRate = 'assets/images/heart_rate.png';
   static const String imagesHeartRateNew = 'assets/images/heart_rate_new.png';
   static const String imagesHistory = 'assets/images/history.png';
   static const String imagesIceBag = 'assets/images/ice_bag.png';
-  static const String imagesIcomoonFreeSleepy = 'assets/images/icomoon_free_sleepy.png';
+  static const String imagesIcomoonFreeSleepy =
+      'assets/images/icomoon_free_sleepy.png';
   static const String imagesIconMoreVert = 'assets/images/icon_more_vert.png';
   static const String imagesInHospital1 = 'assets/images/in_hospital_1.png';
   static const String imagesInHospital2 = 'assets/images/in_hospital_2.png';
@@ -429,7 +473,8 @@ class Assets {
   static const String imagesInstagram = 'assets/images/instagram.png';
   static const String imagesItalic = 'assets/images/italic.png';
   static const String imagesJournalEntry = 'assets/images/journal_entry.png';
-  static const String imagesJournalEntrySavedNewImage = 'assets/images/journal_entry_saved_new_image.png';
+  static const String imagesJournalEntrySavedNewImage =
+      'assets/images/journal_entry_saved_new_image.png';
   static const String imagesKey = 'assets/images/key.png';
   static const String imagesLeftLineArrow = 'assets/images/left_line_arrow.png';
   static const String imagesLegal = 'assets/images/legal.png';
@@ -443,7 +488,8 @@ class Assets {
   static const String imagesLogout = 'assets/images/logout.png';
   static const String imagesMailSent = 'assets/images/mail_sent.png';
   static const String imagesMdiBellSleep = 'assets/images/mdi_bell-sleep.png';
-  static const String imagesMdiChatSleepOutline = 'assets/images/mdi_chat_sleep_outline.png';
+  static const String imagesMdiChatSleepOutline =
+      'assets/images/mdi_chat_sleep_outline.png';
   static const String imagesMdiSleepOff = 'assets/images/mdi_sleep_off.png';
   static const String imagesMedSchool = 'assets/images/med_school.png';
   static const String imagesMessage = 'assets/images/message.png';
@@ -453,42 +499,56 @@ class Assets {
   static const String imagesNew2 = 'assets/images/new_2.json';
   static const String imagesNew3 = 'assets/images/new_3.json';
   static const String imagesNew4 = 'assets/images/new_4.json';
-  static const String imagesNewCountDownAdded = 'assets/images/new_count_down_added.png';
-  static const String imagesNewFolderAddedNewImage = 'assets/images/new_folder_added_new_image.png';
+  static const String imagesNewCountDownAdded =
+      'assets/images/new_count_down_added.png';
+  static const String imagesNewFolderAddedNewImage =
+      'assets/images/new_folder_added_new_image.png';
   static const String imagesNewPassBg = 'assets/images/new_pass_bg.png';
   static const String imagesNewTabAdded = 'assets/images/new_tab_added.png';
-  static const String imagesNightLightRound = 'assets/images/night_light_round.png';
+  static const String imagesNightLightRound =
+      'assets/images/night_light_round.png';
   static const String imagesNightsStay = 'assets/images/nights_stay.png';
   static const String imagesNoImageFound = 'assets/images/no_image_found.png';
-  static const String imagesNotificationBell = 'assets/images/notification_bell.png';
-  static const String imagesNotificationBellHome = 'assets/images/notification_bell_home.png';
+  static const String imagesNotificationBell =
+      'assets/images/notification_bell.png';
+  static const String imagesNotificationBellHome =
+      'assets/images/notification_bell_home.png';
   static const String imagesNotifications = 'assets/images/notifications.png';
   static const String imagesNutrition = 'assets/images/nutrition.png';
   static const String imagesOn1 = 'assets/images/on_1.png';
   static const String imagesOn2 = 'assets/images/on_2.png';
   static const String imagesOn3 = 'assets/images/on_3.png';
-  static const String imagesOptimiseYourPsesonalDevelopment = 'assets/images/optimise_your_psesonal_development.json';
-  static const String imagesOptimiseYourVocationalTasks = 'assets/images/optimise_your_vocational_tasks.json';
-  static const String imagesOptimiseYourWellbeing = 'assets/images/optimise_your_wellbeing.json';
+  static const String imagesOptimiseYourPsesonalDevelopment =
+      'assets/images/optimise_your_psesonal_development.json';
+  static const String imagesOptimiseYourVocationalTasks =
+      'assets/images/optimise_your_vocational_tasks.json';
+  static const String imagesOptimiseYourWellbeing =
+      'assets/images/optimise_your_wellbeing.json';
   static const String imagesOse = 'assets/images/ose.png';
   static const String imagesOtpBg = 'assets/images/otp_bg.png';
   static const String imagesPaperClip = 'assets/images/paper_clip.png';
-  static const String imagesParkOutlineSleep = 'assets/images/park_outline_sleep.png';
+  static const String imagesParkOutlineSleep =
+      'assets/images/park_outline_sleep.png';
   static const String imagesParkSleep = 'assets/images/park_sleep.png';
   static const String imagesParkSleepOne = 'assets/images/park_sleep_one.png';
-  static const String imagesPassChangedCongrats = 'assets/images/pass_changed_congrats.png';
+  static const String imagesPassChangedCongrats =
+      'assets/images/pass_changed_congrats.png';
   static const String imagesPaySlip = 'assets/images/pay_slip.png';
   static const String imagesPerfectDays = 'assets/images/perfect_days.png';
-  static const String imagesPersonalDevelopment = 'assets/images/personal_development.png';
+  static const String imagesPersonalDevelopment =
+      'assets/images/personal_development.png';
   static const String imagesPhone = 'assets/images/phone.png';
   static const String imagesPlay = 'assets/images/play.png';
   static const String imagesPlayIconNew = 'assets/images/play_icon_new.png';
   static const String imagesPlus = 'assets/images/plus.png';
   static const String imagesPlusIcon = 'assets/images/plus_icon.png';
-  static const String imagesPointAccuralExpand = 'assets/images/point_accural_expand.png';
+  static const String imagesPointAccuralExpand =
+      'assets/images/point_accural_expand.png';
   static const String imagesPoints = 'assets/images/points.png';
-  static const String imagesPointsAccuralClose = 'assets/images/points_accural_close.png';
-  static const String imagesPropertyCertificate = 'assets/images/property_certificate.png';
+  static const String imagesPointsAccuralClose =
+      'assets/images/points_accural_close.png';
+  static const String imagesPropertyCertificate =
+      'assets/images/property_certificate.png';
   static const String imagesQuestion = 'assets/images/question.png';
   static const String imagesQuiteTimeIcon = 'assets/images/quite_time_icon.png';
   static const String imagesRcgpaIcon = 'assets/images/rcgpa_icon.png';
@@ -496,7 +556,8 @@ class Assets {
   static const String imagesReminderBell = 'assets/images/reminder_bell.png';
   static const String imagesRemoveTag = 'assets/images/remove_tag.png';
   static const String imagesRestore = 'assets/images/restore.png';
-  static const String imagesRightLineArrow = 'assets/images/right_line_arrow.png';
+  static const String imagesRightLineArrow =
+      'assets/images/right_line_arrow.png';
   static const String imagesRocket = 'assets/images/rocket.png';
   static const String imagesRoundedTick = 'assets/images/rounded_tick.png';
   static const String imagesSearch = 'assets/images/search.png';
@@ -507,7 +568,8 @@ class Assets {
   static const String imagesSkip = 'assets/images/skip.png';
   static const String imagesSleepTimeIcon = 'assets/images/sleep_time_icon.png';
   static const String imagesSocialIcon = 'assets/images/social_icon.png';
-  static const String imagesSpicalResearchPapepr = 'assets/images/spical_research_papepr.png';
+  static const String imagesSpicalResearchPapepr =
+      'assets/images/spical_research_papepr.png';
   static const String imagesSpiral = 'assets/images/spiral.png';
   static const String imagesStar = 'assets/images/star.png';
   static const String imagesStarFilled = 'assets/images/star_filled.png';
@@ -519,21 +581,26 @@ class Assets {
   static const String imagesTimer = 'assets/images/timer.png';
   static const String imagesUnSkip = 'assets/images/un_skip.png';
   static const String imagesUpload = 'assets/images/upload.png';
-  static const String imagesUploadComplete = 'assets/images/upload_complete.png';
+  static const String imagesUploadComplete =
+      'assets/images/upload_complete.png';
   static const String imagesVeryBad = 'assets/images/very_bad.png';
   static const String imagesVeryGood = 'assets/images/very_good.png';
-  static const String imagesVisibilityIcon = 'assets/images/visibility_icon.png';
+  static const String imagesVisibilityIcon =
+      'assets/images/visibility_icon.png';
   static const String imagesVocation = 'assets/images/vocation.png';
   static const String imagesVoiceNote = 'assets/images/voice_note.png';
   static const String imagesWeAreOf = 'assets/images/we_are_of.png';
   static const String imagesWeAreOff = 'assets/images/we_are_off.json';
-  static const String imagesWeAreOffNewImage = 'assets/images/we_are_off_new_image.png';
-  static const String imagesWeightTraining = 'assets/images/weight_training.png';
+  static const String imagesWeAreOffNewImage =
+      'assets/images/we_are_off_new_image.png';
+  static const String imagesWeightTraining =
+      'assets/images/weight_training.png';
   static const String imagesWelcomeAboard = 'assets/images/welcome_aboard.json';
-  static const String imagesWelcomeOnBoard = 'assets/images/welcome_on_board.png';
+  static const String imagesWelcomeOnBoard =
+      'assets/images/welcome_on_board.png';
   static const String imagesWellBeing = 'assets/images/well_being.png';
   static const String imagesWellBing = 'assets/images/well_bing.png';
-  static const String imagesWorkProductivity = 'assets/images/work_productivity.png';
+  static const String imagesWorkProductivity =
+      'assets/images/work_productivity.png';
   static const String imagesYoutube = 'assets/images/youtube.png';
-
 }

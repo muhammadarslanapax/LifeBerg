@@ -11,7 +11,7 @@ class PastEntryWidget extends StatelessWidget {
     this.title,
     this.time,
   }) : super(key: key);
-  String? title, subTitle, time, image;
+  final String? title, subTitle, time, image;
 
   @override
   Widget build(BuildContext context) {
@@ -42,16 +42,9 @@ class PastEntryWidget extends StatelessWidget {
               children: [
                 MyText(
                   text: title ?? '',
-                  size: 16,
-                  weight: FontWeight.w500,
+                  size: 14,
+                  weight: FontWeight.w400,
                 ),
-                if (subTitle!.isNotEmpty)
-                  MyText(
-                    paddingTop: 4,
-                    text: subTitle ?? '',
-                    size: 12,
-                    height: 1.8,
-                  ),
                 MyText(
                   paddingTop: 4,
                   text: time ?? '',
@@ -61,16 +54,6 @@ class PastEntryWidget extends StatelessWidget {
               ],
             ),
           ),
-          SizedBox(
-            width: 8,
-          ),
-          if (image!.isNotEmpty)
-            CommonImageView(
-              height: 48,
-              width: 48,
-              radius: 8.0,
-              url: image,
-            ),
         ],
       ),
     );

@@ -67,4 +67,16 @@ class PrefUtils {
     _sharedPreferences!.setString(lastDate, value);
   }
 
+  String get tomorrowHighlightGoal => _sharedPreferences!.getString(tomorrowHighlight) ?? "";
+
+  set tomorrowHighlightGoal(String value) {
+    _sharedPreferences!.setString(tomorrowHighlight, value);
+  }
+
+  String get tomorrowHighlightGoalDate => _sharedPreferences!.getString(tomorrowHighlightDate) ?? "";
+
+  set tomorrowHighlightGoalDate(String value) {
+    _sharedPreferences!.setString(tomorrowHighlightDate, value);
+  }
+
 }

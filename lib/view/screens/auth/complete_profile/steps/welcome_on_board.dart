@@ -26,14 +26,15 @@ class WelcomeOnBoard extends StatelessWidget {
           height: 256,
         ),
         Obx(() => MyText(
-              paddingLeft: 10,
-              paddingRight: 10,
-              paddingTop: 10,
-              text: 'Welcome aboard, ${controller.userFullName.value}!',
-              size: 24,
-              weight: FontWeight.w500,
-              align: TextAlign.center,
-            )),
+          paddingLeft: 10,
+          paddingRight: 10,
+          paddingTop: 10,
+          text:
+          'Welcome aboard, ${controller.userPreferredName.value}!',
+          size: 24,
+          weight: FontWeight.w500,
+          align: TextAlign.center,
+        )),
         MyText(
           paddingTop: 6,
           paddingLeft: 10,

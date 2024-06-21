@@ -8,32 +8,35 @@ class MyText extends StatelessWidget {
   double? size, height;
   double? paddingTop, paddingLeft, paddingRight, paddingBottom, letterSpacing;
   FontStyle? fontStyle;
+
   // ignore: prefer_typing_uninitialized_variables
   var maxLines, overFlow;
   VoidCallback? onTap;
   Color? textDecorationColor;
+  bool softWrap;
 
-  MyText({
-    Key? key,
-    @required this.text,
-    this.size,
-    this.height,
-    this.maxLines = 100,
-    this.decoration = TextDecoration.none,
-    this.color,
-    this.letterSpacing,
-    this.textDecorationColor,
-    this.weight = FontWeight.w400,
-    this.align,
-    this.overFlow,
-    this.fontFamily,
-    this.paddingTop = 0,
-    this.paddingRight = 0,
-    this.paddingLeft = 0,
-    this.paddingBottom = 0,
-    this.onTap,
-    this.fontStyle,
-  }) : super(key: key);
+  MyText(
+      {Key? key,
+      @required this.text,
+      this.size,
+      this.height,
+      this.maxLines = 100,
+      this.decoration = TextDecoration.none,
+      this.color,
+      this.letterSpacing,
+      this.textDecorationColor,
+      this.weight = FontWeight.w400,
+      this.align,
+      this.overFlow,
+      this.fontFamily,
+      this.paddingTop = 0,
+      this.paddingRight = 0,
+      this.paddingLeft = 0,
+      this.paddingBottom = 0,
+      this.onTap,
+      this.fontStyle,
+      this.softWrap = true})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -62,6 +65,7 @@ class MyText extends StatelessWidget {
           textAlign: align,
           maxLines: maxLines,
           overflow: overFlow,
+          softWrap: softWrap,
         ),
       ),
     );

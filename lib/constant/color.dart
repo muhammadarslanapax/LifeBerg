@@ -53,6 +53,7 @@ const kQuiteTimeColor = Color(0xff00BAC7);
 const kRACGPExamColor = Color(0xffF19D9C);
 const kRACGPBGExamColor = Color(0xffFEF5F5);
 const kDayStepColor = Color(0xffFED189);
+const kDayStepLightColor = Color(0xffFFFAF3);
 const kCardio2Color = Color(0xffF19D9C);
 const kLifeBergBlueColor = Color(0xffADC4F4);
 const kMapMarkerBorderColor = Color(0xffD2EAF7);

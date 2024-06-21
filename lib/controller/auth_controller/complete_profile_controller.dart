@@ -22,6 +22,7 @@ class CompleteProfileController extends GetxController {
       Get.find<CompleteProfileController>();
   TextEditingController userNameCon = TextEditingController();
   TextEditingController countryCon = TextEditingController();
+  RxString userPreferredName = "".obs;
   RxString selectedVocation = 'Medical Student'.obs;
   TextEditingController iceBergCon = TextEditingController();
   RxBool isUserNameVocationDisable = true.obs;
@@ -77,7 +78,10 @@ class CompleteProfileController extends GetxController {
       user = User.fromJson(json.decode(PrefUtils().user));
       if (user?.fullName != null) {
         userFullName.value = user?.fullName ?? "";
+      }
+      if(user?.userName != null){
         userNameCon.text = user?.userName ?? "";
+        userPreferredName.value = user?.userName ?? '';
       }
       if (user?.country != null) {
         countryCon.text = user?.country ?? "";
@@ -102,6 +106,7 @@ class CompleteProfileController extends GetxController {
   }
 
   validateUsernameVocation() {
+    userPreferredName.value = userNameCon.text;
     isUserNameVocationDisable.value = selectedVocation.value.isEmpty ||
         userNameCon.text.isEmpty ||
         countryCon.text.isEmpty;

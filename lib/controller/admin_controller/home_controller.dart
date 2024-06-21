@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
+import 'package:get/get_rx/get_rx.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:life_berg/apis/http_manager.dart';
 import 'package:life_berg/model/generic_response.dart';
@@ -21,19 +22,18 @@ import '../../model/user/user_response.dart';
 import '../../utils/pref_utils.dart';
 import '../../utils/toast_utils.dart';
 
-class HomeController extends GetxController {
+class HomeController extends FullLifeCycleController with FullLifeCycleMixin {
   final HttpManager httpManager = HttpManager();
 
-  final TextEditingController moodCommentController = TextEditingController();
-  final TextEditingController goalCommentController = TextEditingController();
-  final TextEditingController greatFulController = TextEditingController();
-  final TextEditingController learnedTodayController = TextEditingController();
-  final TextEditingController tomorrowHighlightController = TextEditingController();
+  late TextEditingController moodCommentController;
+  late TextEditingController goalCommentController = TextEditingController();
 
   RxBool isLoadingGoals = true.obs;
+  RxBool isShowHighlight = false.obs;
 
   User? user;
   RxString fullName = "".obs;
+  RxString userName = "".obs;
   RxString userProfileImageUrl = "".obs;
 
   XFile? xFile;
@@ -45,13 +45,14 @@ class HomeController extends GetxController {
   List<Goal> vocationalGoals = <Goal>[].obs;
   List<Goal> personalDevGoals = <Goal>[].obs;
 
+  RxBool isHighlightChecked = false.obs;
+
   List<GoalSubmitData> goalSubmitData = [];
 
   RxString selectedAvatar = "".obs;
   final List<String> avatars = [
     Assets.avatarA1,
     Assets.avatarA2,
-    Assets.avatarA3,
     Assets.avatarA3,
     Assets.avatarA5,
     Assets.avatarA6,
@@ -81,18 +82,28 @@ class HomeController extends GetxController {
 
   @override
   void onInit() {
+    moodCommentController = TextEditingController();
+    goalCommentController = TextEditingController();
     super.onInit();
+    print("onInit");
     _getUserData();
+  }
+
+  @override
+  void onReady() {
+    super.onReady();
+    print("onReady");
   }
 
   @override
   void onClose() {
     moodCommentController.dispose();
     goalCommentController.dispose();
-    learnedTodayController.dispose();
-    greatFulController.dispose();
-    tomorrowHighlightController.dispose();
+    // learnedTodayController.dispose();
+    // greatFulController.dispose();
+    // tomorrowHighlightController.dispose();
     super.onClose();
+    print("onClose");
   }
 
   updateEmoji(String emoji, int value) {
@@ -100,20 +111,40 @@ class HomeController extends GetxController {
     selectedMood.value.value = value;
   }
 
-  _getUserData() {
+  _getUserData({bool isShowLoading = true}) {
     if (PrefUtils().user.isNotEmpty) {
       checkAndResetGoals();
       user = User.fromJson(json.decode(PrefUtils().user));
       fullName.value = user?.fullName ?? "";
+      userName.value = user?.userName ?? "";
       userProfileImageUrl.value = user?.profilePicture ?? "";
       if (PrefUtils().submittedGoals.isNotEmpty) {
         List<dynamic> jsonList = jsonDecode(PrefUtils().submittedGoals);
         List<GoalSubmitData> goalSubmitDataList = jsonList
             .map((jsonItem) => GoalSubmitData.fromJson(jsonItem))
             .toList();
+        goalSubmitData.clear();
         goalSubmitData.addAll(goalSubmitDataList);
       }
-      getUserGoals();
+      isShowTomorrowHighlight();
+      getUserGoals(isShowLoading: isShowLoading);
+    }
+  }
+
+  isShowTomorrowHighlight() {
+    if (PrefUtils().tomorrowHighlightGoalDate.isNotEmpty) {
+      var tomorrowHighlightDate =
+          DateTime.parse(PrefUtils().tomorrowHighlightGoalDate);
+      var now = DateTime.now();
+      if (tomorrowHighlightDate.year == now.year &&
+          tomorrowHighlightDate.month == now.month &&
+          tomorrowHighlightDate.day == now.day) {
+        isShowHighlight.value = true;
+      } else {
+        isShowHighlight.value = false;
+      }
+    } else {
+      isShowHighlight.value = false;
     }
   }
 
@@ -200,6 +231,8 @@ class HomeController extends GetxController {
         if (value.snapshot is! ErrorResponse) {
           UserResponse userResponse = value.snapshot;
           if (userResponse.success == true) {
+            imageFilePath.value = "";
+            xFile = null;
             this.user?.profilePicture = userResponse.user?.profilePicture;
             userProfileImageUrl.value = user?.profilePicture ?? "";
             PrefUtils().user = json.encode(user);
@@ -230,6 +263,7 @@ class HomeController extends GetxController {
         if (value.snapshot is! ErrorResponse) {
           UserResponse userResponse = value.snapshot;
           if (userResponse.success == true) {
+            selectedAvatar.value = "";
             this.user?.profilePicture = userResponse.user?.profilePicture;
             userProfileImageUrl.value = user?.profilePicture ?? "";
             PrefUtils().user = json.encode(user);
@@ -252,13 +286,18 @@ class HomeController extends GetxController {
     SmartDialog.showLoading(msg: pleaseWait);
     FocusManager.instance.primaryFocus?.unfocus();
     httpManager
-        .deleteUserProfilePicture(PrefUtils().token, )
+        .deleteUserProfilePicture(
+      PrefUtils().token,
+    )
         .then((value) {
       SmartDialog.dismiss();
       if (value.error == null) {
         if (value.snapshot is! ErrorResponse) {
           UserResponse userResponse = value.snapshot;
           if (userResponse.success == true) {
+            imageFilePath.value = "";
+            xFile = null;
+            selectedAvatar.value = "";
             this.user?.profilePicture = userResponse.user?.profilePicture;
             userProfileImageUrl.value = user?.profilePicture ?? "";
             PrefUtils().user = json.encode(user);
@@ -303,11 +342,10 @@ class HomeController extends GetxController {
     });
   }
 
-  getUserGoals() async {
-    vocationalGoals.clear();
-    personalDevGoals.clear();
-    wellBeingGoals.clear();
-    isLoadingGoals.value = true;
+  getUserGoals({bool isShowLoading = true}) async {
+    if (isShowLoading) {
+      isLoadingGoals.value = true;
+    }
     FocusManager.instance.primaryFocus?.unfocus();
     httpManager.getUserGoalsList(PrefUtils().token).then((value) {
       if (value.error == null) {
@@ -315,6 +353,9 @@ class HomeController extends GetxController {
           GoalsListResponse goalsListResponse = value.snapshot;
           if (goalsListResponse.success == true) {
             if (goalsListResponse.data != null) {
+              vocationalGoals.clear();
+              personalDevGoals.clear();
+              wellBeingGoals.clear();
               if (goalsListResponse.data!.vocational != null) {
                 for (var goal in goalsListResponse.data!.vocational!) {
                   goal.isChecked.value = checkIsGoalChecked(goal);
@@ -353,7 +394,9 @@ class HomeController extends GetxController {
       } else {
         ToastUtils.showToast(value.error ?? "", color: kRedColor);
       }
-      isLoadingGoals.value = false;
+      if (isShowLoading) {
+        isLoadingGoals.value = false;
+      }
     });
   }
 
@@ -445,5 +488,55 @@ class HomeController extends GetxController {
         ToastUtils.showToast("Some error occurred.", color: kRedColor);
       }
     });
+  }
+
+  @override
+  void onDetached() {
+    print("onDetached");
+  }
+
+  @override
+  void onHidden() {
+    print("onHidden");
+  }
+
+  @override
+  void onInactive() {
+    print("onInactive");
+  }
+
+  @override
+  void onPaused() {
+    print("onPause");
+  }
+
+  @override
+  void onResumed() {
+    _getUserData(isShowLoading: false);
+    print("onResume");
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    switch (state) {
+      case AppLifecycleState.resumed:
+        print("App Resumed");
+        // instantSubmit();
+        break;
+      case AppLifecycleState.inactive:
+        print("App InActive");
+        break;
+      case AppLifecycleState.paused:
+        print("App Paused");
+        break;
+      case AppLifecycleState.detached:
+        print("App Detached");
+        break;
+      case AppLifecycleState.hidden:
+        // TODO: Handle this case.
+        print("Hidden");
+        break;
+    }
   }
 }

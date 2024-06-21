@@ -11,7 +11,7 @@ class CustomCheckBoxTile extends StatelessWidget {
   }) : super(key: key);
 
   final String title;
-  final VoidCallback onSelect;
+  final Function onSelect;
   final bool isSelected;
 
   @override
@@ -32,7 +32,9 @@ class CustomCheckBoxTile extends StatelessWidget {
       child: Material(
         color: Colors.transparent,
         child: InkWell(
-          onTap: onSelect,
+          onTap: (){
+            onSelect();
+          },
           borderRadius: BorderRadius.circular(8.0),
           splashColor: kTertiaryColor.withOpacity(0.1),
           highlightColor: kTertiaryColor.withOpacity(0.1),
@@ -50,17 +52,22 @@ class CustomCheckBoxTile extends StatelessWidget {
                   ),
                 ),
                 GestureDetector(
-                  onTap: onSelect,
+                  onTap: (){
+                    onSelect();
+                  },
                   child: Container(
                     height: 16,
                     width: 16,
                     decoration: BoxDecoration(
+                      border: Border.all(color: isSelected ?
+                      Colors.transparent
+                          : kBorderColor),
                       borderRadius: BorderRadius.circular(5.0),
-                      color: isSelected ? kTertiaryColor : kUnSelectedColor,
+                      color: isSelected ? kTertiaryColor : Colors.transparent,
                     ),
                     child: Icon(
                       Icons.check,
-                      color: kPrimaryColor,
+                      color: isSelected ? kPrimaryColor : Colors.transparent,
                       size: 11,
                     ),
                   ),

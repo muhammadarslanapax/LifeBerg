@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_time_picker_spinner/flutter_time_picker_spinner.dart';
 import 'package:get/get.dart';
 import 'package:life_berg/constant/color.dart';
 import 'package:life_berg/generated/assets.dart';
@@ -10,6 +9,8 @@ import 'package:life_berg/view/widget/my_border_button.dart';
 import 'package:life_berg/view/widget/my_text.dart';
 import 'package:life_berg/view/widget/my_text_field.dart';
 import 'package:life_berg/view/widget/simple_app_bar.dart';
+
+import '../../../widgets/flutter_time_picker_spinner.dart';
 
 class HistoricalReportingGoals extends StatelessWidget {
   const HistoricalReportingGoals({Key? key}) : super(key: key);

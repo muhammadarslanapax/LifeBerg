@@ -185,9 +185,9 @@ class SignupController extends GetxController {
     });
   }
 
-  signInWithFacebook() async {
+  signInWithFacebook(BuildContext context) async {
     FocusManager.instance.primaryFocus?.unfocus();
-    FireAuth.signInWithFacebook().then((response) async {
+    FireAuth.signInWithFacebook(context).then((response) async {
       if (response != null) {
         SmartDialog.showLoading(msg: "Please wait...");
         UserCredential userCredential = response;

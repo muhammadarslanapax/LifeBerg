@@ -10,10 +10,10 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../../../../../controller/auth_controller/complete_profile_controller.dart';
 
 class IceBerg extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
-    final CompleteProfileController controller  = Get.find<CompleteProfileController>();
+    final CompleteProfileController controller =
+        Get.find<CompleteProfileController>();
     return ListView(
       shrinkWrap: true,
       physics: BouncingScrollPhysics(),
@@ -31,11 +31,11 @@ class IceBerg extends StatelessWidget {
         ),
         Obx(() => MyText(
           paddingTop: 25,
-          text: 'Hello, ${controller.getFirstName(controller.userFullName.value)}!',
+          text: 'Hello, ${controller.userPreferredName.value}!',
           size: 24,
           weight: FontWeight.w500,
           align: TextAlign.center,
-        ),),
+        )),
         MyText(
           paddingTop: 6,
           text: 'I will be your companion! Would you like to name me?',
@@ -58,7 +58,7 @@ class IceBerg extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(
             controller.profileSteps.length,
-                (index) {
+            (index) {
               return Obx(() {
                 return AnimatedContainer(
                   margin: EdgeInsets.symmetric(horizontal: 2.5),
@@ -67,7 +67,7 @@ class IceBerg extends StatelessWidget {
                   ),
                   curve: Curves.easeInOut,
                   height: 8,
-                  width: controller.currentIndex.value == index ? 22: 8,
+                  width: controller.currentIndex.value == index ? 22 : 8,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(50),
                     color: controller.currentIndex.value == index

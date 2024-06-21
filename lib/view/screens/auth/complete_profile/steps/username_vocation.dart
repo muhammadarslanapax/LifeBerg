@@ -46,7 +46,7 @@ class UserNameVocation extends StatelessWidget {
           paddingBottom: 20,
         ),
         MyTextField(
-          hint: 'Username',
+          hint: 'Preferred name',
           controller: controller.userNameCon,
           textInputType: TextInputType.text,
           fillColor: kSecondaryColor,

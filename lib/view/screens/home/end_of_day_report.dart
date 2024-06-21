@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
+import 'package:keyboard_dismisser/keyboard_dismisser.dart';
 import 'package:life_berg/constant/color.dart';
 import 'package:life_berg/controller/admin_controller/home_controller.dart';
 import 'package:life_berg/generated/assets.dart';
 import 'package:life_berg/utils/instance.dart';
+import 'package:life_berg/utils/pref_utils.dart';
 import 'package:life_berg/view/screens/admin/wellbeing_action_plan/wellbeing_action_plan.dart';
 import 'package:life_berg/view/screens/bottom_nav_bar/bottom_nav_bar.dart';
+import 'package:life_berg/view/screens/home/end_of_day_controller.dart';
 import 'package:life_berg/view/widget/custom_bottom_sheet.dart';
 import 'package:life_berg/view/widget/main_heading.dart';
 import 'package:life_berg/view/widget/my_button.dart';
@@ -18,300 +22,394 @@ import 'package:life_berg/view/widget/toggle_button.dart';
 import 'package:step_progress_indicator/step_progress_indicator.dart';
 
 import '../../../constant/strings.dart';
+import '../../../controller/journal_controller/journal_controller.dart';
+import '../journal/add_new_journal.dart';
 
 class EndOfDayReport extends StatelessWidget {
   final HomeController homeController = Get.find<HomeController>();
+  final JournalController journalController = Get.find<JournalController>();
+  final EndOfDayController endOfDayController = Get.put(EndOfDayController());
 
   EndOfDayReport({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: kPrimaryColor,
-      appBar: simpleAppBar(
-        title: dailyCheckIn,
-      ),
-      body: ListView(
-        shrinkWrap: true,
-        physics: BouncingScrollPhysics(),
-        padding: EdgeInsets.all(15),
-        children: [
-          Row(
-            children: [
-              GestureDetector(
-                onTap: () {
-                  showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    backgroundColor: Colors.transparent,
-                    elevation: 0,
-                    builder: (_) {
-                      return MessageFromTimmy();
-                    },
-                  );
-                },
-                child: Image.asset(
-                  Assets.imagesLifeRing,
-                  height: 24,
-                ),
-              ),
-            ],
-          ),
-          SizedBox(
-            height: 8,
-          ),
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Center(
-                child: Image.asset(
-                  Assets.imagesIceBag,
-                  height: 148.27,
-                ),
-              ),
-              Positioned(
-                right: 0,
-                top: -28,
-                child: Stack(
-                  alignment: Alignment.centerRight,
-                  children: [
-                    Image.asset(
-                      Assets.imagesBox,
-                      height: 88,
-                    ),
-                    MyText(
-                      paddingRight: 9,
-                      paddingBottom: 4,
-                      align: TextAlign.center,
-                      size: 10,
-                      height: 1.7,
-                      text:
-                          'Fantastic work!\nYou achieved your\ndaily highlight!',
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          MyText(
-            paddingTop: 8,
-            align: TextAlign.center,
-            text: homeController.user!.lifeBergName ?? "",
-            size: 12,
-            paddingBottom: 32,
-          ),
-          MainHeading(
-            text: todayProgress,
-            paddingBottom: 22,
-          ),
-          Padding(
-            padding: EdgeInsets.only(
-              left: 25,
-              right: 10,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
+    return KeyboardDismisser(
+      gestures: [
+        GestureType.onTap,
+        GestureType.onPanUpdateDownDirection,
+      ],
+      child: Scaffold(
+        backgroundColor: kPrimaryColor,
+        appBar: simpleAppBar(
+          title: dailyCheckIn,
+        ),
+        body: ListView(
+          shrinkWrap: true,
+          physics: BouncingScrollPhysics(),
+          padding: EdgeInsets.all(15),
+          children: [
+            Row(
               children: [
-                Column(
-                  children: [
-                    CircularStepProgressIndicator(
-                      totalSteps: 100,
-                      currentStep: 0,
-                      selectedStepSize: 7,
-                      unselectedStepSize: 5,
-                      padding: 0,
-                      width: 94,
-                      height: 94,
-                      startingAngle: 70,
-                      roundedCap: (_, __) => true,
-                      selectedColor: kDarkBlueColor,
-                      unselectedColor: kUnSelectedColor,
-                      child: Center(
-                        child: MyText(
-                          text: '0%',
-                          size: 24,
-                        ),
-                      ),
-                    ),
-                  ],
+                GestureDetector(
+                  onTap: () {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      elevation: 0,
+                      builder: (_) {
+                        return MessageFromTimmy();
+                      },
+                    );
+                  },
+                  child: Image.asset(
+                    Assets.imagesLifeRing,
+                    height: 24,
+                  ),
                 ),
-                SizedBox(
-                  width: 32,
+              ],
+            ),
+            SizedBox(
+              height: 8,
+            ),
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Center(
+                  child: Image.asset(
+                    Assets.imagesIceBag,
+                    height: 148.27,
+                  ),
                 ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                Positioned(
+                  right: 0,
+                  top: -28,
+                  child: Stack(
+                    alignment: Alignment.centerRight,
                     children: [
-                      ProgressWidget(
-                        title: wellBeing,
-                        currentStep: 0,
-                        selectedColor: kStreaksColor,
+                      Image.asset(
+                        Assets.imagesBox,
+                        height: 88,
                       ),
-                      ProgressWidget(
-                        title: vocational,
-                        currentStep: 0,
-                        selectedColor: kRACGPExamColor,
-                      ),
-                      ProgressWidget(
-                        title: development,
-                        currentStep: 0,
-                        selectedColor: kDailyGratitudeColor,
+                      MyText(
+                        paddingRight: 9,
+                        paddingBottom: 4,
+                        align: TextAlign.center,
+                        size: 10,
+                        height: 1.7,
+                        text:
+                            'Fantastic work!\nYou achieved your\ndaily highlight!',
                       ),
                     ],
                   ),
                 ),
               ],
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(
-              top: 32,
-              bottom: 10,
+            MyText(
+              paddingTop: 8,
+              align: TextAlign.center,
+              text: homeController.user!.lifeBergName ?? "",
+              size: 12,
+              paddingBottom: 32,
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                MainHeading(
-                  text: greatfulHeading,
-                ),
-              ],
+            MainHeading(
+              text: todayProgress,
+              paddingBottom: 22,
             ),
-          ),
-          MyTextField(
-            fillColor: Colors.white,
-            controller: homeController.greatFulController,
-            hint:
-            greatfulDes,
-            maxLines: 2,
-            marginBottom: 32,
-          ),
-          MainHeading(
-            text: learnedHeading,
-            paddingBottom: 10,
-          ),
-          MyTextField(
-            fillColor: Colors.white,
-            hint:
-                learnedDes,
-            controller: homeController.learnedTodayController,
-            maxLines: 2,
-            marginBottom: 24,
-          ),
-          MainHeading(
-            text: tomorrowHighlightHeading,
-            paddingBottom: 10,
-          ),
-          MyTextField(
-            fillColor: Colors.white,
-            hint:tomorrowHighlightDes,
-            controller: homeController.tomorrowHighlightController,
-            maxLines: 2,
-            marginBottom: 24,
-          ),
-          MyButton(
-            radius: 16.0,
-            height: 56,
-            text: submit,
-            onTap: () {
-              SmartDialog.showLoading(msg: pleaseWait);
-              Future.delayed(Duration(seconds: 4), () {
-                SmartDialog.dismiss();
-                Get.dialog(Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      padding: EdgeInsets.fromLTRB(20, 13, 20, 10),
-                      width: Get.width,
-                      margin: EdgeInsets.all(15),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        color: kSecondaryColor,
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              MyText(
-                                text: dailyCheckInComplete,
-                                size: 18,
-                                color: kPopupTextColor,
-                                weight: FontWeight.w500,
-                              ),
-                              MyText(
-                                paddingTop: 6,
-                                text:
-                                dailyCheckInCompleteDes,
-                                color: kPopupTextColor,
-                                height: 1.5,
-                                size: 16,
-                                paddingBottom: 17.0,
-                              ),
-                              Stack(
-                                children: [
-                                  Padding(
-                                    padding: EdgeInsets.only(
-                                      top: 0,
-                                    ),
-                                    child: Align(
-                                      alignment: Alignment.bottomCenter,
-                                      child: Padding(
-                                        padding: EdgeInsets.only(
-                                          left: 0.0,
-                                          bottom: 0.0,
-                                        ),
-                                        child: Image.asset(
-                                          Assets.imagesDailyCheckIn,
-                                          height: 92,
-                                          fit: BoxFit.contain,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Positioned(
-                                    bottom: 0,
-                                    right:0,
-                                    child: MyText(
-                                      onTap: (){
-                                        Get.back();
-                                        Get.offAll(
-                                              () => BottomNavBar(
-                                            currentIndex: 4,
-                                            currentRoute: '/personal_statistics',
-                                          ),
-                                        );
-                                      },
-                                      align: TextAlign.end,
-                                      text: okay_,
-                                      size: 16,
-                                      weight: FontWeight.w500,
-                                      color: kTertiaryColor,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                height: 8,
-                              ),
-                            ],
+            Padding(
+              padding: EdgeInsets.only(
+                left: 25,
+                right: 10,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Column(
+                    children: [
+                      CircularStepProgressIndicator(
+                        totalSteps: 100,
+                        currentStep: 0,
+                        selectedStepSize: 7,
+                        unselectedStepSize: 5,
+                        padding: 0,
+                        width: 94,
+                        height: 94,
+                        startingAngle: 70,
+                        roundedCap: (_, __) => true,
+                        selectedColor: kDarkBlueColor,
+                        unselectedColor: kUnSelectedColor,
+                        child: Center(
+                          child: MyText(
+                            text: '0%',
+                            size: 24,
                           ),
-                        ],
+                        ),
                       ),
+                    ],
+                  ),
+                  SizedBox(
+                    width: 32,
+                  ),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        ProgressWidget(
+                          title: wellBeing,
+                          currentStep: 0,
+                          selectedColor: kStreaksColor,
+                        ),
+                        ProgressWidget(
+                          title: vocational,
+                          currentStep: 0,
+                          selectedColor: kRACGPExamColor,
+                        ),
+                        ProgressWidget(
+                          title: development,
+                          currentStep: 0,
+                          selectedColor: kDailyGratitudeColor,
+                        ),
+                      ],
                     ),
-                  ],
-                ));
-              });
-            },
-          ),
-          SizedBox(
-            height: 30,
-          ),
-        ],
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(
+                top: 32,
+                bottom: 10,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  MainHeading(
+                    text: greatfulHeading,
+                  ),
+                ],
+              ),
+            ),
+            MyTextField(
+              fillColor: Colors.white,
+              inputFormatter: BulletPointInputFormatter(),
+              textInputType: TextInputType.multiline,
+              controller: endOfDayController.greatFulController,
+              hint: greatfulDes,
+              maxLines: 2,
+              marginBottom: 32,
+            ),
+            MainHeading(
+              text: learnedHeading,
+              paddingBottom: 10,
+            ),
+            MyTextField(
+              fillColor: Colors.white,
+              hint: learnedDes,
+              inputFormatter: BulletPointInputFormatter(),
+              textInputType: TextInputType.multiline,
+              controller: endOfDayController.learnedTodayController,
+              maxLines: 2,
+              marginBottom: 24,
+            ),
+            MainHeading(
+              text: tomorrowHighlightHeading,
+              paddingBottom: 10,
+            ),
+            MyTextField(
+              fillColor: Colors.white,
+              hint: tomorrowHighlightDes,
+              controller: endOfDayController.tomorrowHighlightController,
+              maxLines: 2,
+              marginBottom: 24,
+            ),
+            MyButton(
+              radius: 16.0,
+              height: 56,
+              text: submit,
+              onTap: () {
+                var greatFull =
+                    endOfDayController.greatFulController.text.toString();
+                var learnedToday =
+                    endOfDayController.learnedTodayController.text.toString();
+                var tomorrowHighlight = endOfDayController
+                    .tomorrowHighlightController.text
+                    .toString();
+                if ((greatFull.isEmpty ||
+                        greatFull.replaceAll(" ", "") == "\u2022") &&
+                    (learnedToday.isEmpty ||
+                        learnedToday.replaceAll(" ", "") == "\u2022") &&
+                    tomorrowHighlight.isEmpty) {
+                  showEndDayReportSuccessDialog();
+                } else {
+                  setTomorrowHighlight();
+                  if (greatFull.isNotEmpty &&
+                      greatFull.replaceAll(" ", "") != "\u2022") {
+                    SmartDialog.showLoading(msg: pleaseWait);
+                    journalController.addNewJournal((isSuccess) {
+                      if (isSuccess) {
+                        if (learnedToday.isNotEmpty &&
+                            learnedToday.replaceAll(" ", "") != "\u2022") {
+                          journalController.addNewJournal((isSuccess) {
+                            SmartDialog.dismiss();
+                            journalController.getUserJournals();
+                            endOfDayController.setInitialBulletPoint();
+                            showEndDayReportSuccessDialog();
+                          },
+                              endOfDayController.learnedTodayController.text
+                                  .toString(),
+                              colorToHex(kTertiaryColor),
+                              "Development");
+                        } else {
+                          SmartDialog.dismiss();
+                          journalController.getUserJournals();
+                          endOfDayController.setInitialBulletPoint();
+                          showEndDayReportSuccessDialog();
+                        }
+                      }
+                    }, endOfDayController.greatFulController.text.toString(),
+                        colorToHex(kTertiaryColor), "Gratitudes");
+                  } else if (learnedToday.isNotEmpty &&
+                      learnedToday.replaceAll(" ", "") != "\u2022") {
+                    journalController.addNewJournal((isSuccess) {
+                      if (isSuccess) {
+                        if (greatFull.isNotEmpty &&
+                            greatFull.replaceAll(" ", "") != "\u2022") {
+                          journalController.addNewJournal((isSuccess) {
+                            SmartDialog.dismiss();
+                            journalController.getUserJournals();
+                            endOfDayController.setInitialBulletPoint();
+                            showEndDayReportSuccessDialog();
+                          },
+                              endOfDayController.greatFulController.text
+                                  .toString(),
+                              colorToHex(kTertiaryColor),
+                              "Gratitudes");
+                        } else {
+                          SmartDialog.dismiss();
+                          journalController.getUserJournals();
+                          endOfDayController.setInitialBulletPoint();
+                          showEndDayReportSuccessDialog();
+                        }
+                      }
+                    },
+                        endOfDayController.learnedTodayController.text
+                            .toString(),
+                        colorToHex(kTertiaryColor),
+                        "Development");
+                  } else {
+                    showEndDayReportSuccessDialog();
+                  }
+                }
+              },
+            ),
+            SizedBox(
+              height: 30,
+            ),
+          ],
+        ),
       ),
     );
+  }
+
+  setTomorrowHighlight() {
+    if (endOfDayController.tomorrowHighlightController.text.isNotEmpty) {
+      PrefUtils().tomorrowHighlightGoal =
+          endOfDayController.tomorrowHighlightController.text;
+      DateTime now = DateTime.now();
+      DateTime nextDay = now.add(Duration(days: 1));
+      PrefUtils().tomorrowHighlightGoalDate =
+          DateFormat("yyyy-MM-dd").format(nextDay);
+    }
+  }
+
+  showEndDayReportSuccessDialog() {
+    Get.dialog(Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Container(
+          padding: EdgeInsets.fromLTRB(20, 13, 20, 10),
+          width: Get.width,
+          margin: EdgeInsets.all(15),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            color: kSecondaryColor,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  MyText(
+                    text: dailyCheckInComplete,
+                    size: 18,
+                    color: kPopupTextColor,
+                    weight: FontWeight.w500,
+                  ),
+                  MyText(
+                    paddingTop: 6,
+                    text: dailyCheckInCompleteDes,
+                    color: kPopupTextColor,
+                    height: 1.5,
+                    size: 16,
+                    paddingBottom: 17.0,
+                  ),
+                  Stack(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(
+                          top: 0,
+                        ),
+                        child: Align(
+                          alignment: Alignment.bottomCenter,
+                          child: Padding(
+                            padding: EdgeInsets.only(
+                              left: 0.0,
+                              bottom: 0.0,
+                            ),
+                            child: Image.asset(
+                              Assets.imagesDailyCheckIn,
+                              height: 92,
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                        ),
+                      ),
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: MyText(
+                          onTap: () {
+                            Get.back();
+                            Get.offAll(
+                              () => BottomNavBar(
+                                currentIndex: 4,
+                                currentRoute: '/personal_statistics',
+                              ),
+                            );
+                          },
+                          align: TextAlign.end,
+                          text: okay_,
+                          size: 16,
+                          weight: FontWeight.w500,
+                          color: kTertiaryColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 8,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
+    ));
   }
 }
 

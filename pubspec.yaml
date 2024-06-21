@@ -21,7 +21,6 @@ dependencies:
   cached_network_image:
   smooth_page_indicator:
   pinput:
-  flutter_time_picker_spinner:
   expandable:
   syncfusion_flutter_charts: ^20.4.41
   step_progress_indicator:
@@ -49,7 +48,7 @@ dependencies:
   mime: ^1.0.0
   grouped_list: ^5.1.2
   event_bus: ^2.0.0
-
+  syncfusion_flutter_sliders:
 
 dev_dependencies:
   flutter_test:

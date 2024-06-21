@@ -9,6 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:life_berg/model/generic_response.dart';
 import 'package:life_berg/model/goal/goals_list_response.dart';
+import 'package:life_berg/model/journal/journal_list_response.dart';
 import 'package:life_berg/model/user/user_response.dart';
 import 'package:mime/mime.dart';
 
@@ -176,28 +177,26 @@ class HttpManager {
       String daysType,
       String importanceScale,
       bool isScale,
-      String color,
+      // String color,
       List<ReminderDateTime> timesList) async {
     try {
       var url = ApiConstants.ADD_GOAL;
-      var params = HashMap();
-      params["icon"] = icon;
-      params["name"] = name;
-      params["category"] = category;
-      params["description"] = description;
-      params["color"] = color;
-      params["measureType"] = isScale ? "string" : "boolean";
-      params["achieveXDays"] = noOfDays;
-      params["achieveType"] = daysType;
-      params["goalImportance"] = importanceScale;
-      List<Map<String, String>> reminderList = [];
-      for (var reminder in timesList) {
-        HashMap<String, String> timeMap = HashMap();
-        timeMap["day"] = reminder.day;
-        timeMap["time"] = DateFormat("HH:mm").format(reminder.time);
-        reminderList.add(timeMap);
-      }
-      params["reminders"] = reminderList;
+      Map<String, dynamic> params = {
+        "icon": icon,
+        "name": name,
+        "category": category,
+        "description": description,
+        "measureType": isScale ? "string" : "boolean",
+        "achieveXDays": noOfDays,
+        "achieveType": daysType,
+        "goalImportance": importanceScale,
+        "reminders": timesList.map((reminder) {
+          return {
+            "day": reminder.day,
+            "time": DateFormat("HH:mm").format(reminder.time)
+          };
+        }).toList()
+      };
 
       var response =
           await http.post(Uri.parse(url), body: json.encode(params), headers: {
@@ -207,7 +206,8 @@ class HttpManager {
 
       if (response.statusCode == 200) {
         var responseBody = json.decode(response.body);
-        GenericResponse genericResponse = GenericResponse.fromJson(responseBody);
+        GenericResponse genericResponse =
+            GenericResponse.fromJson(responseBody);
         return BaseResponse(genericResponse, null);
       } else {
         return _getErrorResponse(response.body);
@@ -293,7 +293,8 @@ class HttpManager {
   Future<File> createTempFileFromAsset(String imagePath) async {
     final byteData = await rootBundle.load(imagePath);
     final tempDir = Directory.systemTemp;
-    final tempFile = File('${tempDir.path}/${DateTime.now().millisecondsSinceEpoch}.jpg');
+    final tempFile =
+        File('${tempDir.path}/${DateTime.now().millisecondsSinceEpoch}.jpg');
     await tempFile.writeAsBytes(byteData.buffer.asUint8List());
     return tempFile;
   }
@@ -346,7 +347,8 @@ class HttpManager {
 
       if (response.statusCode == 200) {
         var responseBody = json.decode(response.body);
-        GenericResponse genericResponse = GenericResponse.fromJson(responseBody);
+        GenericResponse genericResponse =
+            GenericResponse.fromJson(responseBody);
         return BaseResponse(genericResponse, null);
       } else {
         return _getErrorResponse(response.body);
@@ -357,18 +359,19 @@ class HttpManager {
   }
 
   Future<BaseResponse> getUserGoalsList(
-      String token,) async {
+    String token,
+  ) async {
     try {
       var url = ApiConstants.GOAL_LIST;
-      var response =
-      await http.get(Uri.parse(url), headers: {
+      var response = await http.get(Uri.parse(url), headers: {
         "Content-Type": "application/json",
         'Authorization': 'Bearer $token',
       });
 
       if (response.statusCode == 200) {
         var responseBody = json.decode(response.body);
-        GoalsListResponse goalsListResponse = GoalsListResponse.fromJson(responseBody);
+        GoalsListResponse goalsListResponse =
+            GoalsListResponse.fromJson(responseBody);
         return BaseResponse(goalsListResponse, null);
       } else {
         return _getErrorResponse(response.body);
@@ -378,21 +381,21 @@ class HttpManager {
     }
   }
 
-  Future<BaseResponse> deleteGoal(
-      String token, String goalId) async {
+  Future<BaseResponse> deleteGoal(String token, String goalId) async {
     try {
       var url = ApiConstants.DELETE_GOAL;
       var params = HashMap();
       params["goal"] = goalId;
-      var response =
-      await http.delete(Uri.parse(url), body: json.encode(params), headers: {
+      var response = await http
+          .delete(Uri.parse(url), body: json.encode(params), headers: {
         "Content-Type": "application/json",
         'Authorization': 'Bearer $token',
       });
 
       if (response.statusCode == 200) {
         var responseBody = json.decode(response.body);
-        GenericResponse genericResponse = GenericResponse.fromJson(responseBody);
+        GenericResponse genericResponse =
+            GenericResponse.fromJson(responseBody);
         return BaseResponse(genericResponse, null);
       } else {
         return _getErrorResponse(response.body);
@@ -403,22 +406,22 @@ class HttpManager {
   }
 
   Future<BaseResponse> addCommentOnGoal(
-      String token, String goalId,
-      String comment) async {
+      String token, String goalId, String comment) async {
     try {
       var url = ApiConstants.UPDATE_GOAL;
       var params = HashMap();
       params["goalId"] = goalId;
       params["comment"] = comment;
       var response =
-      await http.put(Uri.parse(url), body: json.encode(params), headers: {
+          await http.put(Uri.parse(url), body: json.encode(params), headers: {
         "Content-Type": "application/json",
         'Authorization': 'Bearer $token',
       });
 
       if (response.statusCode == 200) {
         var responseBody = json.decode(response.body);
-        GenericResponse genericResponse = GenericResponse.fromJson(responseBody);
+        GenericResponse genericResponse =
+            GenericResponse.fromJson(responseBody);
         return BaseResponse(genericResponse, null);
       } else {
         return _getErrorResponse(response.body);
@@ -429,22 +432,22 @@ class HttpManager {
   }
 
   Future<BaseResponse> updateGoalStatus(
-      String token, String goalId,
-      String status) async {
+      String token, String goalId, String status) async {
     try {
       var url = ApiConstants.UPDATE_GOAL;
       var params = HashMap();
       params["goalId"] = goalId;
       params["status"] = status;
       var response =
-      await http.put(Uri.parse(url), body: json.encode(params), headers: {
+          await http.put(Uri.parse(url), body: json.encode(params), headers: {
         "Content-Type": "application/json",
         'Authorization': 'Bearer $token',
       });
 
       if (response.statusCode == 200) {
         var responseBody = json.decode(response.body);
-        GenericResponse genericResponse = GenericResponse.fromJson(responseBody);
+        GenericResponse genericResponse =
+            GenericResponse.fromJson(responseBody);
         return BaseResponse(genericResponse, null);
       } else {
         return _getErrorResponse(response.body);
@@ -465,39 +468,38 @@ class HttpManager {
       String daysType,
       String importanceScale,
       bool isScale,
-      String color,
+      // String color,
       List<ReminderDateTime> timesList) async {
     try {
       var url = ApiConstants.UPDATE_GOAL;
-      var params = HashMap();
-      params["goalId"] = goalId;
-      params["icon"] = icon;
-      params["name"] = name;
-      params["category"] = category;
-      params["description"] = description;
-      params["color"] = color;
-      params["measureType"] = isScale ? "string" : "boolean";
-      params["achieveXDays"] = noOfDays;
-      params["achieveType"] = daysType;
-      params["goalImportance"] = importanceScale;
-      List<Map<String, String>> reminderList = [];
-      for (var reminder in timesList) {
-        HashMap<String, String> timeMap = HashMap();
-        timeMap["day"] = reminder.day;
-        timeMap["time"] = DateFormat("HH:mm").format(reminder.time);
-        reminderList.add(timeMap);
-      }
-      params["reminders"] = reminderList;
+      Map<String, dynamic> params = {
+        "goalId": goalId,
+        "icon": icon,
+        "name": name,
+        "category": category,
+        "description": description,
+        "measureType": isScale ? "string" : "boolean",
+        "achieveXDays": noOfDays,
+        "achieveType": daysType,
+        "goalImportance": importanceScale,
+        "reminders": timesList.map((reminder) {
+          return {
+            "day": reminder.day,
+            "time": DateFormat("HH:mm").format(reminder.time)
+          };
+        }).toList()
+      };
 
       var response =
-      await http.put(Uri.parse(url), body: json.encode(params), headers: {
+          await http.put(Uri.parse(url), body: json.encode(params), headers: {
         "Content-Type": "application/json",
         'Authorization': 'Bearer $token',
       });
 
       if (response.statusCode == 200) {
         var responseBody = json.decode(response.body);
-        GenericResponse genericResponse = GenericResponse.fromJson(responseBody);
+        GenericResponse genericResponse =
+            GenericResponse.fromJson(responseBody);
         return BaseResponse(genericResponse, null);
       } else {
         return _getErrorResponse(response.body);
@@ -507,12 +509,13 @@ class HttpManager {
     }
   }
 
-  Future<BaseResponse> deleteUserProfilePicture(String token,) async {
+  Future<BaseResponse> deleteUserProfilePicture(
+    String token,
+  ) async {
     try {
       var url = ApiConstants.DELETE_PROFILE_PIC;
 
-      var response =
-      await http.delete(Uri.parse(url),  headers: {
+      var response = await http.delete(Uri.parse(url), headers: {
         "Content-Type": "application/json",
         'Authorization': 'Bearer $token',
       });
@@ -521,6 +524,121 @@ class HttpManager {
         var responseBody = json.decode(response.body);
         UserResponse userResponse = UserResponse.fromJson(responseBody);
         return BaseResponse(userResponse, null);
+      } else {
+        return _getErrorResponse(response.body);
+      }
+    } catch (e) {
+      return BaseResponse(null, e.toString());
+    }
+  }
+
+  Future<BaseResponse> addNewJournal(
+    String token,
+    String description,
+    String color,
+    String category,
+  ) async {
+    try {
+      var url = ApiConstants.ADD_JOURNAL;
+      Map<String, dynamic> params = {
+        "color": color,
+        "description": description,
+        "category": category,
+      };
+
+      var response =
+          await http.post(Uri.parse(url), body: json.encode(params), headers: {
+        "Content-Type": "application/json",
+        'Authorization': 'Bearer $token',
+      });
+
+      if (response.statusCode == 200) {
+        var responseBody = json.decode(response.body);
+        GenericResponse genericResponse =
+            GenericResponse.fromJson(responseBody);
+        return BaseResponse(genericResponse, null);
+      } else {
+        return _getErrorResponse(response.body);
+      }
+    } catch (e) {
+      return BaseResponse(null, e.toString());
+    }
+  }
+
+  Future<BaseResponse> getJournals(
+      String token,
+      ) async {
+    try {
+      var url = ApiConstants.JOURNAL_LIST;
+
+      var response =
+      await http.get(Uri.parse(url), headers: {
+        "Content-Type": "application/json",
+        'Authorization': 'Bearer $token',
+      });
+
+      if (response.statusCode == 200) {
+        var responseBody = json.decode(response.body);
+        JournalListResponse journalListResponse =
+        JournalListResponse.fromJson(responseBody);
+        return BaseResponse(journalListResponse, null);
+      } else {
+        return _getErrorResponse(response.body);
+      }
+    } catch (e) {
+      return BaseResponse(null, e.toString());
+    }
+  }
+
+  Future<BaseResponse> deleteJournal(String token, String journalId) async {
+    try {
+      var url = ApiConstants.DELETE_JOURNAL;
+      var params = HashMap();
+      params["journalId"] = journalId;
+      var response = await http
+          .delete(Uri.parse(url), body: json.encode(params), headers: {
+        "Content-Type": "application/json",
+        'Authorization': 'Bearer $token',
+      });
+
+      if (response.statusCode == 200) {
+        var responseBody = json.decode(response.body);
+        GenericResponse genericResponse =
+        GenericResponse.fromJson(responseBody);
+        return BaseResponse(genericResponse, null);
+      } else {
+        return _getErrorResponse(response.body);
+      }
+    } catch (e) {
+      return BaseResponse(null, e.toString());
+    }
+  }
+
+  Future<BaseResponse> updateJournal(
+      String token,
+      String journalId,
+      String description,
+      String color,
+      ) async {
+    try {
+      var url = ApiConstants.UPDATE_JOURNAL;
+      Map<String, dynamic> params = {
+        "color": color,
+        "description": description,
+        "journalId": journalId,
+      };
+
+      var response =
+      await http.put(Uri.parse(url), body: json.encode(params), headers: {
+        "Content-Type": "application/json",
+        'Authorization': 'Bearer $token',
+      });
+
+      if (response.statusCode == 200) {
+        var responseBody = json.decode(response.body);
+        GenericResponse genericResponse =
+        GenericResponse.fromJson(responseBody);
+        return BaseResponse(genericResponse, null);
       } else {
         return _getErrorResponse(response.body);
       }

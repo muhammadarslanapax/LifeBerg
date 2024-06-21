@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:life_berg/constant/color.dart';
@@ -19,12 +21,21 @@ import 'package:life_berg/view/widget/search_bar.dart';
 import 'package:life_berg/view/widget/time_line_indicator.dart';
 import 'package:timelines/timelines.dart';
 
+import '../../../../controller/journal_controller/journal_controller.dart';
+import '../../../../main.dart';
+import '../../../../utils/date_utility.dart';
+import '../../../widget/common_image_view.dart';
+import '../../../widget/my_button.dart';
+import '../add_new_journal.dart';
+
 class Gratitudes extends StatefulWidget {
   @override
   State<Gratitudes> createState() => _GratitudesState();
 }
 
 class _GratitudesState extends State<Gratitudes> {
+  final JournalController controller = Get.find<JournalController>();
+
   bool showResults = false;
 
   Offset _tapPosition = Offset.zero;
@@ -37,7 +48,8 @@ class _GratitudesState extends State<Gratitudes> {
     });
   }
 
-  void _showContextMenu(BuildContext context) async {
+  void _showContextMenu(BuildContext context, int index) async {
+    FocusManager.instance.primaryFocus?.unfocus();
     final RenderObject? overlay =
         Overlay.of(context)?.context.findRenderObject();
     final result = await showMenu(
@@ -61,27 +73,50 @@ class _GratitudesState extends State<Gratitudes> {
       items: [
         menuItem(
           icon: Assets.imagesEditItem,
-          title: 'Edit Gratitude',
-          onTap: () {},
+          title: 'Edit Entry',
+          onTap: () {
+            Navigator.of(context).pop();
+            controller.addTextController.text =
+                controller.gratitudeJournals[index].description ?? "";
+            for (int i = 0; i < controller.colors.length; i++) {
+              var color = controller.colors[i];
+              if (colorToHex(color.color) ==
+                  controller.gratitudeJournals[index].color) {
+                controller.colorIndex.value = i;
+              }
+            }
+            showModalBottomSheet(
+              context: context,
+              isScrollControlled: true,
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              builder: (_) {
+                return AddNewJournal(
+                  controller.currentTab == 0 ? "Development" : "Gratitudes",
+                  journal: controller.gratitudeJournals[index],
+                );
+              },
+            );
+          },
         ),
         menuItem(
-          title: 'Delete Gratitude',
+          title: 'Delete Entry',
           icon: Assets.imagesDeleteThisItem,
           borderColor: Colors.transparent,
           onTap: () {
+            Navigator.of(context).pop();
             Get.dialog(
               MyDialog(
                 icon: Assets.imagesDeleteThisItem,
-                heading: 'Delete Gratitude',
+                heading: 'Delete Development',
                 content:
-                    'Are you sure? The selected item will be deleted. To revert changes click undo.',
+                    'Are you sure? The  item will be deleted. To revert changes click undo.',
                 haveCustomActionButtons: true,
                 customAction: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     DialogActionButton(
                       text: 'Undo',
-                      textColor: kRedColor,
                       onTap: () => Get.back(),
                     ),
                     SizedBox(
@@ -89,7 +124,14 @@ class _GratitudesState extends State<Gratitudes> {
                     ),
                     DialogActionButton(
                       text: 'Delete',
-                      onTap: () => Get.back(),
+                      textColor: kRedColor,
+                      onTap: () {
+                        Get.back();
+                        controller.deleteJournal(
+                            controller.gratitudeJournals[index].sId ?? "",
+                            "Gratitudes",
+                            index);
+                      },
                     ),
                   ],
                 ),
@@ -101,287 +143,400 @@ class _GratitudesState extends State<Gratitudes> {
     );
   }
 
+  final pageController = PageController();
+
+  void _onNext() {
+    pageController.nextPage(
+      duration: Duration(milliseconds: 400),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  void _onBack() {
+    pageController.previousPage(
+      duration: Duration(milliseconds: 400),
+      curve: Curves.easeInOut,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        ListView(
-          shrinkWrap: true,
-          physics: BouncingScrollPhysics(),
-          padding: EdgeInsets.fromLTRB(15, 0, 15, 15),
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: SearchBarDAR(
-                    onChanged: (v) {
-                      setState(() {
-                        v.length > 0 ? showResults = true : showResults = false;
-                      });
-                    },
-                  ),
-                ),
-                SizedBox(
-                  width: 8.5,
-                ),
-                GestureDetector(
-                  onTap: () {
-                    showModalBottomSheet(
-                      context: context,
-                      elevation: 0,
-                      backgroundColor: Colors.transparent,
-                      isScrollControlled: true,
-                      builder: (_) {
-                        return CustomBottomSheet(
-                          height: 360,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 15),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                MainHeading(
-                                  text: 'Sort by',
-                                ),
-                                SizedBox(height: 16,),
-                                Expanded(
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: List.generate(
-                                      3,
-                                      (index) {
-                                        List<String> _items = [
-                                          'Newest',
-                                          'Oldest',
-                                          'Colour on timeline',
-                                          // 'Length (>100 words)',
-                                        ];
-                                        return CustomCheckBoxTile(
-                                          title: _items[index],
-                                          isSelected: index == 0 ? true : false,
-                                          onSelect: () {},
-                                        );
-                                      },
+    return /*showEntryDetail
+        ? pastEntryDetail()
+        : showEditEntry
+            ? editEntry()
+            :*/
+        Obx(() => controller.isLoadingJournals.value
+            ? Center(
+                child: CircularProgressIndicator(),
+              )
+            : ListView(
+                shrinkWrap: true,
+                physics: BouncingScrollPhysics(),
+                padding: EdgeInsets.fromLTRB(15, 0, 15, 15),
+                children: [
+                  Stack(
+                    children: [
+                      Container(
+                        margin: EdgeInsets.symmetric(horizontal: 50.0),
+                        child: SearchBarDAR(
+                          onClear: () {
+                            controller.searchGratitudeController.clear();
+                            controller.isShowGratitudeSearch.value = false;
+                            controller.searchGratitude("");
+                          },
+                          controller: controller.searchGratitudeController,
+                          marginBottom: 0,
+                          onChanged: (v) {
+                            setState(() {
+                              controller.isShowGratitudeSearch.value =
+                                  v.length > 0;
+                              controller.searchGratitude(v);
+                            });
+                          },
+                        ),
+                      ),
+                      Positioned(
+                        right: 10,
+                        top: 0,
+                        bottom: 0,
+                        child: Container(
+                          width: 20,
+                          height: 20,
+                          child: GestureDetector(
+                            onTap: () {
+                              showModalBottomSheet(
+                                context: context,
+                                elevation: 0,
+                                backgroundColor: Colors.transparent,
+                                isScrollControlled: true,
+                                builder: (_) {
+                                  return Container(
+                                    decoration: BoxDecoration(
+                                      color: kPrimaryColor,
+                                      borderRadius: BorderRadius.only(
+                                        topRight: Radius.circular(8),
+                                        topLeft: Radius.circular(8),
+                                      ),
                                     ),
-                                  ),
-                                ),
-                              ],
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.stretch,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.all(16),
+                                          child: Image.asset(
+                                            Assets.imagesBottomSheetHandle,
+                                            height: 8,
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          height: 10,
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 15),
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.stretch,
+                                            children: [
+                                              MainHeading(
+                                                text: 'Sort by',
+                                              ),
+                                              SizedBox(
+                                                height: 16,
+                                              ),
+                                              Obx(() => Column(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: List.generate(
+                                                      controller.items.length,
+                                                      (index) {
+                                                        return CustomCheckBoxTile(
+                                                          title: controller
+                                                              .items[index],
+                                                          isSelected: controller
+                                                                      .items[
+                                                                  index] ==
+                                                              controller
+                                                                  .gratitudeFilter
+                                                                  .value,
+                                                          onSelect: () {
+                                                            controller
+                                                                    .gratitudeFilter
+                                                                    .value =
+                                                                controller
+                                                                        .items[
+                                                                    index];
+                                                          },
+                                                        );
+                                                      },
+                                                    ),
+                                                  )),
+                                            ],
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: Platform.isIOS
+                                              ? EdgeInsets.fromLTRB(
+                                                  15, 10, 15, 30)
+                                              : EdgeInsets.fromLTRB(
+                                                  15, 10, 15, 15),
+                                          child: MyButton(
+                                            height: 56,
+                                            radius: 8,
+                                            isDisable: false,
+                                            text: 'Confirm',
+                                            onTap: () {
+                                              Navigator.of(context).pop();
+                                              controller.getUserJournals();
+                                            },
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                            child: Image.asset(
+                              Assets.imagesFilterButtom,
+                              height: 17,
                             ),
                           ),
-                          onTap: () => Get.back(),
-                          buttonText: 'Confirm',
-                          isButtonDisable: false,
-                        );
-                      },
-                    );
-                  },
-                  child: Image.asset(
-                    Assets.imagesFilterButtom,
-                    height: 17,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            ),
-            SizedBox(
-              height: 16,
-            ),
-            if (showResults == true)
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+                  SizedBox(
+                    height: 16,
+                  ),
+                  if (controller.isShowGratitudeSearch.value == true)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        MainHeading(
+                          text: 'Search Results',
+                          paddingBottom: 10,
+                        ),
+                        Column(
+                          children: List.generate(
+                            controller.gratitudeJournals.length,
+                            (index) {
+                              return GestureDetector(
+                                onTapDown: (position) => {
+                                  _getTapPosition(position),
+                                },
+                                onLongPress: () =>
+                                    _showContextMenu(context, index),
+                                child: PastEntryWidget(
+                                  title: controller.gratitudeJournals[index]
+                                          .description ??
+                                      "",
+                                  time: DateUtility.formatDateForJournal(
+                                      controller
+                                              .gratitudeJournals[index].date ??
+                                          ""),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    )
+                  else
+                    FixedTimeline.tileBuilder(
+                      theme: TimelineThemeData(
+                        nodePosition: 0,
+                        connectorTheme: ConnectorThemeData(
+                          color: kTextColor,
+                          thickness: 1.0,
+                        ),
+                      ),
+                      builder: TimelineTileBuilder(
+                        itemCount: controller.gratitudeJournals.length,
+                        contentsBuilder: (_, index) {
+                          return GestureDetector(
+                            onTap: () {
+                              // setState(() {
+                              //   showEntryDetail = true;
+                              // });
+                            },
+                            onTapDown: (position) => {
+                              _getTapPosition(position),
+                            },
+                            onLongPress: () => _showContextMenu(context, index),
+                            child: PastEntryWidget(
+                              title: controller
+                                      .gratitudeJournals[index].description ??
+                                  "",
+                              time: DateUtility.formatDateForJournal(
+                                  controller.gratitudeJournals[index].date ??
+                                      ""),
+                            ),
+                          );
+                        },
+                        indicatorBuilder: (context, index) {
+                          return TimeLineIndicator(
+                            color: hexToColor(
+                                controller.gratitudeJournals[index].color ??
+                                    ""),
+                          );
+                        },
+                        // indicatorPositionBuilder: (context, index) {
+                        //   return index == 0 ? 0.0 : 0.2;
+                        // },
+                        startConnectorBuilder: (_, index) =>
+                            Connector.solidLine(
+                          color: kBorderColor,
+                          thickness: 4.0,
+                        ),
+                        endConnectorBuilder: (_, index) => Connector.solidLine(
+                          color: kBorderColor,
+                          thickness: 4.0,
+                        ),
+                      ),
+                    ),
+                ],
+              ));
+  }
+
+  Widget pastEntryDetail() {
+    return Column(
+      children: [
+        Expanded(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 5),
+            child: IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  MainHeading(
-                    text: 'Search Results',
-                    paddingBottom: 10,
+                  RotatedBox(
+                    quarterTurns: 2,
+                    child: GestureDetector(
+                      onTap: () => _onBack(),
+                      child: Image.asset(
+                        Assets.imagesArrowNext,
+                        height: 24,
+                        color: kDarkBlueColor,
+                      ),
+                    ),
                   ),
-                  Column(
-                    children: List.generate(
-                      3,
-                      (index) {
-                        return GestureDetector(
-                          onTapDown: (position) => {
-                            _getTapPosition(position),
-                          },
-                          onLongPress: () => _showContextMenu(context),
-                          child: PastEntryWidget(
-                            title: index == 0 ? 'Charlie’s Birth' : 'Code Blue',
-                            subTitle: index == 0
-                                ? 'Now I can see that...'
-                                : index == 1
-                                    ? ''
-                                    : 'Angela and Lee finally arrived after rescheduling their... ',
-                            time: 'October 27, 2008',
-                            image: '',
+                  Expanded(
+                    child: PageView.builder(
+                      controller: pageController,
+                      physics: NeverScrollableScrollPhysics(),
+                      itemCount: 4,
+                      scrollDirection: Axis.horizontal,
+                      itemBuilder: (context, index) {
+                        return Container(
+                          height: Get.height,
+                          width: Get.width,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 15,
+                            vertical: 12,
+                          ),
+                          margin: EdgeInsets.symmetric(horizontal: 10),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              width: 1.0,
+                              color: Color(0xffE2E8F0),
+                            ),
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                          child: ListView(
+                            shrinkWrap: true,
+                            padding: EdgeInsets.zero,
+                            physics: BouncingScrollPhysics(),
+                            children: [
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.stretch,
+                                      children: [
+                                        MyText(
+                                          text: 'Charlie’s Birth',
+                                          size: 16,
+                                          weight: FontWeight.w500,
+                                        ),
+                                        MyText(
+                                          text: 'October 27, 2008',
+                                          size: 11,
+                                          paddingTop: 4,
+                                          color: kDarkBlueColor,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  GestureDetector(
+                                    onTap: () {
+                                      // setState(() {
+                                      //   showEditEntry = true;
+                                      //   showEntryDetail = false;
+                                      // });
+                                    },
+                                    child: Image.asset(
+                                      Assets.imagesEditItem,
+                                      height: 16,
+                                      color: Color(0xff7B8794),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              MyText(
+                                paddingTop: 6,
+                                paddingBottom: 16,
+                                text:
+                                    'Lorem ipsum dolor sit amet consectetur. Euismod sollicitudin nisl metus auctor diam. Orci habitant gravida elit quis. Elit in lobortis quis ut sit. Amet duis laoreet egestas amet. Nunc mattis vel nam morbi. Bibendum porta fringilla mi vitae a.\nLorem ipsum dolor sit amet consectetur. Euismod sollicitudin nisl metus auctor diam. Orci habitant gravida elit quis. Elit in lobortis quis ut sit. Amet duis laoreet egestas amet.',
+                                size: 12,
+                                height: 1.8,
+                                color: Color(0xff323F4B),
+                              ),
+                              CommonImageView(
+                                height: 150,
+                                width: Get.width,
+                                radius: 8.0,
+                                url: dummyImg3,
+                              ),
+                            ],
                           ),
                         );
                       },
                     ),
                   ),
+                  GestureDetector(
+                    onTap: () => _onNext(),
+                    child: Image.asset(
+                      Assets.imagesArrowNext,
+                      height: 24,
+                      color: kDarkBlueColor,
+                    ),
+                  ),
                 ],
-              )
-            else
-              FixedTimeline.tileBuilder(
-                theme: TimelineThemeData(
-                  nodePosition: 0,
-                  connectorTheme: ConnectorThemeData(
-                    color: kTextColor,
-                    thickness: 1.0,
-                  ),
-                ),
-                builder: TimelineTileBuilder(
-                  itemCount: 10,
-                  contentsBuilder: (_, index) {
-                    return GestureDetector(
-                      onTapDown: (position) => {
-                        _getTapPosition(position),
-                      },
-                      onLongPress: () => _showContextMenu(context),
-                      child: GratitudeWidget(
-                        gratitudes: [
-                          'Bailey’s vet appointment went well - E-collar removed!',
-                          'Missed a close collision on the road',
-                        ],
-                        time: 'October 27, 2008',
-                      ),
-                    );
-                  },
-                  indicatorBuilder: (context, index) {
-                    return TimeLineIndicator(
-                      color: index == 0
-                          ? kNavyBlueColor
-                          : index == 1
-                              ? kDarkBlueColor
-                              : index == 2
-                                  ? kCardio2Color
-                                  : kStreaksColor,
-                    );
-                  },
-                  // indicatorPositionBuilder: (context, index) {
-                  //   return index == 0 ? 0.0 : 0.2;
-                  // },
-                  startConnectorBuilder: (_, index) => Connector.solidLine(
-                    color: kBorderColor,
-                    thickness: 4.0,
-                  ),
-                  endConnectorBuilder: (_, index) => Connector.solidLine(
-                    color: kBorderColor,
-                    thickness: 4.0,
-                  ),
-                ),
               ),
-          ],
-        ),
-        Positioned(
-          bottom: 15,
-          right: 15,
-          child: GestureDetector(
-            onTap: () {
-              showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                backgroundColor: Colors.transparent,
-                elevation: 0,
-                builder: (_) {
-                  return AddNewGratitude();
-                },
-              );
-            },
-            child: Image.asset(
-              Assets.imagesAddButton,
-              height: 44,
             ),
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.all(15),
+          child: MyButton(
+            text: 'Return',
+            onTap: () {
+              // setState(() {
+              //   showEntryDetail = false;
+              // });
+            },
           ),
         ),
       ],
-    );
-  }
-}
-
-class AddNewGratitude extends StatefulWidget {
-  AddNewGratitude({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  State<AddNewGratitude> createState() => _AddNewGratitudeState();
-}
-
-class _AddNewGratitudeState extends State<AddNewGratitude> {
-  final List<Color> colors = [
-    kC1,
-    kC2,
-    kC3,
-    kC4,
-    kC5,
-    kC6,
-    kC7,
-    kC8,
-    kC9,
-    kC10,
-    kC11,
-    kC12,
-    kC13,
-    kQuiteTimeColor,
-    kDarkBlueColor,
-    kC16,
-  ];
-
-  int colorIndex = 0;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: MediaQuery.of(context).viewInsets,
-      child: CustomBottomSheet(
-        height: 380,
-        child: ListView(
-          shrinkWrap: true,
-          physics: BouncingScrollPhysics(),
-          padding: EdgeInsets.symmetric(
-            horizontal: 15,
-            vertical: 6,
-          ),
-          children: [
-            MainHeading(
-              text: 'What are you grateful for?',
-              paddingBottom: 12,
-            ),
-            MyTextField(
-              // onTap: () => Get.to(() => AddGratitude()),
-              // isReadOnly: true,
-              hint: 'Reflect away...',
-              marginBottom: 26,
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                MainHeading(
-                  text: 'Colour on timeline',
-                  paddingBottom: 12,
-                ),
-                ChooseColor(
-                  colors: colors,
-                  colorIndex: colorIndex,
-                ),
-              ],
-            ),
-          ],
-        ),
-        onTap: () {
-          Get.dialog(
-            ImageDialog(
-              heading: 'Gratitude Saved!',
-              content: '',
-              image: Assets.imagesGratitudeSaved,
-              imageSize: 116,
-              onOkay: () {
-                Get.back();
-                Navigator.pop(context);
-              },
-            ),
-          );
-        },
-        buttonText: 'Submit',
-        isButtonDisable: false,
-      ),
     );
   }
 }

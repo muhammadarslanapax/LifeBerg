@@ -35,9 +35,7 @@ class GoalController extends GetxController {
 
   // Fields related to add new goal page..
   RxString icon = "".obs;
-  Color? color;
   RxString selectedGoal = "Select category".obs;
-
   RxString selectGoalDaysType = 'Week'.obs;
   RxDouble seekbarValue = 5.0.obs;
   RxBool isScale = true.obs;
@@ -192,7 +190,7 @@ class GoalController extends GetxController {
           timeList.add(ReminderDateTime(
               date.day!, DateFormat("hh:mm").parse(date.time!)));
         }
-        color = hexToColor(goal!.color!);
+        // color = hexToColor(goal!.color!);
       }
     }
   }
@@ -211,7 +209,7 @@ class GoalController extends GetxController {
             selectGoalDaysType.value,
             seekbarValue.value.toInt().toString(),
             isScale.value,
-            colorToHex(color!),
+            // colorToHex(color!),
             timeList)
         .then((response) {
       SmartDialog.dismiss();
@@ -246,7 +244,7 @@ class GoalController extends GetxController {
             selectGoalDaysType.value,
             seekbarValue.value.toInt().toString(),
             isScale.value,
-            colorToHex(color!),
+            // colorToHex(color!),
             timeList)
         .then((response) {
       SmartDialog.dismiss();
@@ -275,4 +273,5 @@ class GoalController extends GetxController {
     }
     return '';
   }
+
 }

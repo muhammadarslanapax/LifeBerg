@@ -1,5 +1,5 @@
 class ReminderDateTime {
-  final String day;
+  final List<String> day;
   final DateTime time;
 
   ReminderDateTime(this.day, this.time);

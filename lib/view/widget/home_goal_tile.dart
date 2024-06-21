@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:life_berg/constant/color.dart';
 import 'package:life_berg/generated/assets.dart';
@@ -269,9 +270,16 @@ class _HomeGoalTileState extends State<HomeGoalTile> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTapDown: (position) => {
-        _getTapPosition(position),
+        if (widget.type != "daily_highlight")
+          {
+            _getTapPosition(position),
+          }
       },
-      onLongPress: () => _showContextMenu(context),
+      onLongPress: () {
+        if (widget.type != "daily_highlight") {
+          _showContextMenu(context);
+        }
+      },
       child: Container(
         margin: EdgeInsets.only(
           bottom: 8,
@@ -298,10 +306,13 @@ class _HomeGoalTileState extends State<HomeGoalTile> {
                   color: widget.imageBgColor,
                   borderRadius: BorderRadius.all(Radius.circular(4))),
               padding: EdgeInsets.all(3.0),
-              child: Image.asset(
-                widget.leadingIcon!,
-                color: widget.leadingColor,
-              ),
+              child: widget.type == "daily_highlight"
+                  ? SvgPicture.asset(widget.leadingIcon!,
+                      color: widget.leadingColor)
+                  : Image.asset(
+                      widget.leadingIcon!,
+                      color: widget.leadingColor,
+                    ),
             ),
             Expanded(
               child: MyText(
@@ -313,13 +324,17 @@ class _HomeGoalTileState extends State<HomeGoalTile> {
                 maxLines: 1,
               ),
             ),
-            widget.haveCheckBox!
+            widget.haveCheckBox == true
                 ? Obx(() => GestureDetector(
                       onTap: () {
-                        if (widget.goal!.isSkipped.value == false) {
-                          homeController.saveLocalData(widget.goal!,
-                              !widget.checkBoxValue!.value, "0.0");
+                        if (widget.type == "daily_highlight") {
                           widget.onCheckBoxTap!();
+                        } else {
+                          if (widget.goal!.isSkipped.value == false) {
+                            homeController.saveLocalData(widget.goal!,
+                                !widget.checkBoxValue!.value, "0.0");
+                            widget.onCheckBoxTap!();
+                          }
                         }
                       },
                       child: Container(
@@ -329,18 +344,26 @@ class _HomeGoalTileState extends State<HomeGoalTile> {
                           borderRadius: BorderRadius.circular(4.0),
                           border: Border.all(
                               width: 1,
-                              color: widget.checkBoxValue!.value ||
-                                      widget.goal!.isSkipped.value
+                              color: widget.type == "daily_highlight" &&
+                                      widget.checkBoxValue!.value
                                   ? Colors.transparent
-                                  : kBorderColor),
-                          color: widget.goal!.isSkipped.value
+                                  : widget.type == "daily_highlight" &&
+                                          widget.checkBoxValue!.value == false
+                                      ? kBorderColor
+                                      : widget.checkBoxValue!.value ||
+                                              widget.goal!.isSkipped.value
+                                          ? Colors.transparent
+                                          : kBorderColor),
+                          color: widget.goal != null &&
+                                  widget.goal!.isSkipped.value
                               ? kUnSelectedColor
                               : widget.checkBoxValue!.value
                                   ? kTertiaryColor
                                   : Colors.white,
                         ),
                         child: widget.checkBoxValue!.value ||
-                                widget.goal!.isSkipped.value
+                                (widget.goal != null &&
+                                    widget.goal!.isSkipped.value)
                             ? Icon(
                                 Icons.check,
                                 color: kPrimaryColor,
@@ -349,9 +372,10 @@ class _HomeGoalTileState extends State<HomeGoalTile> {
                             : Container(),
                       ),
                     ))
-                : widget.haveSlider!
+                : widget.haveSlider == true
                     ? SizedBox(
                         width: 103,
+                        height: 12,
                         child: CustomSlider(
                           value: widget.progress,
                           isSkipped: widget.goal!.isSkipped,

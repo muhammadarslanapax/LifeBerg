@@ -7,3 +7,5 @@ const String goalData = "goal_data";
 const String newDayTime = "new_day_time";
 const String lastDate = "last_date";
 const String savedDate = "saved_date";
+const String tomorrowHighlight = "tomorrow_highlight";
+const String tomorrowHighlightDate = "tomorrow_highlight_date";

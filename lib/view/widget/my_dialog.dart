@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:life_berg/constant/color.dart';
@@ -48,11 +49,13 @@ class MyDialog extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      MyText(
-                        text: heading,
-                        size: 18,
-                        weight: FontWeight.w500,
-                        paddingRight: 16,
+                      Expanded(
+                        child: MyText(
+                          text: heading,
+                          size: 18,
+                          weight: FontWeight.w500,
+                          paddingRight: 16,
+                        ),
                       ),
                       if (icon!.isNotEmpty)
                         Image.asset(

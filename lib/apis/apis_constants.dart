@@ -14,6 +14,10 @@ class ApiConstants {
   static String UPDATE_GOAL = "${BASE_URL}/api/user/profile/update-goal";
   static String GOAL_LIST = "${BASE_URL}/api/user/profile/user-goals";
   static String DELETE_GOAL = "${BASE_URL}/api/user/profile/delete-goal";
+  static String DELETE_JOURNAL = "${BASE_URL}/api/user/profile/delete-journal";
   static String GOAL_COMMENT = "${BASE_URL}/api/user/profile/delete-goal";
   static String DELETE_PROFILE_PIC = "${BASE_URL}/api/user/profile/delete-profile-picture";
+  static String ADD_JOURNAL = "${BASE_URL}/api/user/profile/create-journal";
+  static String UPDATE_JOURNAL = "${BASE_URL}/api/user/profile/update-journal";
+  static String JOURNAL_LIST = "${BASE_URL}/api/user/profile/journal-list";
 }

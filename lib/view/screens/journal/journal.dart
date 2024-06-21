@@ -3,15 +3,14 @@ import 'package:get/get.dart';
 import 'package:keyboard_dismisser/keyboard_dismisser.dart';
 import 'package:life_berg/constant/color.dart';
 import 'package:life_berg/controller/journal_controller/journal_controller.dart';
-import 'package:life_berg/view/screens/journal/journal_tabs/gratitudes.dart';
-import 'package:life_berg/view/screens/journal/journal_tabs/new_entry.dart';
-import 'package:life_berg/view/screens/journal/journal_tabs/past_entries.dart';
+import 'package:life_berg/view/screens/journal/add_new_journal.dart';
 import 'package:life_berg/view/widget/my_text.dart';
 import 'package:life_berg/view/widget/simple_app_bar.dart';
 
-class Journal extends StatelessWidget {
+import '../../../generated/assets.dart';
 
-  final JournalController controller = Get.find<JournalController>();
+class Journal extends StatelessWidget {
+  final JournalController controller = Get.put(JournalController());
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +20,7 @@ class Journal extends StatelessWidget {
         GestureType.onPanUpdateDownDirection,
       ],
       child: Scaffold(
-        backgroundColor: kSecondaryColor,
+        backgroundColor: kPrimaryColor,
         appBar: simpleAppBar(
           centerTitle: true,
           haveLeading: false,
@@ -31,11 +30,12 @@ class Journal extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Padding(
-              padding: EdgeInsets.all(15),
+              padding: EdgeInsets.only(right: 50, top: 15, bottom: 15),
               child: SizedBox(
                 height: 41,
                 child: Center(
                   child: TabBar(
+                    dividerColor: Colors.transparent,
                     isScrollable: true,
                     controller: controller.tabController,
                     indicatorSize: TabBarIndicatorSize.label,
@@ -48,8 +48,9 @@ class Journal extends StatelessWidget {
                       controller.tabs.length,
                       (index) => Tab(
                         child: MyText(
+                          color: kTextColor,
                           text: controller.tabs[index],
-                          size: 12,
+                          size: 16,
                         ),
                       ),
                     ),
@@ -58,7 +59,7 @@ class Journal extends StatelessWidget {
               ),
             ),
             SizedBox(
-              height: 16,
+              height: 14,
             ),
             Expanded(
               child: TabBarView(
@@ -68,6 +69,30 @@ class Journal extends StatelessWidget {
               ),
             ),
           ],
+        ),
+        floatingActionButton: FloatingActionButton(
+          heroTag: "journal_floating_button",
+          onPressed: () async {
+            await showModalBottomSheet(
+              context: context,
+              isScrollControlled: true,
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              builder: (_) {
+                return AddNewJournal(
+                  controller.currentTab == 0 ? "Development" : "Gratitudes",
+                );
+              },
+            );
+            controller.setInitialText();
+          },
+          elevation: 0,
+          highlightElevation: 0,
+          backgroundColor: Colors.transparent,
+          child: Image.asset(
+            Assets.imagesAddButton,
+            height: 44,
+          ),
         ),
       ),
     );
