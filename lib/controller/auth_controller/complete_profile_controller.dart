@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:life_berg/apis/http_manager.dart';
+import 'package:life_berg/constant/strings.dart';
 import 'package:life_berg/model/user/user.dart';
 import 'package:life_berg/utils/pref_utils.dart';
 import 'package:life_berg/view/screens/auth/complete_profile/steps/ice_berg.dart';
@@ -18,19 +19,20 @@ import '../../utils/toast_utils.dart';
 class CompleteProfileController extends GetxController {
   final HttpManager httpManager = HttpManager();
 
-  static CompleteProfileController instance =
-      Get.find<CompleteProfileController>();
+  // All text editing fields
   TextEditingController userNameCon = TextEditingController();
   TextEditingController countryCon = TextEditingController();
+  TextEditingController iceBergCon = TextEditingController();
+
+  final pageController = PageController();
+
   RxString userPreferredName = "".obs;
   RxString selectedVocation = 'Medical Student'.obs;
-  TextEditingController iceBergCon = TextEditingController();
   RxBool isUserNameVocationDisable = true.obs;
   RxBool isIceBergDisable = true.obs;
-  RxString userFullName = "".obs;
-  final pageController = PageController();
   RxInt currentIndex = 0.obs;
   RxBool showOtherField = false.obs;
+
   final List<Widget> profileSteps = [
     UserNameVocation(),
     IceBerg(),
@@ -76,10 +78,7 @@ class CompleteProfileController extends GetxController {
   _getUserData() {
     if (PrefUtils().user.isNotEmpty) {
       user = User.fromJson(json.decode(PrefUtils().user));
-      if (user?.fullName != null) {
-        userFullName.value = user?.fullName ?? "";
-      }
-      if(user?.userName != null){
+      if (user?.userName != null) {
         userNameCon.text = user?.userName ?? "";
         userPreferredName.value = user?.userName ?? '';
       }
@@ -95,14 +94,6 @@ class CompleteProfileController extends GetxController {
       getIceBerg(iceBergCon.text);
       validateUsernameVocation();
     }
-  }
-
-  String getFirstName(String fullName) {
-    // Split the full name by space
-    List<String> nameParts = fullName.split(' ');
-
-    // Return the first part of the name, which is the first name
-    return nameParts[0];
   }
 
   validateUsernameVocation() {
@@ -158,7 +149,7 @@ class CompleteProfileController extends GetxController {
       String? iceberg,
       String? username,
       String? primaryVocation}) async {
-    SmartDialog.showLoading(msg: "Please wait..");
+    SmartDialog.showLoading(msg: pleaseWait);
     FocusManager.instance.primaryFocus?.unfocus();
     httpManager
         .updateUser(PrefUtils().token, PrefUtils().userId,

@@ -4,11 +4,9 @@ import 'package:get/get.dart';
 import 'package:life_berg/constant/color.dart';
 import 'package:life_berg/controller/auth_controller/complete_profile_controller.dart';
 import 'package:life_berg/generated/assets.dart';
-import 'package:life_berg/utils/instance.dart';
 import 'package:life_berg/view/widget/custom_drop_down.dart';
 import 'package:life_berg/view/widget/my_text.dart';
 import 'package:life_berg/view/widget/my_text_field.dart';
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class UserNameVocation extends StatelessWidget {
 
@@ -82,18 +80,6 @@ class UserNameVocation extends StatelessWidget {
           fillColor: kSecondaryColor,
           textInputAction: TextInputAction.done,
         ),
-        // SizedBox(
-        //   height: 10,
-        // ),
-        // Obx(() {
-        //   return SizedBox(
-        //     child: completeProfileController.showOtherField.value
-        //         ? MyTextField(
-        //             hint: 'Please Specify',
-        //           )
-        //         : SizedBox(),
-        //   );
-        // }),
         SizedBox(
           height: 20,
         ),
@@ -122,19 +108,6 @@ class UserNameVocation extends StatelessWidget {
             },
           ),
         ),
-        // Center(
-        //   child: SmoothPageIndicator(
-        //     controller: completeProfileController.pageController,
-        //     count: completeProfileController.profileSteps.length,
-        //     effect: ExpandingDotsEffect(
-        //       dotHeight: 8,
-        //       dotWidth: 8,
-        //       spacing: 5.0,
-        //       activeDotColor: kTertiaryColor,
-        //       dotColor: kTertiaryColor.withOpacity(0.2),
-        //     ),
-        //   ),
-        // ),
       ],
     );
   }

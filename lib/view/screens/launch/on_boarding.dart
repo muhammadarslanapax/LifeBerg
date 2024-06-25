@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:life_berg/constant/color.dart';
 import 'package:life_berg/constant/sizes_constant.dart';
+import 'package:life_berg/constant/strings.dart';
 import 'package:life_berg/controller/launch_controller/launch_controller.dart';
 import 'package:life_berg/generated/assets.dart';
 import 'package:life_berg/view/widget/my_button.dart';
@@ -49,7 +50,7 @@ class OnBoarding extends StatelessWidget {
               return controller.currentIndex.value == 0
                   ? SizedBox()
                   : MyText(
-                      text: 'Back',
+                      text: back,
                       size: 16,
                       weight: FontWeight.w500,
                       color: kSecondaryColor,
@@ -132,10 +133,10 @@ class OnBoarding extends StatelessWidget {
                   height: 56,
                   radius: 16.0,
                   text: controller.currentIndex.value == 0
-                      ? 'Yes!'
+                      ? yes
                       : controller.currentIndex.value == 1
-                          ? 'Next'
-                          : 'Let’s go!',
+                          ? next
+                          : letsGo,
                   onTap: () => controller.onTap(),
                 );
               }),

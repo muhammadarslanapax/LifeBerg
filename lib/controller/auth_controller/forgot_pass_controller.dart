@@ -17,6 +17,7 @@ class ForgotPassController extends GetxController {
   TextEditingController otpCon = TextEditingController();
   TextEditingController passCon = TextEditingController();
   TextEditingController confirmCon = TextEditingController();
+
   RxBool isDisable = true.obs;
   RxBool isVerifyDisable = true.obs;
   RxBool isNewPassDisable = true.obs;

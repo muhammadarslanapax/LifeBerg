@@ -45,7 +45,7 @@ class _AddGoalReminderState extends State<AddGoalReminder> {
   @override
   void initState() {
     super.initState();
-    if(widget.reminderDateTime != null) {
+    if (widget.reminderDateTime != null) {
       time = widget.reminderDateTime!.time;
       selectedDays.addAll(widget.reminderDateTime!.day);
     }
@@ -98,11 +98,11 @@ class _AddGoalReminderState extends State<AddGoalReminder> {
                       //     selectedDays.add(days[index]);
                       //   }
                       // } else {
-                        if (selectedDays.contains(days[index])) {
-                          selectedDays.remove(days[index]);
-                        } else {
-                          selectedDays.add(days[index]);
-                        }
+                      if (selectedDays.contains(days[index])) {
+                        selectedDays.remove(days[index]);
+                      } else {
+                        selectedDays.add(days[index]);
+                      }
                       // }
                       if (mounted) {
                         setState(() {});
@@ -156,20 +156,22 @@ class _AddGoalReminderState extends State<AddGoalReminder> {
               isDisable: false,
               text: "Confirm",
               onTap: () {
-                Get.back();
-                widget.onDaySelect(selectedDays, time);
-                showDialog(
-                  context: context,
-                  builder: (_) {
-                    return MyDialog(
-                      icon: Assets.imagesReminderBell,
-                      heading: 'Reminder Added',
-                      content:
-                          'LifeBerg will give you a nudge at your nominated time!',
-                      onOkay: () => Get.back(),
-                    );
-                  },
-                );
+                if (selectedDays.isNotEmpty && time != null) {
+                  Get.back();
+                  widget.onDaySelect(selectedDays, time);
+                  showDialog(
+                    context: context,
+                    builder: (_) {
+                      return MyDialog(
+                        icon: Assets.imagesReminderBell,
+                        heading: 'Reminder Added',
+                        content:
+                            'LifeBerg will give you a nudge at your nominated time!',
+                        onOkay: () => Get.back(),
+                      );
+                    },
+                  );
+                }
               },
             ),
           ),

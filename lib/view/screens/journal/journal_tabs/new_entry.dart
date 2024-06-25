@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:life_berg/constant/color.dart';
+import 'package:life_berg/constant/strings.dart';
 import 'package:life_berg/controller/journal_controller/journal_controller.dart';
 import 'package:life_berg/generated/assets.dart';
 import 'package:life_berg/view/widget/choose_color.dart';
@@ -21,15 +22,8 @@ class NewEntry extends StatefulWidget {
 }
 
 class _NewEntryState extends State<NewEntry> {
-  double? _distanceToField;
 
   TextfieldTagsController? _controller;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _distanceToField = MediaQuery.of(context).size.width;
-  }
 
   @override
   void dispose() {
@@ -67,7 +61,6 @@ class _NewEntryState extends State<NewEntry> {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      shrinkWrap: true,
       physics: BouncingScrollPhysics(),
       padding: EdgeInsets.fromLTRB(15, 0, 15, 15),
       children: [
@@ -426,7 +419,7 @@ class AddDate extends StatelessWidget {
         children: [
           MainHeading(
             paddingLeft: 15,
-            text: 'Adjust date',
+            text: adjustDate,
           ),
           Expanded(
             child: ListView(
@@ -441,7 +434,7 @@ class AddDate extends StatelessWidget {
         ],
       ),
       onTap: () => Navigator.pop(context),
-      buttonText: 'Confirm',
+      buttonText: confirm,
       isButtonDisable: false,
     );
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
+import 'package:life_berg/constant/strings.dart';
 import 'package:life_berg/generated/assets.dart';
 import 'package:life_berg/utils/pref_utils.dart';
 import 'package:life_berg/view/screens/auth/login.dart';
@@ -11,21 +12,18 @@ class LaunchController extends GetxController {
   final List<Map<String, dynamic>> onBoardingContent = [
     {
       'image': Assets.imagesOn1,
-      'title': 'Are you busy?',
-      'description':
-          'But keen to optimize your wellbeing, productivity and personal development?',
+      'title': onboardHeadingOne,
+      'description': onboardDesOne,
     },
     {
       'image': Assets.imagesOn2,
-      'title': 'Informed by medical students & doctors in Australia',
-      'description':
-          'LifeBerg is here to help you to become more intentional with your time and squeeze more meaningful activities into your day.',
+      'title': onboardHeadingTwo,
+      'description': onboardDesTwo,
     },
     {
       'image': Assets.imagesOn3,
-      'title': 'Our vision is simple',
-      'description':
-          'We hope to support you,\nso that you can, in turn, care for those around you. We’re ready when you are!',
+      'title': onboardHeadingThree,
+      'description': onboardDesThree,
     },
   ];
 
@@ -41,7 +39,7 @@ class LaunchController extends GetxController {
   }
 
   void onTap() {
-    if(currentIndex.value == 2){
+    if (currentIndex.value == 2) {
       PrefUtils().setIsShowIntro = false;
     }
     currentIndex.value == 2
@@ -53,7 +51,4 @@ class LaunchController extends GetxController {
             curve: Curves.easeInOut,
           );
   }
-
-
-
 }

@@ -7,6 +7,7 @@ import 'package:life_berg/constant/strings.dart';
 import 'package:life_berg/model/journal/journal_color.dart';
 import 'package:life_berg/model/journal/journal_list_response.dart';
 import 'package:life_berg/model/journal/journal_list_response_data.dart';
+import 'package:life_berg/utils/date_utility.dart';
 import 'package:life_berg/view/screens/journal/journal.dart';
 import 'package:life_berg/view/screens/journal/journal_tabs/gratitudes.dart';
 import 'package:life_berg/view/screens/journal/journal_tabs/new_entry.dart';
@@ -50,8 +51,8 @@ class JournalController extends GetxController
   RxString gratitudeFilter = "Newest".obs;
 
   List<String> tabs = [
-    'Development',
-    'Gratitudes',
+    development,
+    gratitudes,
   ];
 
   List<Widget> tabViews = [
@@ -60,10 +61,10 @@ class JournalController extends GetxController
   ];
 
   List<String> items = [
-    'Newest',
-    'Oldest',
-    'Colour on timeline',
-    'Length',
+    newest,
+    oldest,
+    colorOnTimeline,
+    length,
   ];
 
   final List<JournalColor> colors = [
@@ -106,17 +107,6 @@ class JournalController extends GetxController
     addTextController.selection = TextSelection.fromPosition(
       TextPosition(offset: addTextController.text.length),
     );
-  }
-
-  DateTime? parseDate(String? dateStr) {
-    return dateStr != null ? DateTime.parse(dateStr) : null;
-  }
-
-  int countWords(String text) {
-    if (text.isEmpty) {
-      return 0;
-    }
-    return text.split(RegExp(r'\s+')).length;
   }
 
   searchDevelopment(String text) {
@@ -169,61 +159,61 @@ class JournalController extends GetxController
             if (journalListResponse.data != null) {
               for (var journal in journalListResponse.data!) {
                 switch (journal.category) {
-                  case "Development":
+                  case development:
                     allDevelopmentJournals.add(journal);
                     break;
-                  case "Gratitudes":
+                  case gratitudes:
                     allGratitudeJournals.add(journal);
                     break;
                 }
               }
               switch (developmentFilter.value) {
-                case "Newest":
+                case newest:
                   allDevelopmentJournals.sort((a, b) {
-                    DateTime? dateA = parseDate(a.date);
-                    DateTime? dateB = parseDate(b.date);
+                    DateTime? dateA = DateUtility.parseDate(a.date);
+                    DateTime? dateB = DateUtility.parseDate(b.date);
                     return dateB!.compareTo(dateA!);
                   });
                   break;
-                case "Oldest":
+                case oldest:
                   allDevelopmentJournals.sort((a, b) {
-                    DateTime? dateA = parseDate(a.date);
-                    DateTime? dateB = parseDate(b.date);
+                    DateTime? dateA = DateUtility.parseDate(a.date);
+                    DateTime? dateB = DateUtility.parseDate(b.date);
                     return dateA!.compareTo(dateB!);
                   });
                   break;
-                case "Length":
+                case length:
                   allDevelopmentJournals.sort((a, b) =>
                       b.description!.length.compareTo(a.description!.length));
                   break;
-                case "Colour on timeline":
-                  allDevelopmentJournals
-                      .sort((a, b) => getColorId(a.color!).compareTo(getColorId(b.color!)));
+                case colorOnTimeline:
+                  allDevelopmentJournals.sort((a, b) =>
+                      getColorId(a.color!).compareTo(getColorId(b.color!)));
                   break;
               }
               developmentJournals.addAll(allDevelopmentJournals);
               switch (gratitudeFilter.value) {
-                case "Newest":
+                case newest:
                   allGratitudeJournals.sort((a, b) {
-                    DateTime? dateA = parseDate(a.date);
-                    DateTime? dateB = parseDate(b.date);
+                    DateTime? dateA = DateUtility.parseDate(a.date);
+                    DateTime? dateB = DateUtility.parseDate(b.date);
                     return dateB!.compareTo(dateA!);
                   });
                   break;
-                case "Oldest":
+                case oldest:
                   allGratitudeJournals.sort((a, b) {
-                    DateTime? dateA = parseDate(a.date);
-                    DateTime? dateB = parseDate(b.date);
+                    DateTime? dateA = DateUtility.parseDate(a.date);
+                    DateTime? dateB = DateUtility.parseDate(b.date);
                     return dateA!.compareTo(dateB!);
                   });
                   break;
-                case "Length":
+                case length:
                   allGratitudeJournals.sort((a, b) =>
                       b.description!.length.compareTo(a.description!.length));
                   break;
-                case "Colour on timeline":
-                  allGratitudeJournals
-                      .sort((a, b) => getColorId(a.color!).compareTo(getColorId(b.color!)));
+                case colorOnTimeline:
+                  allGratitudeJournals.sort((a, b) =>
+                      getColorId(a.color!).compareTo(getColorId(b.color!)));
                   break;
               }
               gratitudeJournals.addAll(allGratitudeJournals);
@@ -248,7 +238,7 @@ class JournalController extends GetxController
   addNewJournal(Function(bool isSuccess) onJournalCreate, String journal,
       String color, String category) {
     FocusManager.instance.primaryFocus?.unfocus();
-    SmartDialog.showLoading(msg: "Please wait...");
+    SmartDialog.showLoading(msg: pleaseWait);
     httpManager
         .addNewJournal(
       PrefUtils().token,
@@ -269,7 +259,7 @@ class JournalController extends GetxController
         }
       } else {
         onJournalCreate(false);
-        ToastUtils.showToast("Some error occurred.", color: kRedColor);
+        ToastUtils.showToast(someError, color: kRedColor);
       }
     });
   }
@@ -288,7 +278,7 @@ class JournalController extends GetxController
         GenericResponse genericResponse = response.snapshot;
         if (genericResponse.success == true) {
           switch (type) {
-            case "Development":
+            case development:
               for (var journal in allDevelopmentJournals) {
                 if (journal.sId == journalId) {
                   allDevelopmentJournals.remove(journal);
@@ -297,7 +287,7 @@ class JournalController extends GetxController
               }
               developmentJournals.removeAt(index);
               break;
-            case "Gratitudes":
+            case gratitudes:
               for (var journal in allGratitudeJournals) {
                 if (journal.sId == journalId) {
                   allGratitudeJournals.remove(journal);
@@ -309,14 +299,14 @@ class JournalController extends GetxController
           }
         }
       } else {
-        ToastUtils.showToast("Some error occurred.", color: kRedColor);
+        ToastUtils.showToast(someError, color: kRedColor);
       }
     });
   }
 
   updateJournal(Function(bool isSuccess) onJournalUpdate, String journalId) {
     FocusManager.instance.primaryFocus?.unfocus();
-    SmartDialog.showLoading(msg: "Please wait...");
+    SmartDialog.showLoading(msg: pleaseWait);
     httpManager
         .updateJournal(
       PrefUtils().token,
@@ -337,7 +327,7 @@ class JournalController extends GetxController
         }
       } else {
         onJournalUpdate(false);
-        ToastUtils.showToast("Some error occurred.", color: kRedColor);
+        ToastUtils.showToast(someError, color: kRedColor);
       }
     });
   }

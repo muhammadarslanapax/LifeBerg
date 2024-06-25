@@ -25,4 +25,8 @@ class DateUtility {
     // Format the local DateTime to the desired string format
     return formatter.format(localDateTime);
   }
+
+  static DateTime? parseDate(String? dateStr) {
+    return dateStr != null ? DateTime.parse(dateStr) : null;
+  }
 }

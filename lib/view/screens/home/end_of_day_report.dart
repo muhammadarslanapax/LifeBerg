@@ -23,6 +23,7 @@ import 'package:step_progress_indicator/step_progress_indicator.dart';
 
 import '../../../constant/strings.dart';
 import '../../../controller/journal_controller/journal_controller.dart';
+import '../../../utils/bullet_point_input_formatter.dart';
 import '../journal/add_new_journal.dart';
 
 class EndOfDayReport extends StatelessWidget {

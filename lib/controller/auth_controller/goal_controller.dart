@@ -1,33 +1,29 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
-import 'package:get/get_rx/get_rx.dart';
-import 'package:get/get_rx/src/rx_types/rx_types.dart';
-import 'package:get/state_manager.dart';
 import 'package:intl/intl.dart';
 import 'package:life_berg/apis/http_manager.dart';
+import 'package:life_berg/constant/strings.dart';
 import 'package:life_berg/model/generic_response.dart';
 import 'package:life_berg/model/setup_goal_model/setup_goal_model.dart';
 import 'package:life_berg/utils/pref_utils.dart';
 
 import '../../constant/color.dart';
-import '../../generated/assets.dart';
 import '../../model/error/error_response.dart';
 import '../../model/goal/goal.dart';
 import '../../model/reminder/reminder_date_time.dart';
 import '../../utils/toast_utils.dart';
-import '../../view/screens/setup_goal/add_new_goal.dart';
 
 class GoalController extends GetxController {
   dynamic argumentData = Get.arguments;
 
   static GoalController instance = Get.find<GoalController>();
 
-  final HttpManager httpManager = HttpManager();
-
   final TextEditingController goalNameCon = TextEditingController();
   final TextEditingController goalDesCon = TextEditingController();
   final TextEditingController daysCon = TextEditingController();
+
+  final HttpManager httpManager = HttpManager();
 
   bool isComingFromOnBoarding = false;
 
@@ -35,20 +31,20 @@ class GoalController extends GetxController {
 
   // Fields related to add new goal page..
   RxString icon = "".obs;
-  RxString selectedGoal = "Select category".obs;
-  RxString selectGoalDaysType = 'Week'.obs;
+  RxString selectedGoal = selectCategory.obs;
+  RxString selectGoalDaysType = week.obs;
   RxDouble seekbarValue = 5.0.obs;
   RxBool isScale = true.obs;
   List<String> items = [
-    'Week',
-    'Month',
+    week,
+    month,
   ];
 
   List<String> goals = [
-    'Select category',
-    'Wellbeing',
-    'Vocational',
-    'Personal Development',
+    selectCategory,
+    wellBeing,
+    vocational,
+    personalDevelopment,
   ];
 
   RxList<ReminderDateTime> timeList = RxList();
@@ -66,18 +62,18 @@ class GoalController extends GetxController {
   String selectedPersonalDev = '';
 
   final List<String> wellBeingList = [
-    "Nature",
-    "Sleep",
-    "Exercise",
-    "Social",
-    "Nutrition",
-    "Quiet Time",
-    "Gratitude",
-    "Family",
-    "Journaling",
-    "Prayer",
-    "Creativity",
-    "Other"
+    nature,
+    sleep,
+    exercise,
+    social,
+    nutrition,
+    quietTime,
+    gratitude,
+    family,
+    journaling,
+    prayer,
+    creativity,
+    other
   ];
 
   void getWellBeing(int index) {
@@ -138,16 +134,16 @@ class GoalController extends GetxController {
   }
 
   final List<String> vocationGoalList = [
-    "Case logs",
-    "Task prioritisation",
-    "Project X",
-    "Research X",
-    "Plan kid’s activities",
-    "Use organiser",
-    "Study group",
-    "Patient care",
-    "Mentoring",
-    "Other"
+    caseLogs,
+    taskPrioritisation,
+    projectX,
+    researchX,
+    planKidsActivities,
+    useOrganiser,
+    studyGroup,
+    patientCare,
+    mentoring,
+    other
   ];
 
   void getVocationGoal(int index) {
@@ -156,14 +152,14 @@ class GoalController extends GetxController {
   }
 
   final List<String> personalDevelopmentList = [
-    "Step out of comfort zone",
-    "Acts of kindness",
-    "Try new recipes",
-    "Acts of kindness",
-    "Weights",
-    "Quit smoking",
-    "Gratitude journal",
-    "Other"
+    stepOutOfComfortZone,
+    actsOfKindness,
+    tryNewRecipes,
+    actsOfKindness,
+    weights,
+    quitSmoking,
+    gratitudeJournal,
+    other
   ];
 
   void getPersonalDevelopments(int index) {
@@ -197,7 +193,7 @@ class GoalController extends GetxController {
 
   addNewGoal(Function(bool isSuccess) onGoalCreate) {
     FocusManager.instance.primaryFocus?.unfocus();
-    SmartDialog.showLoading(msg: "Please wait...");
+    SmartDialog.showLoading(msg: pleaseWait);
     httpManager
         .addNewGoal(
             PrefUtils().token,
@@ -224,14 +220,14 @@ class GoalController extends GetxController {
         }
       } else {
         onGoalCreate(false);
-        ToastUtils.showToast("Some error occurred.", color: kRedColor);
+        ToastUtils.showToast(someError, color: kRedColor);
       }
     });
   }
 
   editGoal(Function(bool isSuccess) onGoalCreate) {
     FocusManager.instance.primaryFocus?.unfocus();
-    SmartDialog.showLoading(msg: "Please wait...");
+    SmartDialog.showLoading(msg: pleaseWait);
     httpManager
         .editGoal(
             PrefUtils().token,
@@ -257,18 +253,18 @@ class GoalController extends GetxController {
         }
       } else {
         onGoalCreate(false);
-        ToastUtils.showToast("Some error occurred.", color: kRedColor);
+        ToastUtils.showToast(someError, color: kRedColor);
       }
     });
   }
 
   String categoryId(String category) {
     switch (category) {
-      case 'Wellbeing':
+      case wellBeing:
         return "6628e19cb0f93ad8fddbd7a4";
-      case 'Vocational':
+      case vocational:
         return "6638bf06584bab76b306e569";
-      case 'Personal Development':
+      case personalDevelopment:
         return "6628e1ac00b9551011466195";
     }
     return '';

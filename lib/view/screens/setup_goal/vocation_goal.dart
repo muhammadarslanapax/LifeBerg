@@ -1,10 +1,10 @@
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:life_berg/constant/sizes_constant.dart';
+import 'package:life_berg/constant/strings.dart';
 import 'package:life_berg/controller/auth_controller/onboarding_controller.dart';
 import 'package:life_berg/generated/assets.dart';
 import 'package:life_berg/view/screens/setup_goal/personal_development_goal.dart';
@@ -25,7 +25,7 @@ class VocationGoal extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: simpleAppBar(
-        title: 'Back',
+        title: back,
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -125,7 +125,7 @@ class VocationGoal extends StatelessWidget {
                   child: MyBorderButton(
                     height: 56,
                     radius: 16,
-                    text: 'Skip',
+                    text: skip,
                     onTap: () => Get.to(() => PersonalDevelopmentGoal()),
                   ),
                 ),

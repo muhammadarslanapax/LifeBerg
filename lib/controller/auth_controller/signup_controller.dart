@@ -20,10 +20,13 @@ import '../../view/screens/bottom_nav_bar/bottom_nav_bar.dart';
 class SignupController extends GetxController {
   final HttpManager httpManager = HttpManager();
 
+  // All Text Editing controller fields.
   TextEditingController nameCon = TextEditingController();
   TextEditingController emailCon = TextEditingController();
   TextEditingController passCon = TextEditingController();
   TextEditingController repeatPassCon = TextEditingController();
+
+  // Start validation related code
   RxBool isDisable = true.obs;
 
   void getEmail(String value) {
@@ -40,7 +43,9 @@ class SignupController extends GetxController {
       return true;
     }
   }
+  // End validation related code
 
+  // Start all API Calls code
   signUp() async {
     FocusManager.instance.primaryFocus?.unfocus();
     SmartDialog.showLoading(msg: "Please wait..");
@@ -104,17 +109,7 @@ class SignupController extends GetxController {
             if (response.snapshot! is! ErrorResponse) {
               UserResponse userResponse = response.snapshot;
               if (userResponse.success == true) {
-                PrefUtils().user = json.encode(userResponse.user);
-                PrefUtils().token = userResponse.token ?? '';
-                PrefUtils().userId = userResponse.token ?? '';
-
-                if(userResponse.user?.userName == null ||
-                    userResponse.user?.lifeBergName == null) {
-                  Get.to(() => CompleteProfile());
-                }else{
-                  Get.offAll(() => BottomNavBar());
-                  PrefUtils().loggedIn = true;
-                }
+                _moveToNextScreen(userResponse);
               } else {
                 ToastUtils.showToast(userResponse.message ?? "",
                     color: kRedColor);
@@ -156,17 +151,7 @@ class SignupController extends GetxController {
             if (response.snapshot! is! ErrorResponse) {
               UserResponse userResponse = response.snapshot;
               if (userResponse.success == true) {
-                PrefUtils().user = json.encode(userResponse.user);
-                PrefUtils().token = userResponse.token ?? '';
-                PrefUtils().userId = userResponse.token ?? '';
-
-                if(userResponse.user?.userName == null ||
-                    userResponse.user?.lifeBergName == null) {
-                  Get.to(() => CompleteProfile());
-                }else{
-                  Get.offAll(() => BottomNavBar());
-                  PrefUtils().loggedIn = true;
-                }
+                _moveToNextScreen(userResponse);
               } else {
                 ToastUtils.showToast(userResponse.message ?? "",
                     color: kRedColor);
@@ -208,16 +193,7 @@ class SignupController extends GetxController {
             if (response.snapshot! is! ErrorResponse) {
               UserResponse userResponse = response.snapshot;
               if (userResponse.success == true) {
-                PrefUtils().user = json.encode(userResponse.user);
-                PrefUtils().token = userResponse.token ?? '';
-                PrefUtils().userId = userResponse.token ?? '';
-                if(userResponse.user?.userName == null ||
-                    userResponse.user?.lifeBergName == null) {
-                  Get.to(() => CompleteProfile());
-                }else{
-                  Get.offAll(() => BottomNavBar());
-                  PrefUtils().loggedIn = true;
-                }
+                _moveToNextScreen(userResponse);
               } else {
                 ToastUtils.showToast(userResponse.message ?? "",
                     color: kRedColor);
@@ -233,6 +209,20 @@ class SignupController extends GetxController {
         });
       }
     });
+  }
+  // End all API calls code
+
+  _moveToNextScreen(UserResponse userResponse){
+    PrefUtils().user = json.encode(userResponse.user);
+    PrefUtils().token = userResponse.token ?? '';
+    PrefUtils().userId = userResponse.token ?? '';
+    if(userResponse.user?.userName == null ||
+        userResponse.user?.lifeBergName == null) {
+      Get.to(() => CompleteProfile());
+    }else{
+      Get.offAll(() => BottomNavBar());
+      PrefUtils().loggedIn = true;
+    }
   }
 
 }

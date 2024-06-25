@@ -4,7 +4,6 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:keyboard_dismisser/keyboard_dismisser.dart';
 import 'package:life_berg/constant/color.dart';
 import 'package:life_berg/constant/strings.dart';
 import 'package:life_berg/controller/admin_controller/home_controller.dart';
@@ -29,35 +28,30 @@ import '../../widget/my_dialog.dart';
 
 class AddNewGoal extends StatelessWidget {
   final GoalController goalController = Get.put(GoalController());
-  late HomeController homeController;
 
   @override
   Widget build(BuildContext context) {
+    HomeController? homeController = null;
     if (!goalController.isComingFromOnBoarding) {
       homeController = Get.find<HomeController>();
     }
-    return KeyboardDismisser(
-      gestures: [
-        GestureType.onTap,
-        GestureType.onPanUpdateDownDirection,
-      ],
-      child: Scaffold(
-        backgroundColor: kPrimaryColor,
-        appBar: simpleAppBar(
-          title: goalController.goal == null ? addNewGoal : editGoal,
-        ),
-        body: MediaQuery.removePadding(
+    return Scaffold(
+      backgroundColor: kPrimaryColor,
+      appBar: simpleAppBar(
+        title: goalController.goal == null ? addNewGoal : editGoal,
+      ),
+      body: MediaQuery.removePadding(
           context: context,
           removeTop: true,
-          child: Obx(() {
-            return ListView(
-              shrinkWrap: true,
-              physics: BouncingScrollPhysics(),
-              padding: EdgeInsets.all(15),
-              children: [
-                Row(
-                  children: [
-                    GestureDetector(
+          child: ListView(
+            shrinkWrap: true,
+            physics: BouncingScrollPhysics(),
+            padding: EdgeInsets.all(15),
+            children: [
+              Row(
+                children: [
+                  Obx(
+                    () => GestureDetector(
                       onTap: () {
                         showModalBottomSheet(
                           context: context,
@@ -67,7 +61,6 @@ class AddNewGoal extends StatelessWidget {
                           builder: (_) {
                             return IconAndColorBottomSheet(
                               onSelect: (icon) {
-                                // goalController.color = color;
                                 goalController.icon.value = icon;
                               },
                             );
@@ -95,439 +88,476 @@ class AddNewGoal extends StatelessWidget {
                         ),
                       ),
                     ),
-                    SizedBox(
-                      width: 10,
+                  ),
+                  SizedBox(
+                    width: 10,
+                  ),
+                  Expanded(
+                    child: MyTextField(
+                      hint: goalName,
+                      marginBottom: 0.0,
+                      fillColor: kSecondaryColor,
+                      controller: goalController.goalNameCon,
                     ),
-                    Expanded(
-                      child: MyTextField(
-                        hint: goalName,
-                        marginBottom: 0.0,
-                        fillColor: kSecondaryColor,
-                        controller: goalController.goalNameCon,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                DropdownButtonHideUnderline(
-                  child: DropdownButton2(
-                    hint: MyText(
-                      text: selectCategory,
-                      size: 14,
-                      color: kTextColor.withOpacity(0.50),
-                    ),
-                    items: List.generate(
-                      goalController.goals.length,
-                      (index) {
-                        var data = goalController.goals[index];
-                        return DropdownMenuItem<dynamic>(
-                          value: goalController.goals[index],
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              if (data == selectCategory)
-                                SizedBox()
-                              else
-                                Container(
-                                  height: 16,
-                                  width: 16,
-                                  padding: EdgeInsets.all(2),
-                                  decoration: BoxDecoration(
-                                    color: data == wellBeing
-                                        ? kWellBeingColor.withOpacity(0.2)
-                                        : data == vocational
-                                            ? kPeachColor.withOpacity(0.2)
-                                            : data == personalDevelopment
-                                                ? kCardioColor.withOpacity(0.2)
-                                                : kC3.withOpacity(0.2),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Center(
-                                    child: Container(
-                                      decoration: BoxDecoration(
-                                        color: data == wellBeing
-                                            ? kStreaksColor
-                                            : data == vocational
-                                                ? kRACGPExamColor
-                                                : data == personalDevelopment
-                                                    ? kDailyGratitudeColor
-                                                    : kC3,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      height: Get.height,
-                                      width: Get.width,
-                                    ),
-                                  ),
-                                ),
-                              MyText(
-                                paddingLeft: data == selectCategory ? 0 : 11,
-                                text: data,
-                                size: 14,
-                                color: data == selectCategory
-                                    ? kTextColor.withOpacity(0.50)
-                                    : kCoolGreyColor,
-                                weight: FontWeight.w400,
-                              ),
-                            ],
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              _buildGoalCategoryDropdown(),
+              SizedBox(
+                height: 10,
+              ),
+              MyTextField(
+                hint: description,
+                maxLines: 3,
+                controller: goalController.goalDesCon,
+              ),
+              _buildGoalDayType(),
+              _buildImportanceWidget(),
+              _buildMeasureTypeWidget(),
+              SizedBox(
+                height: 8,
+              ),
+              _buildReminderSelectWidget(context),
+              MyButton(
+                isDisable: false,
+                text: confirm,
+                onTap: () {
+                  var goalName = goalController.goalNameCon.text.toString();
+                  var description = goalController.goalDesCon.text.toString();
+                  var noOfDays = goalController.daysCon.text.toString();
+                  if (goalController.icon.value.isEmpty) {
+                    ToastUtils.showToast(selectIconError,
+                        color: kRedColor);
+                    return;
+                  } else if (goalName.isEmpty) {
+                    ToastUtils.showToast(goalNameError,
+                        color: kRedColor);
+                    return;
+                  } else if (goalController.selectedGoal.value ==
+                      selectCategory) {
+                    ToastUtils.showToast(selectCategoryError,
+                        color: kRedColor);
+                    return;
+                  } else if (description.isEmpty) {
+                    ToastUtils.showToast(goalDesError,
+                        color: kRedColor);
+                  } else if (noOfDays.isEmpty) {
+                    ToastUtils.showToast(noDaysError,
+                        color: kRedColor);
+                    return;
+                  }
+                  if (goalController.goal != null) {
+                    goalController.editGoal((isCreated) {
+                      homeController?.getUserGoals();
+                      if (isCreated) {
+                        Get.back();
+                        Get.dialog(
+                          MyDialog(
+                            icon: Assets.imagesEditItem,
+                            heading: editGoal,
+                            content: editSuccess,
+                            onOkay: () {
+                              Get.back();
+                            },
                           ),
                         );
-                      },
-                    ),
-                    onChanged: (v) {
-                      goalController.selectedGoal.value = v;
-                      log(v.toString());
-                    },
-                    value: goalController.selectedGoal.value,
-                    icon: Image.asset(
-                      Assets.imagesDropDownIcon,
-                      height: 24,
-                    ),
-                    isDense: true,
-                    isExpanded: true,
-                    buttonHeight: 56,
-                    buttonPadding: EdgeInsets.symmetric(
-                      horizontal: 15,
-                    ),
-                    buttonDecoration: BoxDecoration(
-                      border: Border.all(
-                        color: kBorderColor,
-                        width: 1.0,
-                      ),
-                      borderRadius: BorderRadius.circular(8),
-                      color: kSecondaryColor,
-                    ),
-                    buttonElevation: 0,
-                    itemHeight: 40,
-                    itemPadding: EdgeInsets.symmetric(
-                      horizontal: 15,
-                    ),
-                    dropdownMaxHeight: 200,
-                    dropdownWidth: Get.width * 0.92,
-                    dropdownPadding: null,
-                    dropdownDecoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      color: kSecondaryColor,
-                    ),
-                    dropdownElevation: 4,
-                    scrollbarRadius: const Radius.circular(40),
-                    scrollbarThickness: 6,
-                    scrollbarAlwaysShow: true,
-                    offset: const Offset(-2, -5),
-                  ),
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                MyTextField(
-                  hint: description,
-                  maxLines: 3,
-                  controller: goalController.goalDesCon,
-                ),
-                MyText(
-                  paddingTop: 20,
-                  text: weekSelectionDayDetail,
-                  size: 16,
-                  weight: FontWeight.w500,
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                Row(
-                  children: [
-                    Expanded(
-                      flex: 1,
-                      child: Container(
-                        height: 56,
-                        child: MyTextField(
-                          marginBottom: 0,
-                          hint: 'type',
-                          onChanged: (String value) {
-                            int max =
-                                goalController.selectGoalDaysType.value == week
-                                    ? 7
-                                    : 31;
-                            int x;
-                            try {
-                              x = int.parse(value);
-                            } catch (error) {
-                              x = 0;
-                            }
-                            if (x > max) {
-                              x = max;
-                            }
-                            if (x == 0) {
-                              goalController.daysCon.text = "";
-                            } else {
-                              goalController.daysCon.value = TextEditingValue(
-                                text: x.toString(),
-                                selection: TextSelection.fromPosition(
-                                  TextPosition(
-                                      offset: goalController
-                                          .daysCon.value.selection.baseOffset),
-                                ),
-                              );
-                            }
-                          },
-                          textInputType: TextInputType.number,
-                          controller: goalController.daysCon,
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 15,
-                    ),
-                    MyText(
-                      text: daysPer,
-                      size: 16,
-                      align: TextAlign.center,
-                      weight: FontWeight.w400,
-                    ),
-                    SizedBox(
-                      width: 15,
-                    ),
-                    Expanded(
-                      child: DropdownButtonHideUnderline(
-                        child: DropdownButton2(
-                          hint: MyText(
-                            text: select,
-                            size: 15,
-                            weight: FontWeight.w400,
-                            color: kTextColor.withOpacity(0.50),
-                          ),
-                          items: goalController.items
-                              .map(
-                                (item) => DropdownMenuItem<dynamic>(
-                                  value: item,
-                                  child: MyText(
-                                    text: item,
-                                    size: 14,
-                                  ),
-                                ),
-                              )
-                              .toList(),
-                          value: goalController.selectGoalDaysType.value,
-                          onChanged: (newValue) {
-                            goalController.selectGoalDaysType.value = newValue;
-                          },
-                          icon: Image.asset(
-                            Assets.imagesDropDownIcon,
-                            height: 24,
-                          ),
-                          isDense: true,
-                          isExpanded: true,
-                          buttonHeight: 56,
-                          buttonPadding: EdgeInsets.symmetric(
-                            horizontal: 15,
-                          ),
-                          buttonDecoration: BoxDecoration(
-                            border: Border.all(
-                              color: kBorderColor,
-                              width: 1.0,
-                            ),
-                            borderRadius: BorderRadius.circular(8),
-                            color: kSecondaryColor,
-                          ),
-                          buttonElevation: 0,
-                          itemHeight: 40,
-                          itemPadding: EdgeInsets.symmetric(
-                            horizontal: 15,
-                          ),
-                          dropdownMaxHeight: 200,
-                          dropdownPadding: null,
-                          dropdownDecoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            color: kSecondaryColor,
-                          ),
-                          dropdownElevation: 4,
-                          scrollbarRadius: const Radius.circular(40),
-                          scrollbarThickness: 6,
-                          scrollbarAlwaysShow: true,
-                          offset: const Offset(-2, -5),
-                        ),
-                      ),
-                      flex: 2,
-                    )
-                  ],
-                ),
-                MyText(
-                  paddingTop: 20,
-                  text: howImportantDes,
-                  size: 16,
-                  weight: FontWeight.w500,
-                ),
-                SliderTheme(
-                  data: SliderThemeData(
-                    inactiveTickMarkColor: Colors.transparent,
-                    activeTickMarkColor: Colors.transparent,
-                    disabledActiveTickMarkColor: Colors.transparent,
-                    disabledInactiveTickMarkColor: Colors.transparent,
-                    inactiveTrackColor: kBorderColor,
-                    activeTrackColor: kTertiaryColor,
-                    thumbColor: kTertiaryColor,
-                    trackShape: CustomTrackShape(),
-                  ),
-                  child: Slider(
-                    min: 0.0,
-                    max: 10.0,
-                    divisions: 10,
-                    onChanged: (value) {
-                      goalController.seekbarValue.value = value;
-                    },
-                    value: goalController.seekbarValue.value,
-                  ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    MyText(
-                      text: '0',
-                      size: 16,
-                      color: kTertiaryColor,
-                    ),
-                    MyText(
-                      paddingLeft: 10,
-                      text: '5',
-                      size: 16,
-                      color: kTertiaryColor,
-                    ),
-                    MyText(
-                      text: '10',
-                      size: 16,
-                      color: kTertiaryColor,
-                    ),
-                  ],
-                ),
-                MyText(
-                  paddingTop: 25,
-                  text: measureTypeDes,
-                  size: 16,
-                  weight: FontWeight.w500,
-                  paddingBottom: 20,
-                ),
-                CustomRadioTile(
-                  onTap: () {
-                    goalController.isScale.value = false;
-                  },
-                  isSelected: !goalController.isScale.value,
-                  title: measureTypeOptionOne,
-                ),
-                SizedBox(
-                  height: 2,
-                ),
-                CustomRadioTile(
-                  onTap: () {
-                    goalController.isScale.value = true;
-                  },
-                  isSelected: goalController.isScale.value,
-                  title: measureTypeOptionTwo,
-                ),
-                SizedBox(
-                  height: 8,
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    MyText(
-                      text: addReminder,
-                      size: 16,
-                      weight: FontWeight.w500,
-                      paddingRight: 16,
-                    ),
-                    Image.asset(
-                      Assets.imagesReminderBell,
-                      height: 19.5,
-                      color: kTertiaryColor,
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 10,
-                ),
-                ListView.builder(
-                  itemBuilder: (BuildContext ctx, index) {
-                    return _buildTimeWidget(context, index);
-                  },
-                  itemCount: goalController.timeList.length + 1,
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                ),
-                MyButton(
-                  isDisable: false,
-                  text: confirm,
-                  onTap: () {
-                    var goalName = goalController.goalNameCon.text.toString();
-                    var description = goalController.goalDesCon.text.toString();
-                    var noOfDays = goalController.daysCon.text.toString();
-                    if (goalController.icon.value.isEmpty) {
-                      ToastUtils.showToast("Please select an icon for goal.",
-                          color: kRedColor);
-                      return;
-                    } else if (goalName.isEmpty) {
-                      ToastUtils.showToast("Please enter goal name.",
-                          color: kRedColor);
-                      return;
-                    } else if (goalController.selectedGoal.value ==
-                        "Select category") {
-                      ToastUtils.showToast("Please select a goal category.",
-                          color: kRedColor);
-                      return;
-                    } else if (description.isEmpty) {
-                      ToastUtils.showToast("Please enter goal description.",
-                          color: kRedColor);
-                    } else if (noOfDays.isEmpty) {
-                      ToastUtils.showToast("Please enter no of days.",
-                          color: kRedColor);
-                      return;
-                    }
-                    if (goalController.goal != null) {
-                      goalController.editGoal((isCreated) {
-                        homeController.getUserGoals();
-                        if (isCreated) {
-                          Get.back();
-                          Get.dialog(
-                            MyDialog(
-                              icon: Assets.imagesEditItem,
-                              heading: editGoal,
-                              content: editSuccess,
-                              onOkay: () {
-                                Get.back();
-                              },
-                            ),
-                          );
-                        } else {
-                          ToastUtils.showToast("Some error occurred.",
-                              color: kRedColor);
-                        }
-                      });
-                    } else {
-                      goalController.addNewGoal((isCreated) {
-                        if (isCreated) {
-                          Get.back();
-                          _showGoalCreatedDialog(context);
-                        } else {
-                          ToastUtils.showToast("Some error occurred.",
-                              color: kRedColor);
-                        }
-                      });
-                    }
-                  },
-                  height: 56,
-                  radius: 16,
-                ),
-                SizedBox(
-                  height: 40,
-                ),
-              ],
-            );
-          }),
-        ),
-      ),
+                      } else {
+                        ToastUtils.showToast(someError,
+                            color: kRedColor);
+                      }
+                    });
+                  } else {
+                    goalController.addNewGoal((isCreated) {
+                      if (isCreated) {
+                        Get.back();
+                        _showGoalCreatedDialog(context, homeController);
+                      } else {
+                        ToastUtils.showToast(someError,
+                            color: kRedColor);
+                      }
+                    });
+                  }
+                },
+                height: 56,
+                radius: 16,
+              ),
+              SizedBox(
+                height: 40,
+              ),
+            ],
+          )),
     );
   }
 
-  _showGoalCreatedDialog(BuildContext context) {
+  _buildReminderSelectWidget(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            MyText(
+              text: addReminder,
+              size: 16,
+              weight: FontWeight.w500,
+              paddingRight: 16,
+            ),
+            Image.asset(
+              Assets.imagesReminderBell,
+              height: 19.5,
+              color: kTertiaryColor,
+            ),
+          ],
+        ),
+        SizedBox(
+          height: 10,
+        ),
+        Obx(() => ListView.builder(
+          itemBuilder: (BuildContext ctx, index) {
+            return _buildTimeWidget(context, index);
+          },
+          itemCount: goalController.timeList.length + 1,
+          shrinkWrap: true,
+          physics: NeverScrollableScrollPhysics(),
+        )),
+      ],
+    );
+  }
+
+  _buildGoalCategoryDropdown() {
+    return Obx(() => DropdownButtonHideUnderline(
+      child: DropdownButton2(
+        hint: MyText(
+          text: selectCategory,
+          size: 14,
+          color: kTextColor.withOpacity(0.50),
+        ),
+        items: List.generate(
+          goalController.goals.length,
+              (index) {
+            var data = goalController.goals[index];
+            return DropdownMenuItem<dynamic>(
+              value: goalController.goals[index],
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  if (data == selectCategory)
+                    SizedBox()
+                  else
+                    Container(
+                      height: 16,
+                      width: 16,
+                      padding: EdgeInsets.all(2),
+                      decoration: BoxDecoration(
+                        color: data == wellBeing
+                            ? kWellBeingColor.withOpacity(0.2)
+                            : data == vocational
+                            ? kPeachColor.withOpacity(0.2)
+                            : data == personalDevelopment
+                            ? kCardioColor.withOpacity(0.2)
+                            : kC3.withOpacity(0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: data == wellBeing
+                                ? kStreaksColor
+                                : data == vocational
+                                ? kRACGPExamColor
+                                : data == personalDevelopment
+                                ? kDailyGratitudeColor
+                                : kC3,
+                            shape: BoxShape.circle,
+                          ),
+                          height: Get.height,
+                          width: Get.width,
+                        ),
+                      ),
+                    ),
+                  MyText(
+                    paddingLeft: data == selectCategory ? 0 : 11,
+                    text: data,
+                    size: 14,
+                    color: data == selectCategory
+                        ? kTextColor.withOpacity(0.50)
+                        : kCoolGreyColor,
+                    weight: FontWeight.w400,
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+        onChanged: (v) {
+          goalController.selectedGoal.value = v;
+          log(v.toString());
+        },
+        value: goalController.selectedGoal.value,
+        icon: Image.asset(
+          Assets.imagesDropDownIcon,
+          height: 24,
+        ),
+        isDense: true,
+        isExpanded: true,
+        buttonHeight: 56,
+        buttonPadding: EdgeInsets.symmetric(
+          horizontal: 15,
+        ),
+        buttonDecoration: BoxDecoration(
+          border: Border.all(
+            color: kBorderColor,
+            width: 1.0,
+          ),
+          borderRadius: BorderRadius.circular(8),
+          color: kSecondaryColor,
+        ),
+        buttonElevation: 0,
+        itemHeight: 40,
+        itemPadding: EdgeInsets.symmetric(
+          horizontal: 15,
+        ),
+        dropdownMaxHeight: 200,
+        dropdownWidth: Get.width * 0.92,
+        dropdownPadding: null,
+        dropdownDecoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          color: kSecondaryColor,
+        ),
+        dropdownElevation: 4,
+        scrollbarRadius: const Radius.circular(40),
+        scrollbarThickness: 6,
+        scrollbarAlwaysShow: true,
+        offset: const Offset(-2, -5),
+      ),
+    ));
+  }
+
+  _buildGoalDayType() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        MyText(
+          paddingTop: 20,
+          text: weekSelectionDayDetail,
+          size: 16,
+          weight: FontWeight.w500,
+        ),
+        SizedBox(
+          height: 10,
+        ),
+        Row(
+          children: [
+            Expanded(
+              flex: 1,
+              child: Container(
+                height: 56,
+                child: MyTextField(
+                  marginBottom: 0,
+                  hint: type,
+                  onChanged: (String value) {
+                    int max = goalController.selectGoalDaysType.value == week
+                        ? 7
+                        : 31;
+                    int x;
+                    try {
+                      x = int.parse(value);
+                    } catch (error) {
+                      x = 0;
+                    }
+                    if (x > max) {
+                      x = max;
+                    }
+                    if (x == 0) {
+                      goalController.daysCon.text = "";
+                    } else {
+                      goalController.daysCon.value = TextEditingValue(
+                        text: x.toString(),
+                        selection: TextSelection.fromPosition(
+                          TextPosition(
+                              offset: goalController
+                                  .daysCon.value.selection.baseOffset),
+                        ),
+                      );
+                    }
+                  },
+                  textInputType: TextInputType.number,
+                  controller: goalController.daysCon,
+                ),
+              ),
+            ),
+            SizedBox(
+              width: 15,
+            ),
+            MyText(
+              text: daysPer,
+              size: 16,
+              align: TextAlign.center,
+              weight: FontWeight.w400,
+            ),
+            SizedBox(
+              width: 15,
+            ),
+            Expanded(
+              child: Obx(() => DropdownButtonHideUnderline(
+                child: DropdownButton2(
+                  hint: MyText(
+                    text: select,
+                    size: 15,
+                    weight: FontWeight.w400,
+                    color: kTextColor.withOpacity(0.50),
+                  ),
+                  items: goalController.items
+                      .map(
+                        (item) => DropdownMenuItem<dynamic>(
+                      value: item,
+                      child: MyText(
+                        text: item,
+                        size: 14,
+                      ),
+                    ),
+                  )
+                      .toList(),
+                  value: goalController.selectGoalDaysType.value,
+                  onChanged: (newValue) {
+                    goalController.selectGoalDaysType.value = newValue;
+                  },
+                  icon: Image.asset(
+                    Assets.imagesDropDownIcon,
+                    height: 24,
+                  ),
+                  isDense: true,
+                  isExpanded: true,
+                  buttonHeight: 56,
+                  buttonPadding: EdgeInsets.symmetric(
+                    horizontal: 15,
+                  ),
+                  buttonDecoration: BoxDecoration(
+                    border: Border.all(
+                      color: kBorderColor,
+                      width: 1.0,
+                    ),
+                    borderRadius: BorderRadius.circular(8),
+                    color: kSecondaryColor,
+                  ),
+                  buttonElevation: 0,
+                  itemHeight: 40,
+                  itemPadding: EdgeInsets.symmetric(
+                    horizontal: 15,
+                  ),
+                  dropdownMaxHeight: 200,
+                  dropdownPadding: null,
+                  dropdownDecoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    color: kSecondaryColor,
+                  ),
+                  dropdownElevation: 4,
+                  scrollbarRadius: const Radius.circular(40),
+                  scrollbarThickness: 6,
+                  scrollbarAlwaysShow: true,
+                  offset: const Offset(-2, -5),
+                ),
+              )),
+              flex: 2,
+            )
+          ],
+        ),
+      ],
+    );
+  }
+
+  _buildImportanceWidget() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        MyText(
+          paddingTop: 20,
+          text: howImportantDes,
+          size: 16,
+          weight: FontWeight.w500,
+        ),
+        Obx(() => SliderTheme(
+          data: SliderThemeData(
+            inactiveTickMarkColor: Colors.transparent,
+            activeTickMarkColor: Colors.transparent,
+            disabledActiveTickMarkColor: Colors.transparent,
+            disabledInactiveTickMarkColor: Colors.transparent,
+            inactiveTrackColor: kBorderColor,
+            activeTrackColor: kTertiaryColor,
+            thumbColor: kTertiaryColor,
+            trackShape: CustomTrackShape(),
+          ),
+          child: Slider(
+            min: 0.0,
+            max: 10.0,
+            divisions: 10,
+            onChanged: (value) {
+              goalController.seekbarValue.value = value;
+            },
+            value: goalController.seekbarValue.value,
+          ),
+        )),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            MyText(
+              text: '0',
+              size: 16,
+              color: kTertiaryColor,
+            ),
+            MyText(
+              paddingLeft: 10,
+              text: '5',
+              size: 16,
+              color: kTertiaryColor,
+            ),
+            MyText(
+              text: '10',
+              size: 16,
+              color: kTertiaryColor,
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  _buildMeasureTypeWidget() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        MyText(
+          paddingTop: 25,
+          text: measureTypeDes,
+          size: 16,
+          weight: FontWeight.w500,
+          paddingBottom: 20,
+        ),
+        Obx(() => CustomRadioTile(
+          onTap: () {
+            goalController.isScale.value = false;
+          },
+          isSelected: !goalController.isScale.value,
+          title: measureTypeOptionOne,
+        )),
+        SizedBox(
+          height: 2,
+        ),
+        Obx(() => CustomRadioTile(
+          onTap: () {
+            goalController.isScale.value = true;
+          },
+          isSelected: goalController.isScale.value,
+          title: measureTypeOptionTwo,
+        )),
+      ],
+    );
+  }
+
+  _showGoalCreatedDialog(BuildContext context, HomeController? homeController) {
     showDialog(
       context: context,
       builder: (_) {
@@ -558,7 +588,7 @@ class AddNewGoal extends StatelessWidget {
                   Get.back();
               }
             } else {
-              homeController.getUserGoals();
+              homeController?.getUserGoals();
               Get.back();
             }
           },

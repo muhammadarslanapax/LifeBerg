@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:life_berg/constant/color.dart';
 import 'package:life_berg/generated/assets.dart';
-import 'package:life_berg/utils/instance.dart';
 import 'package:life_berg/view/widget/my_text.dart';
 import 'package:life_berg/view/widget/my_text_field.dart';
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 import '../../../../../controller/auth_controller/complete_profile_controller.dart';
 

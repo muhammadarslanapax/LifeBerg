@@ -18,11 +18,13 @@ import '../../view/screens/auth/complete_profile/complete_profile.dart';
 import '../../view/screens/bottom_nav_bar/bottom_nav_bar.dart';
 
 class LoginController extends GetxController {
+  // Text fields Editing controllers
   TextEditingController emailCon = TextEditingController();
   TextEditingController passCon = TextEditingController();
 
   HttpManager httpManager = HttpManager();
 
+  // Start validation related code
   RxBool isDisable = true.obs;
 
   void getEmail(String value) {
@@ -40,6 +42,9 @@ class LoginController extends GetxController {
     }
   }
 
+  // End validation related code
+
+  // Start All API Call Code
   loginUser() async {
     SmartDialog.showLoading(msg: "Please wait..");
     FocusManager.instance.primaryFocus?.unfocus();
@@ -52,18 +57,7 @@ class LoginController extends GetxController {
         if (value.snapshot is! ErrorResponse) {
           UserResponse userResponse = value.snapshot;
           if (userResponse.success == true) {
-
-            PrefUtils().user = json.encode(userResponse.user);
-            PrefUtils().token = userResponse.token ?? '';
-            PrefUtils().userId = userResponse.token ?? '';
-
-            if(userResponse.user?.userName == null ||
-                userResponse.user?.lifeBergName == null) {
-              Get.to(() => CompleteProfile());
-            }else{
-              Get.offAll(() => BottomNavBar());
-              PrefUtils().loggedIn = true;
-            }
+            _moveToMainScreen(userResponse);
           } else {
             SmartDialog.dismiss();
             ToastUtils.showToast(userResponse.message ?? "", color: kRedColor);
@@ -106,17 +100,7 @@ class LoginController extends GetxController {
             if (response.snapshot! is! ErrorResponse) {
               UserResponse userResponse = response.snapshot;
               if (userResponse.success == true) {
-                PrefUtils().user = json.encode(userResponse.user);
-                PrefUtils().token = userResponse.token ?? '';
-                PrefUtils().userId = userResponse.token ?? '';
-
-                if(userResponse.user?.userName == null ||
-                    userResponse.user?.lifeBergName == null) {
-                  Get.to(() => CompleteProfile());
-                }else{
-                  Get.offAll(() => BottomNavBar());
-                  PrefUtils().loggedIn = true;
-                }
+                _moveToMainScreen(userResponse);
               } else {
                 ToastUtils.showToast(userResponse.message ?? "",
                     color: kRedColor);
@@ -157,17 +141,7 @@ class LoginController extends GetxController {
             if (response.snapshot! is! ErrorResponse) {
               UserResponse userResponse = response.snapshot;
               if (userResponse.success == true) {
-                PrefUtils().user = json.encode(userResponse.user);
-                PrefUtils().token = userResponse.token ?? '';
-                PrefUtils().userId = userResponse.token ?? '';
-
-                if(userResponse.user?.userName == null ||
-                    userResponse.user?.lifeBergName == null) {
-                  Get.to(() => CompleteProfile());
-                }else{
-                  Get.offAll(() => BottomNavBar());
-                  PrefUtils().loggedIn = true;
-                }
+                _moveToMainScreen(userResponse);
               } else {
                 ToastUtils.showToast(userResponse.message ?? "",
                     color: kRedColor);
@@ -201,23 +175,14 @@ class LoginController extends GetxController {
         }
         httpManager
             .socialLogin(
-            userCredential.user?.email ?? "", "facebook", displayName)
+                userCredential.user?.email ?? "", "facebook", displayName)
             .then((response) {
           SmartDialog.dismiss();
           if (response.error == null) {
             if (response.snapshot! is! ErrorResponse) {
               UserResponse userResponse = response.snapshot;
               if (userResponse.success == true) {
-                PrefUtils().user = json.encode(userResponse.user);
-                PrefUtils().token = userResponse.token ?? '';
-                PrefUtils().userId = userResponse.token ?? '';
-                if(userResponse.user?.userName == null ||
-                    userResponse.user?.lifeBergName == null) {
-                  Get.to(() => CompleteProfile());
-                }else{
-                  Get.offAll(() => BottomNavBar());
-                  PrefUtils().loggedIn = true;
-                }
+                _moveToMainScreen(userResponse);
               } else {
                 ToastUtils.showToast(userResponse.message ?? "",
                     color: kRedColor);
@@ -233,5 +198,27 @@ class LoginController extends GetxController {
         });
       }
     });
+  }
+
+  // End All API Call Code
+
+  _moveToMainScreen(UserResponse userResponse) {
+    PrefUtils().user = json.encode(userResponse.user);
+    PrefUtils().token = userResponse.token ?? '';
+    PrefUtils().userId = userResponse.token ?? '';
+    if (userResponse.user?.userName == null ||
+        userResponse.user?.lifeBergName == null) {
+      Get.to(() => CompleteProfile());
+    } else {
+      Get.offAll(() => BottomNavBar());
+      PrefUtils().loggedIn = true;
+    }
+  }
+
+  @override
+  void onClose() {
+    emailCon.dispose();
+    passCon.dispose();
+    super.onClose();
   }
 }

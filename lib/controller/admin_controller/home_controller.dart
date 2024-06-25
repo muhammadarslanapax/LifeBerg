@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
-import 'package:get/get_rx/get_rx.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:life_berg/apis/http_manager.dart';
 import 'package:life_berg/model/generic_response.dart';
@@ -26,7 +25,7 @@ class HomeController extends FullLifeCycleController with FullLifeCycleMixin {
   final HttpManager httpManager = HttpManager();
 
   late TextEditingController moodCommentController;
-  late TextEditingController goalCommentController = TextEditingController();
+  late TextEditingController goalCommentController;
 
   RxBool isLoadingGoals = true.obs;
   RxBool isShowHighlight = false.obs;
@@ -82,28 +81,20 @@ class HomeController extends FullLifeCycleController with FullLifeCycleMixin {
 
   @override
   void onInit() {
+    super.onInit();
     moodCommentController = TextEditingController();
     goalCommentController = TextEditingController();
-    super.onInit();
-    print("onInit");
     _getUserData();
   }
 
   @override
-  void onReady() {
-    super.onReady();
-    print("onReady");
-  }
-
-  @override
   void onClose() {
-    moodCommentController.dispose();
-    goalCommentController.dispose();
+    // moodCommentController.dispose();
+    // goalCommentController.dispose();
     // learnedTodayController.dispose();
     // greatFulController.dispose();
     // tomorrowHighlightController.dispose();
     super.onClose();
-    print("onClose");
   }
 
   updateEmoji(String emoji, int value) {
@@ -200,11 +191,6 @@ class HomeController extends FullLifeCycleController with FullLifeCycleMixin {
     return "0.0";
   }
 
-  String getFirstName(String fullName) {
-    List<String> nameParts = fullName.split(' ');
-    return nameParts[0];
-  }
-
   String getGreeting() {
     final hour = DateTime.now().hour;
 
@@ -220,7 +206,7 @@ class HomeController extends FullLifeCycleController with FullLifeCycleMixin {
   }
 
   updateImageFromAsset() async {
-    SmartDialog.showLoading(msg: "Please wait..");
+    SmartDialog.showLoading(msg: pleaseWait);
     FocusManager.instance.primaryFocus?.unfocus();
     httpManager
         .updateUserImageFromAsset(
@@ -424,7 +410,7 @@ class HomeController extends FullLifeCycleController with FullLifeCycleMixin {
           }
         }
       } else {
-        ToastUtils.showToast("Some error occurred.", color: kRedColor);
+        ToastUtils.showToast(someError, color: kRedColor);
       }
     });
   }
@@ -491,29 +477,20 @@ class HomeController extends FullLifeCycleController with FullLifeCycleMixin {
   }
 
   @override
-  void onDetached() {
-    print("onDetached");
-  }
+  void onDetached() {}
 
   @override
-  void onHidden() {
-    print("onHidden");
-  }
+  void onHidden() {}
 
   @override
-  void onInactive() {
-    print("onInactive");
-  }
+  void onInactive() {}
 
   @override
-  void onPaused() {
-    print("onPause");
-  }
+  void onPaused() {}
 
   @override
   void onResumed() {
     _getUserData(isShowLoading: false);
-    print("onResume");
   }
 
   @override
@@ -521,21 +498,14 @@ class HomeController extends FullLifeCycleController with FullLifeCycleMixin {
     super.didChangeAppLifecycleState(state);
     switch (state) {
       case AppLifecycleState.resumed:
-        print("App Resumed");
-        // instantSubmit();
         break;
       case AppLifecycleState.inactive:
-        print("App InActive");
         break;
       case AppLifecycleState.paused:
-        print("App Paused");
         break;
       case AppLifecycleState.detached:
-        print("App Detached");
         break;
       case AppLifecycleState.hidden:
-        // TODO: Handle this case.
-        print("Hidden");
         break;
     }
   }

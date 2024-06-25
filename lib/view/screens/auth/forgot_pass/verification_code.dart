@@ -34,9 +34,6 @@ class VerificationCode extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kPrimaryColor,
-      // appBar: simpleAppBar(
-      //   title: 'Back',
-      // ),
       body: Column(
         children: [
           SizedBox(

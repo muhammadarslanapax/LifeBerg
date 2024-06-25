@@ -1,12 +1,11 @@
 import 'dart:io';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:life_berg/constant/color.dart';
 import 'package:life_berg/constant/sizes_constant.dart';
-import 'package:life_berg/controller/auth_controller/goal_controller.dart';
+import 'package:life_berg/constant/strings.dart';
 import 'package:life_berg/controller/auth_controller/onboarding_controller.dart';
 import 'package:life_berg/generated/assets.dart';
 import 'package:life_berg/view/screens/setup_goal/vocation_goal.dart';
@@ -18,15 +17,15 @@ import 'package:life_berg/view/widget/toggle_button.dart';
 import 'package:lottie/lottie.dart';
 
 class WellBeing extends StatelessWidget {
-
-  final OnboardingController onboardingController = Get.put(OnboardingController());
+  final OnboardingController onboardingController =
+      Get.put(OnboardingController());
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: kPrimaryColor,
       appBar: simpleAppBar(
-        title: 'Back',
+        title: back,
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -72,17 +71,19 @@ class WellBeing extends StatelessWidget {
                                       () {
                                         return ToggleButton(
                                           horizontalPadding: 10.0,
-                                          onTap: () =>
-                                              onboardingController.getWellBeing(i),
+                                          onTap: () => onboardingController
+                                              .getWellBeing(i),
                                           text: element,
-                                          isSelected:
-                                          onboardingController.wellBeingIndex == i,
+                                          isSelected: onboardingController
+                                                  .wellBeingIndex ==
+                                              i,
                                         );
                                       },
                                     )
                                   : GestureDetector(
                                       onTap: () {
-                                        onboardingController.openAddNewGoalPage("wellbeing");
+                                        onboardingController
+                                            .openAddNewGoalPage("wellbeing");
                                       },
                                       child: Container(
                                         width: 42,
@@ -116,7 +117,8 @@ class WellBeing extends StatelessWidget {
                     radius: 16,
                     isDisable: false,
                     text: 'Create your goal',
-                    onTap: () => onboardingController.openAddNewGoalPage("wellbeing"),
+                    onTap: () =>
+                        onboardingController.openAddNewGoalPage("wellbeing"),
                   ),
                 ),
                 SizedBox(
@@ -127,7 +129,7 @@ class WellBeing extends StatelessWidget {
                   child: MyBorderButton(
                     height: 56,
                     radius: 16,
-                    text: 'Skip',
+                    text: skip,
                     onTap: () => Get.to(() => VocationGoal()),
                   ),
                 ),
@@ -141,5 +143,4 @@ class WellBeing extends StatelessWidget {
       ),
     );
   }
-
 }
