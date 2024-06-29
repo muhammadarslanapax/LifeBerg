@@ -55,7 +55,9 @@ class MyApp extends StatelessWidget {
       child: GetMaterialApp(
         debugShowCheckedModeBanner: false,
         debugShowMaterialGrid: false,
-        theme: lightTheme,
+        theme: lightTheme.copyWith(
+          useMaterial3: false
+        ),
         builder: FlutterSmartDialog.init(),
         themeMode: ThemeMode.light,
         title: 'LifeBerg',

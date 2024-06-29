@@ -118,22 +118,21 @@ class Home extends StatelessWidget {
             paddingBottom: 12,
           ),
           DailyMoodReport(),
-          Obx(() =>
-          homeController.isLoadingGoals.value
+          Obx(() => homeController.isLoadingGoals.value
               ? Container(
-            height: 300,
-            child: Center(
-              child: CircularProgressIndicator(),
-            ),
-          )
+                  height: 300,
+                  child: Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                )
               : Column(
-            children: [
-              _buildWellbeingList(),
-              _buildVocationList(),
-              _buildPersonalDevList(),
-              _buildTomorrowHighlight(),
-            ],
-          )),
+                  children: [
+                    _buildWellbeingList(),
+                    _buildVocationList(),
+                    _buildPersonalDevList(),
+                    _buildTomorrowHighlight(),
+                  ],
+                )),
           SizedBox(
             height: 80,
           ),
@@ -141,12 +140,11 @@ class Home extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         heroTag: "home_floating_button",
-        onPressed: () =>
-            Get.to(() => AddNewGoal(), arguments: {
-              "goalCategory": selectCategory,
-              "goalName": "",
-              "isComingFromOnBoarding": false
-            }),
+        onPressed: () => Get.to(() => AddNewGoal(), arguments: {
+          "goalCategory": selectCategory,
+          "goalName": "",
+          "isComingFromOnBoarding": false
+        }),
         elevation: 0,
         highlightElevation: 0,
         backgroundColor: Colors.transparent,
@@ -161,14 +159,15 @@ class Home extends StatelessWidget {
   Widget _buildWellbeingList() {
     return Column(
       children: [
-        homeController.isLoadingGoals.value == false &&
-            homeController.wellBeingGoals.isNotEmpty
-            ? ProfileHeading(
-          marginTop: 24,
-          heading: wellBeing,
-          leadingColor: kStreaksColor,
-        )
-            : Container(),
+        Visibility(
+          visible: homeController.isLoadingGoals.value == false &&
+              homeController.wellBeingGoals.isNotEmpty,
+          child: ProfileHeading(
+            marginTop: 24,
+            heading: wellBeing,
+            leadingColor: kStreaksColor,
+          ),
+        ),
         ListView.builder(
           itemBuilder: (BuildContext ctx, index) {
             return HomeGoalTile(
@@ -177,23 +176,23 @@ class Home extends StatelessWidget {
               progress: homeController.wellBeingGoals[index].sliderValue,
               onCheckBoxTap: () {
                 homeController.wellBeingGoals[index].isChecked.value =
-                !homeController.wellBeingGoals[index].isChecked.value;
+                    !homeController.wellBeingGoals[index].isChecked.value;
               },
               onProgressChange: (value) {
                 homeController.wellBeingGoals[index].sliderValue.value = value;
               },
               haveCheckBox:
-              homeController.wellBeingGoals[index].goalMeasure?.type ==
-                  "boolean",
+                  homeController.wellBeingGoals[index].goalMeasure?.type ==
+                      "boolean",
               checkBoxValue: homeController.wellBeingGoals[index].isChecked,
               haveSlider:
-              homeController.wellBeingGoals[index].goalMeasure?.type ==
-                  "string",
+                  homeController.wellBeingGoals[index].goalMeasure?.type ==
+                      "string",
               goal: homeController.wellBeingGoals[index],
               title: homeController.wellBeingGoals[index].name ?? "",
               imageBgColor: kStreaksBgColor,
               leadingIcon:
-              "assets/goal_icons/${homeController.wellBeingGoals[index].icon}",
+                  "assets/goal_icons/${homeController.wellBeingGoals[index].icon}",
               leadingColor: kStreaksColor,
             );
           },
@@ -208,14 +207,15 @@ class Home extends StatelessWidget {
   Widget _buildVocationList() {
     return Column(
       children: [
-        homeController.isLoadingGoals.value == false &&
-            homeController.vocationalGoals.isNotEmpty
-            ? ProfileHeading(
-          marginTop: 24,
-          heading: vocational,
-          leadingColor: kRACGPExamColor,
-        )
-            : Container(),
+        Visibility(
+          visible: homeController.isLoadingGoals.value == false &&
+              homeController.vocationalGoals.isNotEmpty,
+          child: ProfileHeading(
+            marginTop: 24,
+            heading: vocational,
+            leadingColor: kRACGPExamColor,
+          ),
+        ),
         ListView.builder(
           itemBuilder: (BuildContext ctx, index) {
             return HomeGoalTile(
@@ -224,23 +224,23 @@ class Home extends StatelessWidget {
               goal: homeController.vocationalGoals[index],
               onCheckBoxTap: () {
                 homeController.vocationalGoals[index].isChecked.value =
-                !homeController.vocationalGoals[index].isChecked.value;
+                    !homeController.vocationalGoals[index].isChecked.value;
               },
               onProgressChange: (value) {
                 homeController.vocationalGoals[index].sliderValue.value = value;
               },
               progress: homeController.vocationalGoals[index].sliderValue,
               haveCheckBox:
-              homeController.vocationalGoals[index].goalMeasure?.type ==
-                  "boolean",
+                  homeController.vocationalGoals[index].goalMeasure?.type ==
+                      "boolean",
               haveSlider:
-              homeController.vocationalGoals[index].goalMeasure?.type ==
-                  "string",
+                  homeController.vocationalGoals[index].goalMeasure?.type ==
+                      "string",
               imageBgColor: kRACGPBGExamColor,
               checkBoxValue: homeController.vocationalGoals[index].isChecked,
               title: homeController.vocationalGoals[index].name ?? "",
               leadingIcon:
-              "assets/goal_icons/${homeController.vocationalGoals[index].icon}",
+                  "assets/goal_icons/${homeController.vocationalGoals[index].icon}",
               leadingColor: kRACGPExamColor,
             );
           },
@@ -265,7 +265,7 @@ class Home extends StatelessWidget {
           index: 0,
           onCheckBoxTap: () {
             homeController.isHighlightChecked.value =
-            !homeController.isHighlightChecked.value;
+                !homeController.isHighlightChecked.value;
           },
           checkBoxValue: homeController.isHighlightChecked,
           haveCheckBox: true,
@@ -283,28 +283,25 @@ class Home extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Obx(() =>
-            Visibility(
+        Obx(() => Visibility(
               child: _buildTomorrowHighlightWidget(),
               visible: homeController.isShowHighlight.value == true,
             )),
         SizedBox(
           height: 18,
         ),
-        Obx(() =>
-            Visibility(
+        Obx(() => Visibility(
               child: MyButton(
                 text: submit,
                 radius: 16,
                 height: 56,
-                onTap: () =>
-                    Get.to(
-                          () => EndOfDayReport(),
-                    ),
+                onTap: () => Get.to(
+                  () => EndOfDayReport(),
+                ),
               ),
-              visible: (homeController.wellBeingGoals.isEmpty &&
-                  homeController.vocationalGoals.isEmpty &&
-                  homeController.personalDevGoals.isEmpty),
+              visible: (homeController.wellBeingGoals.isNotEmpty ||
+                  homeController.vocationalGoals.isNotEmpty ||
+                  homeController.personalDevGoals.isNotEmpty),
             )),
       ],
     );
@@ -313,14 +310,15 @@ class Home extends StatelessWidget {
   Widget _buildPersonalDevList() {
     return Column(
       children: [
-        homeController.isLoadingGoals.value == false &&
-            homeController.personalDevGoals.isNotEmpty
-            ? ProfileHeading(
-          marginTop: 24,
-          heading: personalDevelopment,
-          leadingColor: kDailyGratitudeColor,
-        )
-            : Container(),
+        Visibility(
+          child: ProfileHeading(
+            marginTop: 24,
+            heading: personalDevelopment,
+            leadingColor: kDailyGratitudeColor,
+          ),
+          visible: homeController.isLoadingGoals.value == false &&
+              homeController.personalDevGoals.isNotEmpty,
+        ),
         ListView.builder(
           itemBuilder: (BuildContext ctx, index) {
             return HomeGoalTile(
@@ -328,7 +326,7 @@ class Home extends StatelessWidget {
               index: index,
               onCheckBoxTap: () {
                 homeController.personalDevGoals[index].isChecked.value =
-                !homeController.personalDevGoals[index].isChecked.value;
+                    !homeController.personalDevGoals[index].isChecked.value;
               },
               progress: homeController.personalDevGoals[index].sliderValue,
               checkBoxValue: homeController.personalDevGoals[index].isChecked,
@@ -338,16 +336,15 @@ class Home extends StatelessWidget {
                     value;
               },
               haveCheckBox:
-              homeController.personalDevGoals[index].goalMeasure?.type ==
-                  "boolean",
+                  homeController.personalDevGoals[index].goalMeasure?.type ==
+                      "boolean",
               haveSlider:
-              homeController.personalDevGoals[index].goalMeasure?.type ==
-                  "string",
+                  homeController.personalDevGoals[index].goalMeasure?.type ==
+                      "string",
               imageBgColor: kDailyGratitudeBgColor,
               title: homeController.personalDevGoals[index].name ?? "",
               leadingIcon:
-              "assets/goal_icons/${homeController.personalDevGoals[index]
-                  .icon}",
+                  "assets/goal_icons/${homeController.personalDevGoals[index].icon}",
               leadingColor: kDailyGratitudeColor,
             );
           },
@@ -414,9 +411,12 @@ class Home extends StatelessWidget {
                                       source: ImageSource.gallery);
                                   if (file != null) {
                                     homeController.xFile = file;
-                                    homeController.imageFilePath.value =
-                                        file.path;
-                                    homeController.updateUserImage();
+                                    homeController.updateUserImage((isSuccess){
+                                      if(isSuccess) {
+                                        homeController.imageFilePath.value =
+                                            file.path;
+                                      }
+                                    });
                                     Navigator.of(context).pop();
                                   }
                                 },
@@ -465,23 +465,21 @@ class Home extends StatelessWidget {
                   },
                 );
               },
-              child: Obx(() =>
-              homeController.imageFilePath != ""
+              child: Obx(() => homeController.imageFilePath != ""
                   ? CommonImageView(
-                height: 45,
-                width: 45,
-                radius: 100.0,
-                file: File(homeController.imageFilePath.value),
-              )
+                      height: 45,
+                      width: 45,
+                      radius: 100.0,
+                      file: File(homeController.imageFilePath.value),
+                    )
                   : CommonImageView(
-                height: 45,
-                width: 45,
-                radius: 100.0,
-                url: homeController.userProfileImageUrl.value.isNotEmpty
-                    ? "${ApiConstants.BASE_IMAGE_URL}${homeController
-                    .userProfileImageUrl.value}"
-                    : "error",
-              )),
+                      height: 45,
+                      width: 45,
+                      radius: 100.0,
+                      url: homeController.userProfileImageUrl.value.isNotEmpty
+                          ? "${ApiConstants.BASE_IMAGE_URL}${homeController.userProfileImageUrl.value}"
+                          : "error",
+                    )),
             ),
           ),
         ],
@@ -490,11 +488,9 @@ class Home extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Obx(() =>
-              MyText(
+          Obx(() => MyText(
                 text:
-                '${homeController.getGreeting()}, ${homeController.userName
-                    .value}!',
+                    '${homeController.getGreeting()}, ${homeController.userName.value}!',
                 size: 16,
                 weight: FontWeight.w500,
                 color: Colors.white,
@@ -503,14 +499,12 @@ class Home extends StatelessWidget {
             height: 8,
           ),
           GestureDetector(
-            onTap: () =>
-                Get.offAll(
-                      () =>
-                      BottomNavBar(
-                        currentIndex: 4,
-                        currentRoute: '/personal_statistics',
-                      ),
-                ),
+            onTap: () => Get.offAll(
+              () => BottomNavBar(
+                currentIndex: 4,
+                currentRoute: '/personal_statistics',
+              ),
+            ),
             child: Container(
               color: Colors.transparent,
               child: Row(

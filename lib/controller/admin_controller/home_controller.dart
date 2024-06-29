@@ -238,7 +238,7 @@ class HomeController extends FullLifeCycleController with FullLifeCycleMixin {
     });
   }
 
-  updateUserImage() async {
+  updateUserImage(Function(bool isSuccess) imageUploadedCallback) async {
     SmartDialog.showLoading(msg: pleaseWait);
     FocusManager.instance.primaryFocus?.unfocus();
     httpManager
@@ -249,21 +249,23 @@ class HomeController extends FullLifeCycleController with FullLifeCycleMixin {
         if (value.snapshot is! ErrorResponse) {
           UserResponse userResponse = value.snapshot;
           if (userResponse.success == true) {
+            imageUploadedCallback(true);
             selectedAvatar.value = "";
             this.user?.profilePicture = userResponse.user?.profilePicture;
             userProfileImageUrl.value = user?.profilePicture ?? "";
             PrefUtils().user = json.encode(user);
           } else {
-            SmartDialog.dismiss();
+            imageUploadedCallback(false);
             ToastUtils.showToast(userResponse.message ?? "", color: kRedColor);
           }
         } else {
-          ErrorResponse errorResponse = value.snapshot;
-          ToastUtils.showToast(errorResponse.error!.details!.message ?? "",
+          imageUploadedCallback(false);
+          ToastUtils.showToast("Some error occurred. please upload image again.",
               color: kRedColor);
         }
       } else {
-        ToastUtils.showToast(value.error ?? "", color: kRedColor);
+        imageUploadedCallback(false);
+        ToastUtils.showToast("Some error occurred. please upload image again.", color: kRedColor);
       }
     });
   }
