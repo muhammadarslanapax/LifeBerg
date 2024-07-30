@@ -1,8 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:life_berg/constant/color.dart';
 import 'package:life_berg/generated/assets.dart';
+import 'package:life_berg/utils/pref_utils.dart';
+import 'package:life_berg/utils/utility.dart';
 import 'package:life_berg/view/screens/setup_goal/add_new_goal.dart';
 import 'package:life_berg/view/widget/custom_bottom_sheet.dart';
 import 'package:life_berg/view/widget/custom_slider.dart';
@@ -115,6 +119,10 @@ class _HomeGoalTileState extends State<HomeGoalTile> {
                         onTap: () {
                           Get.back();
                           widget.goal!.isSkipped.value = true;
+                          homeController.skippedGoalIds.add(widget.goal!.sId!);
+                          PrefUtils().setSkippedGoals =
+                              jsonEncode(homeController.skippedGoalIds);
+                          homeController.calculatePercentage();
                         },
                       ),
                     ],
@@ -151,6 +159,11 @@ class _HomeGoalTileState extends State<HomeGoalTile> {
                         onTap: () {
                           Get.back();
                           widget.goal!.isSkipped.value = false;
+                          homeController.skippedGoalIds
+                              .remove(widget.goal!.sId!);
+                          PrefUtils().setSkippedGoals =
+                              jsonEncode(homeController.skippedGoalIds);
+                          homeController.calculatePercentage();
                         },
                       ),
                     ],
@@ -277,6 +290,7 @@ class _HomeGoalTileState extends State<HomeGoalTile> {
       },
       onLongPress: () {
         if (widget.type != "daily_highlight") {
+          makeVibration();
           _showContextMenu(context);
         }
       },
@@ -306,13 +320,14 @@ class _HomeGoalTileState extends State<HomeGoalTile> {
                   color: widget.imageBgColor,
                   borderRadius: BorderRadius.all(Radius.circular(4))),
               padding: EdgeInsets.all(3.0),
-              child: widget.type == "daily_highlight"
+              child: /*widget.type == "daily_highlight"
                   ? SvgPicture.asset(widget.leadingIcon!,
                       color: widget.leadingColor)
-                  : Image.asset(
-                      widget.leadingIcon!,
-                      color: widget.leadingColor,
-                    ),
+                  :*/
+                  Image.asset(
+                widget.leadingIcon!,
+                color: widget.leadingColor,
+              ),
             ),
             Expanded(
               child: MyText(

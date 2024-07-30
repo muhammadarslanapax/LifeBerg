@@ -31,7 +31,7 @@ class Journal extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Padding(
-                padding: EdgeInsets.only(right: 50, top: 15, bottom: 15),
+                padding: EdgeInsets.only(right: 0, top: 15, bottom: 15),
                 child: SizedBox(
                   height: 41,
                   child: Center(

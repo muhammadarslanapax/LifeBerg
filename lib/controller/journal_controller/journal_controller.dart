@@ -16,6 +16,7 @@ import 'package:life_berg/view/screens/journal/journal_tabs/development_entries.
 import '../../constant/color.dart';
 import '../../model/error/error_response.dart';
 import '../../model/generic_response.dart';
+import '../../model/goal/goal.dart';
 import '../../utils/pref_utils.dart';
 import '../../utils/toast_utils.dart';
 
@@ -259,6 +260,35 @@ class JournalController extends GetxController
         }
       } else {
         onJournalCreate(false);
+        ToastUtils.showToast(someError, color: kRedColor);
+      }
+    });
+  }
+
+  submitReport(Function(bool isSuccess) onReportSubmit, String highlight,
+      List<Goal> goals) {
+    FocusManager.instance.primaryFocus?.unfocus();
+    SmartDialog.showLoading(msg: pleaseWait);
+    httpManager
+        .submitGoalReport(
+      PrefUtils().token,
+      highlight,
+      goals,
+    )
+        .then((response) {
+      if (response.error == null) {
+        if (response.snapshot! is! ErrorResponse) {
+          GenericResponse genericResponse = response.snapshot;
+          if (genericResponse.success == true) {
+            onReportSubmit(true);
+          } else {
+            SmartDialog.dismiss();
+            onReportSubmit(false);
+          }
+        }
+      } else {
+        SmartDialog.dismiss();
+        onReportSubmit(false);
         ToastUtils.showToast(someError, color: kRedColor);
       }
     });

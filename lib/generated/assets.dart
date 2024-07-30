@@ -603,4 +603,9 @@ class Assets {
   static const String imagesWorkProductivity =
       'assets/images/work_productivity.png';
   static const String imagesYoutube = 'assets/images/youtube.png';
+  static const String iceBergImageOne = 'assets/images/iceberg_1.json';
+  static const String iceBergImageTwo = 'assets/images/iceberg_2.json';
+  static const String iceBergImageThree = 'assets/images/iceberg_3.json';
+  static const String iceBergImageFour = 'assets/images/iceberg_4.json';
+  static const String iceBergImageFive = 'assets/images/iceberg_5.json';
 }

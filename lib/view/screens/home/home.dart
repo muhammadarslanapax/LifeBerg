@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -33,13 +34,36 @@ class Home extends StatelessWidget {
 
   final ImagePicker picker = ImagePicker();
 
-  _buildProgressWidgets() {
+  _buildProgressWidgets(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        MainHeading(
-          text: todayProgress,
-          paddingBottom: 22,
+        Row(
+          children: [
+            Expanded(
+              child: MainHeading(
+                text: todayProgress,
+                paddingBottom: 22,
+              ),
+            ),
+            GestureDetector(
+              onTap: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.transparent,
+                  elevation: 0,
+                  builder: (_) {
+                    return MessageFromTimmy();
+                  },
+                );
+              },
+              child: Image.asset(
+                Assets.imagesLifeRing,
+                height: 24,
+              ),
+            ),
+          ],
         ),
         Padding(
           padding: EdgeInsets.only(
@@ -50,25 +74,26 @@ class Home extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              CircularStepProgressIndicator(
-                totalSteps: 100,
-                currentStep: 0,
-                selectedStepSize: 7,
-                unselectedStepSize: 5,
-                padding: 0,
-                width: 94,
-                height: 94,
-                startingAngle: 70,
-                roundedCap: (_, __) => true,
-                selectedColor: kDarkBlueColor,
-                unselectedColor: kUnSelectedColor,
-                child: Center(
-                  child: MyText(
-                    text: '0%',
-                    size: 24,
-                  ),
-                ),
-              ),
+              Obx(() => CircularStepProgressIndicator(
+                    totalSteps: 100,
+                    currentStep: homeController.globalPercentage.value.toInt(),
+                    selectedStepSize: 7,
+                    unselectedStepSize: 5,
+                    padding: 0,
+                    width: 94,
+                    height: 94,
+                    startingAngle: 70,
+                    roundedCap: (_, __) => true,
+                    selectedColor: kDarkBlueColor,
+                    unselectedColor: kUnSelectedColor,
+                    child: Center(
+                      child: MyText(
+                        text:
+                            '${homeController.globalPercentage.value.toInt()}%',
+                        size: 24,
+                      ),
+                    ),
+                  )),
               SizedBox(
                 width: 32,
               ),
@@ -76,21 +101,28 @@ class Home extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    ProgressWidget(
-                      title: wellBeing,
-                      currentStep: 0,
-                      selectedColor: kStreaksColor,
+                    Obx(() => ProgressWidget(
+                          title: wellBeing,
+                          currentStep:
+                              homeController.wellbeingPercentage.value.toInt(),
+                          selectedColor: kStreaksColor,
+                        )),
+                    Obx(
+                      () => ProgressWidget(
+                        title: vocational,
+                        currentStep:
+                            homeController.vocationPercentage.value.toInt(),
+                        selectedColor: kRACGPExamColor,
+                      ),
                     ),
-                    ProgressWidget(
-                      title: vocational,
-                      currentStep: 0,
-                      selectedColor: kRACGPExamColor,
-                    ),
-                    ProgressWidget(
-                      title: development,
-                      currentStep: 0,
-                      selectedColor: kDailyGratitudeColor,
-                    ),
+                    Obx(
+                      () => ProgressWidget(
+                        title: development,
+                        currentStep:
+                            homeController.personalDevPercentage.value.toInt(),
+                        selectedColor: kDailyGratitudeColor,
+                      ),
+                    )
                   ],
                 ),
               ),
@@ -111,7 +143,7 @@ class Home extends StatelessWidget {
         physics: BouncingScrollPhysics(),
         padding: EdgeInsets.all(15),
         children: [
-          _buildProgressWidgets(),
+          _buildProgressWidgets(context),
           MainHeading(
             paddingTop: 22,
             text: howAreYouToday,
@@ -177,9 +209,11 @@ class Home extends StatelessWidget {
               onCheckBoxTap: () {
                 homeController.wellBeingGoals[index].isChecked.value =
                     !homeController.wellBeingGoals[index].isChecked.value;
+                homeController.calculatePercentage();
               },
               onProgressChange: (value) {
                 homeController.wellBeingGoals[index].sliderValue.value = value;
+                homeController.calculatePercentage();
               },
               haveCheckBox:
                   homeController.wellBeingGoals[index].goalMeasure?.type ==
@@ -225,9 +259,11 @@ class Home extends StatelessWidget {
               onCheckBoxTap: () {
                 homeController.vocationalGoals[index].isChecked.value =
                     !homeController.vocationalGoals[index].isChecked.value;
+                homeController.calculatePercentage();
               },
               onProgressChange: (value) {
                 homeController.vocationalGoals[index].sliderValue.value = value;
+                homeController.calculatePercentage();
               },
               progress: homeController.vocationalGoals[index].sliderValue,
               haveCheckBox:
@@ -272,7 +308,7 @@ class Home extends StatelessWidget {
           haveSlider: false,
           imageBgColor: kDayStepLightColor,
           title: PrefUtils().tomorrowHighlightGoal,
-          leadingIcon: "assets/images/ic_highlight.svg",
+          leadingIcon: "assets/goal_icons/sun_1.png",
           leadingColor: kDayStepColor,
         ),
       ],
@@ -292,7 +328,9 @@ class Home extends StatelessWidget {
         ),
         Obx(() => Visibility(
               child: MyButton(
-                text: submit,
+                text: homeController.isGoalSubmittedToday.value == true
+                    ? reSubmit
+                    : submit,
                 radius: 16,
                 height: 56,
                 onTap: () => Get.to(
@@ -327,6 +365,7 @@ class Home extends StatelessWidget {
               onCheckBoxTap: () {
                 homeController.personalDevGoals[index].isChecked.value =
                     !homeController.personalDevGoals[index].isChecked.value;
+                homeController.calculatePercentage();
               },
               progress: homeController.personalDevGoals[index].sliderValue,
               checkBoxValue: homeController.personalDevGoals[index].isChecked,
@@ -334,6 +373,7 @@ class Home extends StatelessWidget {
               onProgressChange: (value) {
                 homeController.personalDevGoals[index].sliderValue.value =
                     value;
+                homeController.calculatePercentage();
               },
               haveCheckBox:
                   homeController.personalDevGoals[index].goalMeasure?.type ==
@@ -411,8 +451,8 @@ class Home extends StatelessWidget {
                                       source: ImageSource.gallery);
                                   if (file != null) {
                                     homeController.xFile = file;
-                                    homeController.updateUserImage((isSuccess){
-                                      if(isSuccess) {
+                                    homeController.updateUserImage((isSuccess) {
+                                      if (isSuccess) {
                                         homeController.imageFilePath.value =
                                             file.path;
                                       }
@@ -514,13 +554,16 @@ class Home extends StatelessWidget {
                     height: 12,
                     color: Colors.white,
                   ),
-                  MyText(
-                    text: 'Streak: 24 days',
-                    size: 12,
-                    paddingLeft: 4,
-                    paddingRight: 10,
-                    color: Colors.white,
-                  ),
+                  Obx(
+                    () => MyText(
+                      text:
+                          'Streak: ${homeController.streakDays.value} ${homeController.streakDays.value > 1 ? 'days' : 'day'}',
+                      size: 12,
+                      paddingLeft: 4,
+                      paddingRight: 10,
+                      color: Colors.white,
+                    ),
+                  )
                 ],
               ),
             ),

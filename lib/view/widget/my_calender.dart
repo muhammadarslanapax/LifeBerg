@@ -4,16 +4,23 @@ import 'package:life_berg/constant/color.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class MyCalender extends StatefulWidget {
+  final Function(DateTime? selectedDateTime)? onDateSelect;
+
+  MyCalender({this.onDateSelect, Key? key}) : super(key: key);
+
   @override
   State<MyCalender> createState() => _MyCalenderState();
 }
 
 class _MyCalenderState extends State<MyCalender> {
+  DateTime focusedDate = DateTime.now();
+  DateTime? selectedDate;
+
   TextStyle _calendarTextStyle = TextStyle(
     fontSize: 12,
     fontWeight: FontWeight.w400,
     fontFamily: 'Ubuntu',
-    color: kTextColor,
+    color: Colors.black, // Replace with your color
   );
   TextStyle _disableTextStyle = TextStyle(
     fontSize: 12,
@@ -25,7 +32,7 @@ class _MyCalenderState extends State<MyCalender> {
     fontSize: 12,
     fontWeight: FontWeight.w400,
     fontFamily: 'Ubuntu',
-    color: kSecondaryColor,
+    color: Colors.red, // Replace with your color
   );
 
   @override
@@ -35,12 +42,15 @@ class _MyCalenderState extends State<MyCalender> {
       child: TableCalendar(
         firstDay: DateTime.utc(2010, 10, 16),
         lastDay: DateTime.utc(2030, 3, 14),
-        focusedDay: DateTime.now(),
+        focusedDay: focusedDate,
+        selectedDayPredicate: (day) {
+          return isSameDay(selectedDate, day);
+        },
         headerStyle: HeaderStyle(
           titleTextStyle: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w500,
-            color: kTextColor,
+            color: Colors.black, // Replace with your color
           ),
           titleCentered: true,
           formatButtonVisible: false,
@@ -49,6 +59,11 @@ class _MyCalenderState extends State<MyCalender> {
         ),
         calendarStyle: CalendarStyle(
           cellAlignment: Alignment.center,
+          selectedDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(2),
+            color: kBlueColor,
+          ),
+          defaultDecoration: BoxDecoration(color: Colors.transparent),
           markerMargin: EdgeInsets.zero,
           cellPadding: EdgeInsets.zero,
           cellMargin: EdgeInsets.only(
@@ -61,7 +76,7 @@ class _MyCalenderState extends State<MyCalender> {
           defaultTextStyle: _calendarTextStyle,
           disabledTextStyle: _calendarTextStyle,
           outsideTextStyle: _disableTextStyle,
-          selectedTextStyle: _calendarTextStyle,
+          selectedTextStyle: _calendarTextStyle.copyWith(color: Colors.white),
           rangeEndTextStyle: _calendarTextStyle,
           rangeStartTextStyle: _calendarTextStyle,
           todayTextStyle: _todayTextStyle,
@@ -70,20 +85,19 @@ class _MyCalenderState extends State<MyCalender> {
           withinRangeTextStyle: _calendarTextStyle,
           todayDecoration: BoxDecoration(
             borderRadius: BorderRadius.circular(2),
-            color: kDarkBlueColor,
+            color: Colors.blue,
           ),
           tablePadding: EdgeInsets.zero,
         ),
-        // calendarFormat: _calendarFormat,
-        // onFormatChanged: (format) {
-        //   setState(() {
-        //     _calendarFormat = format;
-        //   });
-        // },
-        // selectedDayPredicate: (day) {
-        //   return day.isUtc;
-        // },
-        // onDaySelected: (selectedDay, focusedDay) {},
+        onDaySelected: (selectedDay, focusedDay) {
+          setState(() {
+            selectedDate = selectedDay;
+            focusedDate = focusedDay;
+          });
+          if (widget.onDateSelect != null) {
+            widget.onDateSelect!(selectedDay);
+          }
+        },
       ),
     );
   }

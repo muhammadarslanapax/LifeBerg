@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:life_berg/constant/color.dart';
 import 'package:life_berg/generated/assets.dart';
+import 'package:life_berg/utils/toast_utils.dart';
+import 'package:life_berg/view/screens/settings/settings_screens/settings_controller.dart';
 import 'package:life_berg/view/widget/my_button.dart';
 import 'package:life_berg/view/widget/my_dialog.dart';
 import 'package:life_berg/view/widget/my_text.dart';
@@ -10,6 +12,8 @@ import 'package:life_berg/view/widget/simple_app_bar.dart';
 
 // ignore: must_be_immutable
 class ResetPass extends StatelessWidget {
+  final SettingsController settingsController = Get.find<SettingsController>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,33 +54,44 @@ class ResetPass extends StatelessWidget {
             hint: 'Current Password',
             isObSecure: true,
             haveObSecureIcon: true,
+            controller: settingsController.currentPassController,
           ),
           MyTextField(
             hint: 'New Password',
             isObSecure: true,
             haveObSecureIcon: true,
+            controller: settingsController.mewPassController,
           ),
           MyTextField(
             hint: 'Confirm Password',
             isObSecure: true,
             haveObSecureIcon: true,
             marginBottom: 25,
+            controller: settingsController.confirmPassController,
           ),
           MyButton(
             isDisable: false,
             text: 'Reset Password',
             onTap: () {
-              showDialog(
-                context: context,
-                builder: (_) {
-                  return MyDialog(
-                    height: 184,
-                    heading: 'Reset Password',
-                    content: 'Your current password has been reset.',
-                    onOkay: () => Get.back(),
-                  );
-                },
-              );
+              String currentPassword =
+                  settingsController.currentPassController.text;
+              String newPassword = settingsController.mewPassController.text;
+              String confirmPassword =
+                  settingsController.confirmPassController.text;
+              if (currentPassword.isNotEmpty &&
+                  newPassword.isNotEmpty &&
+                  confirmPassword.isNotEmpty) {
+                if (newPassword == confirmPassword) {
+                  settingsController.resetPassword(
+                      context, currentPassword, newPassword);
+                } else {
+                  ToastUtils.showToast("Passwords did not match.",
+                      color: kRedColor);
+                }
+              } else {
+                ToastUtils.showToast("Please fill out all the fields.",
+                    color: kRedColor);
+              }
             },
           ),
           Spacer(

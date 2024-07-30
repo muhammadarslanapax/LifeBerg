@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:life_berg/constant/color.dart';
 import 'package:life_berg/generated/assets.dart';
+import 'package:life_berg/view/screens/personal_statistics/score_board/score_board_controller.dart';
+import 'package:life_berg/view/screens/personal_statistics/statistics_controller.dart';
 import 'package:life_berg/view/widget/custom_drop_down.dart';
 import 'package:life_berg/view/widget/custom_icon_tile.dart';
 import 'package:life_berg/view/widget/heading_action_tile.dart';
@@ -10,7 +12,12 @@ import 'package:life_berg/view/widget/my_text.dart';
 import 'package:life_berg/view/widget/simple_app_bar.dart';
 
 class ScoreBoard extends StatelessWidget {
-  const ScoreBoard({Key? key}) : super(key: key);
+  ScoreBoard({Key? key}) : super(key: key);
+
+  final StatisticsController statisticsController =
+      Get.find<StatisticsController>();
+  final ScoreBoardController scoreBoardController =
+      Get.put(ScoreBoardController());
 
   @override
   Widget build(BuildContext context) {
@@ -47,33 +54,57 @@ class ScoreBoard extends StatelessWidget {
                   position: RelativeRect.fromLTRB(110.0, 170.0, 0.0, 0.0),
                   items: [
                     menuItem(
-                      title: 'Past week',
-                      icon: '',
-                    ),
+                        title: 'Past week',
+                        icon: '',
+                        onTap: () {
+                          scoreBoardController.graphType.value = "Past week";
+                          scoreBoardController
+                              .calculateGoalPercentagesForLastWeek(
+                                  statisticsController.goalReportListResponse!);
+                          Navigator.of(context).pop();
+                        }),
                     menuItem(
-                      title: 'Past month',
-                      icon: '',
-                    ),
+                        title: 'Past month',
+                        icon: '',
+                        onTap: () {
+                          scoreBoardController.graphType.value = "Past month";
+                          scoreBoardController
+                              .calculateGoalPercentagesForLastWeek(
+                                  statisticsController.goalReportListResponse!);
+                          Navigator.of(context).pop();
+                        }),
                     menuItem(
-                      title: 'Past year',
-                      icon: '',
-                    ),
+                        title: 'Past year',
+                        icon: '',
+                        onTap: () {
+                          scoreBoardController.graphType.value = "Past year";
+                          scoreBoardController
+                              .calculateGoalPercentagesForLastWeek(
+                                  statisticsController.goalReportListResponse!);
+                          Navigator.of(context).pop();
+                        }),
                     menuItem(
-                      title: 'All',
-                      icon: '',
-                      borderColor: Colors.transparent,
-                    ),
+                        title: 'All',
+                        icon: '',
+                        borderColor: Colors.transparent,
+                        onTap: () {
+                          scoreBoardController.graphType.value = "All";
+                          scoreBoardController
+                              .calculateGoalPercentagesForLastWeek(
+                                  statisticsController.goalReportListResponse!);
+                          Navigator.of(context).pop();
+                        }),
                   ],
                 );
               },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  MyText(
-                    text: 'Weekly',
-                    size: 12,
-                    paddingRight: 8,
-                  ),
+                  Obx(() => MyText(
+                        text: scoreBoardController.graphType.value,
+                        size: 12,
+                        paddingRight: 8,
+                      )),
                   Image.asset(
                     Assets.imagesArrowDown,
                     height: 20,
@@ -84,7 +115,26 @@ class ScoreBoard extends StatelessWidget {
             SizedBox(
               height: 10,
             ),
-            CustomIconTile(
+            Expanded(
+              child:
+                  Obx(() => ListView.builder(
+                    itemBuilder: (BuildContext ctx, index) {
+                      return CustomIconTile(
+                        title: scoreBoardController.goalCompletionList[index]['name'],
+                        leadingColor: statisticsController.getCategoryColor(
+                            scoreBoardController.goalCompletionList[index]
+                            ['category']),
+                        points: scoreBoardController.goalCompletionList[index]
+                        ['completionPercentage']
+                            .toInt(),
+                      );
+                    },
+                    itemCount: scoreBoardController
+                        .goalCompletionList
+                        .length,
+                  ),),
+            ),
+            /*CustomIconTile(
               title: 'Daily gratitude',
               leadingColor: kDailyGratitudeColor,
               points: 86,
@@ -108,7 +158,7 @@ class ScoreBoard extends StatelessWidget {
               title: '20 mins cardio',
               leadingColor: kRACGPExamColor,
               points: 62,
-            ),
+            ),*/
           ],
         ),
       ),

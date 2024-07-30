@@ -613,7 +613,6 @@ class _IconAndColorBottomSheetState extends State<IconAndColorBottomSheet> {
     shapeIcons.add("facebook_2.png");
     shapeIcons.add("facebook_3.png");
     shapeIcons.add("exclamation.png");
-    shapeIcons.add("facebook_3.png");
     shapeIcons.add("christianity.png");
     iconList.add(IconModel("Shapes", shapeIcons));
   }

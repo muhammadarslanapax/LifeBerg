@@ -6,6 +6,7 @@ import 'package:life_berg/constant/color.dart';
 import 'package:life_berg/controller/admin_controller/home_controller.dart';
 import 'package:life_berg/generated/assets.dart';
 import 'package:life_berg/model/mood/mood_data.dart';
+import 'package:life_berg/utils/pref_utils.dart';
 import 'package:life_berg/view/widget/custom_bottom_sheet.dart';
 import 'package:life_berg/view/widget/image_dialog.dart';
 import 'package:life_berg/view/widget/main_heading.dart';
@@ -14,6 +15,8 @@ import 'package:life_berg/view/widget/my_dialog.dart';
 import 'package:life_berg/view/widget/my_text.dart';
 import 'package:life_berg/view/widget/my_text_field.dart';
 import 'package:textfield_tags/textfield_tags.dart';
+
+import '../screens/home/end_of_day_report.dart';
 
 class DailyMoodReport extends StatelessWidget {
   DailyMoodReport({
@@ -179,8 +182,10 @@ class DailyMoodSheet extends StatelessWidget {
                   isDisable: false,
                   text: "Submit",
                   onTap: () {
-                    if(homeController.selectedMood.value.value != -1) {
+                    if (homeController.selectedMood.value.value != -1) {
                       homeController.updateUserMood();
+                      PrefUtils().savedMood =
+                          homeController.selectedMood.value.value.toString();
                       Get.dialog(
                         ImageDialog(
                           heading: 'Your mood has been captured',
@@ -188,10 +193,22 @@ class DailyMoodSheet extends StatelessWidget {
                           imageSize: 107,
                           image: Assets.imagesMoodCaptured,
                           onOkay: () {
-                            homeController.updateEmoji("",-1);
-                            homeController.moodCommentController.text = "";
                             Get.back();
-                            Navigator.pop(context);
+                            if (homeController.selectedMood.value.value == 1) {
+                              showModalBottomSheet(
+                                context: context,
+                                isScrollControlled: true,
+                                backgroundColor: Colors.transparent,
+                                elevation: 0,
+                                builder: (_) {
+                                  return MessageFromTimmy();
+                                },
+                              );
+                            } else {
+                              Navigator.pop(context);
+                            }
+                            homeController.updateEmoji("", -1);
+                            homeController.moodCommentController.text = "";
                           },
                         ),
                       );

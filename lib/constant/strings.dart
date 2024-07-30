@@ -9,6 +9,7 @@ const vocational = "Vocational";
 const development = "Development";
 const howAreYouToday = "How are you today?";
 const submit = "Submit";
+const reSubmit = "Resubmit";
 const selectCategory = "Select category";
 const personalDevelopment = "Personal Development";
 const editProfilePicture = "Edit profile picture";

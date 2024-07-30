@@ -49,13 +49,28 @@ class PrefUtils {
     _sharedPreferences!.setString(goalData, value);
   }
 
+  bool get isGoalSubmittedToday =>
+      _sharedPreferences!.getBool(goalSubmit) ?? false;
+
+  set isGoalSubmittedToday(bool value) {
+    _sharedPreferences!.setBool(goalSubmit, value);
+  }
+
+  String get getSkippedGoals =>
+      _sharedPreferences!.getString(skippedGoals) ?? "";
+
+  set setSkippedGoals(String value) {
+    _sharedPreferences!.setString(skippedGoals, value);
+  }
+
   String get lastSavedDate => _sharedPreferences!.getString(savedDate) ?? "";
 
   set lastSavedDate(String value) {
     _sharedPreferences!.setString(savedDate, value);
   }
 
-  String get newGoalStartTime => _sharedPreferences!.getString(newDayTime) ?? "02:00 AM";
+  String get newGoalStartTime =>
+      _sharedPreferences!.getString(newDayTime) ?? "02:00 AM";
 
   set newGoalStartTime(String value) {
     _sharedPreferences!.setString(newDayTime, value);
@@ -67,16 +82,44 @@ class PrefUtils {
     _sharedPreferences!.setString(lastDate, value);
   }
 
-  String get tomorrowHighlightGoal => _sharedPreferences!.getString(tomorrowHighlight) ?? "";
+  String get tomorrowHighlightGoal =>
+      _sharedPreferences!.getString(tomorrowHighlight) ?? "";
 
   set tomorrowHighlightGoal(String value) {
     _sharedPreferences!.setString(tomorrowHighlight, value);
   }
 
-  String get tomorrowHighlightGoalDate => _sharedPreferences!.getString(tomorrowHighlightDate) ?? "";
+  String get tomorrowHighlightGoalDate =>
+      _sharedPreferences!.getString(tomorrowHighlightDate) ?? "";
 
   set tomorrowHighlightGoalDate(String value) {
     _sharedPreferences!.setString(tomorrowHighlightDate, value);
   }
 
+  String get savedMood => _sharedPreferences!.getString(lastSavedMood) ?? "";
+
+  set savedMood(String value) {
+    _sharedPreferences!.setString(lastSavedMood, value);
+  }
+
+  String get lastGratefulText =>
+      _sharedPreferences!.getString(lastSavedGrateful) ?? "";
+
+  set lastGratefulText(String value) {
+    _sharedPreferences!.setString(lastSavedGrateful, value);
+  }
+
+  String get lastLearntText =>
+      _sharedPreferences!.getString(lastSavedLearnt) ?? "";
+
+  set lastLearntText(String value) {
+    _sharedPreferences!.setString(lastSavedLearnt, value);
+  }
+
+  String get lastHighlightText =>
+      _sharedPreferences!.getString(lastSavedHighlight) ?? "";
+
+  set lastHighlightText(String value) {
+    _sharedPreferences!.setString(lastSavedHighlight, value);
+  }
 }

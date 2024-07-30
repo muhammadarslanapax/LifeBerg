@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:life_berg/constant/color.dart';
 import 'package:life_berg/generated/assets.dart';
+import 'package:life_berg/view/screens/settings/settings_screens/settings_controller.dart';
 import 'package:life_berg/view/widget/custom_bottom_sheet.dart';
 import 'package:life_berg/view/widget/daily_mood_report.dart';
 import 'package:life_berg/view/widget/my_border_button.dart';
@@ -15,8 +17,14 @@ import 'package:life_berg/view/widget/progress_widget.dart';
 import 'package:life_berg/view/widget/simple_app_bar.dart';
 import 'package:step_progress_indicator/step_progress_indicator.dart';
 
+import '../../../constant/strings.dart';
+import '../../widget/home_goal_tile.dart';
+import '../../widget/main_heading.dart';
+
 class EditDailyPastReports extends StatelessWidget {
   EditDailyPastReports({Key? key}) : super(key: key);
+
+  final SettingsController settingsController = Get.put(SettingsController());
 
   @override
   Widget build(BuildContext context) {
@@ -55,10 +63,25 @@ class EditDailyPastReports extends StatelessWidget {
                                 size: 20,
                                 weight: FontWeight.w500,
                               ),
-                              MyCalender(),
+                              MyCalender(
+                                onDateSelect: (date) {
+                                  settingsController.selectedCalendarDate =
+                                      date;
+                                },
+                              ),
                             ],
                           ),
-                          onTap: () => Get.back(),
+                          onTap: () {
+                            if (settingsController.selectedCalendarDate !=
+                                null) {
+                              settingsController.date.value =
+                                  DateFormat("yyyy-MM-dd").format(
+                                      settingsController.selectedCalendarDate!);
+                              settingsController.getGoalReportByDate(
+                                  settingsController.date.value);
+                            }
+                            Get.back();
+                          },
                           buttonText: 'Confirm',
                           isButtonDisable: false,
                         );
@@ -71,7 +94,31 @@ class EditDailyPastReports extends StatelessWidget {
                 SizedBox(
                   height: 25,
                 ),
-                Padding(
+                _buildProgressWidgets(),
+                MainHeading(
+                  paddingTop: 22,
+                  text: "Daily Mood Report",
+                  paddingBottom: 12,
+                ),
+                DailyMoodReport(),
+                Obx(() => settingsController.isLoadingGoals.value
+                    ? Container(
+                        height: 300,
+                        child: Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      )
+                    : Column(
+                        children: [
+                          _buildWellbeingList(),
+                          _buildVocationList(),
+                          _buildPersonalDevList(),
+                        ],
+                      )),
+                SizedBox(
+                  height: 80,
+                ),
+                /*Padding(
                   padding: EdgeInsets.only(
                     left: 25,
                     right: 10,
@@ -264,7 +311,7 @@ class EditDailyPastReports extends StatelessWidget {
                   leadingColor: kTabIndicatorColor,
                   haveCheckBox: true,
                   checkBoxValue: true,
-                ),
+                ),*/
               ],
             ),
           ),
@@ -288,6 +335,261 @@ class EditDailyPastReports extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildPersonalDevList() {
+    return Column(
+      children: [
+        Visibility(
+          child: ProfileHeading(
+            marginTop: 24,
+            heading: personalDevelopment,
+            leadingColor: kDailyGratitudeColor,
+          ),
+          visible: settingsController.isLoadingGoals.value == false &&
+              settingsController.submittedPersonalDevGoals.isNotEmpty,
+        ),
+        ListView.builder(
+          itemBuilder: (BuildContext ctx, index) {
+            return HomeGoalTile(
+              type: "personal_development",
+              index: index,
+              onCheckBoxTap: () {
+                settingsController
+                        .submittedPersonalDevGoals[index].isChecked.value =
+                    !settingsController
+                        .submittedPersonalDevGoals[index].isChecked.value;
+                settingsController.calculatePercentage(
+                    settingsController.submittedPersonalDevGoals,
+                    "personal_development");
+              },
+              progress: settingsController
+                  .submittedPersonalDevGoals[index].sliderValue,
+              checkBoxValue:
+                  settingsController.submittedPersonalDevGoals[index].isChecked,
+              goal: settingsController.submittedPersonalDevGoals[index],
+              onProgressChange: (value) {
+                settingsController
+                    .submittedPersonalDevGoals[index].sliderValue.value = value;
+                settingsController.calculatePercentage(
+                    settingsController.submittedPersonalDevGoals,
+                    "personal_development");
+              },
+              haveCheckBox: settingsController
+                      .submittedPersonalDevGoals[index].goalMeasure?.type ==
+                  "boolean",
+              haveSlider: settingsController
+                      .submittedPersonalDevGoals[index].goalMeasure?.type ==
+                  "string",
+              imageBgColor: kDailyGratitudeBgColor,
+              title: settingsController.submittedPersonalDevGoals[index].name ??
+                  "",
+              leadingIcon:
+                  "assets/goal_icons/${settingsController.submittedPersonalDevGoals[index].icon}",
+              leadingColor: kDailyGratitudeColor,
+            );
+          },
+          itemCount: settingsController.submittedPersonalDevGoals.length,
+          shrinkWrap: true,
+          physics: NeverScrollableScrollPhysics(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildWellbeingList() {
+    return Column(
+      children: [
+        Visibility(
+          visible: settingsController.isLoadingGoals.value == false &&
+              settingsController.submittedWellBeingGoals.isNotEmpty,
+          child: ProfileHeading(
+            marginTop: 24,
+            heading: wellBeing,
+            leadingColor: kStreaksColor,
+          ),
+        ),
+        ListView.builder(
+          itemBuilder: (BuildContext ctx, index) {
+            return HomeGoalTile(
+              type: "wellbeing",
+              index: index,
+              progress:
+                  settingsController.submittedWellBeingGoals[index].sliderValue,
+              onCheckBoxTap: () {
+                settingsController
+                        .submittedWellBeingGoals[index].isChecked.value =
+                    !settingsController
+                        .submittedWellBeingGoals[index].isChecked.value;
+                settingsController.calculatePercentage(
+                    settingsController.submittedWellBeingGoals, "wellbeing");
+              },
+              onProgressChange: (value) {
+                settingsController
+                    .submittedWellBeingGoals[index].sliderValue.value = value;
+                settingsController.calculatePercentage(
+                    settingsController.submittedWellBeingGoals, "wellbeing");
+              },
+              haveCheckBox: settingsController
+                      .submittedWellBeingGoals[index].goalMeasure?.type ==
+                  "boolean",
+              checkBoxValue:
+                  settingsController.submittedWellBeingGoals[index].isChecked,
+              haveSlider: settingsController
+                      .submittedWellBeingGoals[index].goalMeasure?.type ==
+                  "string",
+              goal: settingsController.submittedWellBeingGoals[index],
+              title:
+                  settingsController.submittedWellBeingGoals[index].name ?? "",
+              imageBgColor: kStreaksBgColor,
+              leadingIcon:
+                  "assets/goal_icons/${settingsController.submittedWellBeingGoals[index].icon}",
+              leadingColor: kStreaksColor,
+            );
+          },
+          itemCount: settingsController.submittedWellBeingGoals.length,
+          shrinkWrap: true,
+          physics: NeverScrollableScrollPhysics(),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildVocationList() {
+    return Column(
+      children: [
+        Visibility(
+          visible: settingsController.isLoadingGoals.value == false &&
+              settingsController.submittedVocationalGoals.isNotEmpty,
+          child: ProfileHeading(
+            marginTop: 24,
+            heading: vocational,
+            leadingColor: kRACGPExamColor,
+          ),
+        ),
+        ListView.builder(
+          itemBuilder: (BuildContext ctx, index) {
+            return HomeGoalTile(
+              type: "vocation",
+              index: index,
+              goal: settingsController.submittedVocationalGoals[index],
+              onCheckBoxTap: () {
+                settingsController
+                        .submittedVocationalGoals[index].isChecked.value =
+                    !settingsController
+                        .submittedVocationalGoals[index].isChecked.value;
+                settingsController.calculatePercentage(
+                    settingsController.submittedVocationalGoals, "vocation");
+              },
+              onProgressChange: (value) {
+                settingsController
+                    .submittedVocationalGoals[index].sliderValue.value = value;
+                settingsController.calculatePercentage(
+                    settingsController.submittedVocationalGoals, "vocation");
+              },
+              progress: settingsController
+                  .submittedVocationalGoals[index].sliderValue,
+              haveCheckBox: settingsController
+                      .submittedVocationalGoals[index].goalMeasure?.type ==
+                  "boolean",
+              haveSlider: settingsController
+                      .submittedVocationalGoals[index].goalMeasure?.type ==
+                  "string",
+              imageBgColor: kRACGPBGExamColor,
+              checkBoxValue:
+                  settingsController.submittedVocationalGoals[index].isChecked,
+              title:
+                  settingsController.submittedVocationalGoals[index].name ?? "",
+              leadingIcon:
+                  "assets/goal_icons/${settingsController.submittedVocationalGoals[index].icon}",
+              leadingColor: kRACGPExamColor,
+            );
+          },
+          itemCount: settingsController.submittedVocationalGoals.length,
+          shrinkWrap: true,
+          physics: NeverScrollableScrollPhysics(),
+        ),
+      ],
+    );
+  }
+
+  _buildProgressWidgets() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        MainHeading(
+          text: todayProgress,
+          paddingBottom: 22,
+        ),
+        Padding(
+          padding: EdgeInsets.only(
+            left: 25,
+            right: 10,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Obx(() => CircularStepProgressIndicator(
+                    totalSteps: 100,
+                    currentStep:
+                        settingsController.globalPercentage.value.toInt(),
+                    selectedStepSize: 7,
+                    unselectedStepSize: 5,
+                    padding: 0,
+                    width: 94,
+                    height: 94,
+                    startingAngle: 70,
+                    roundedCap: (_, __) => true,
+                    selectedColor: kDarkBlueColor,
+                    unselectedColor: kUnSelectedColor,
+                    child: Center(
+                      child: MyText(
+                        text:
+                            '${settingsController.globalPercentage.value.toInt()}%',
+                        size: 24,
+                      ),
+                    ),
+                  )),
+              SizedBox(
+                width: 32,
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Obx(() => ProgressWidget(
+                          title: wellBeing,
+                          currentStep: settingsController
+                              .wellbeingPercentage.value
+                              .toInt(),
+                          selectedColor: kStreaksColor,
+                        )),
+                    Obx(
+                      () => ProgressWidget(
+                        title: vocational,
+                        currentStep:
+                            settingsController.vocationPercentage.value.toInt(),
+                        selectedColor: kRACGPExamColor,
+                      ),
+                    ),
+                    Obx(
+                      () => ProgressWidget(
+                        title: development,
+                        currentStep: settingsController
+                            .personalDevPercentage.value
+                            .toInt(),
+                        selectedColor: kDailyGratitudeColor,
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

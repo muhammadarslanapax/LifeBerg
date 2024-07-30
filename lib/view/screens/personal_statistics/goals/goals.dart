@@ -1,50 +1,102 @@
+import 'package:animated_custom_dropdown/custom_dropdown.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:life_berg/constant/color.dart';
+import 'package:life_berg/model/goal/goal.dart';
+import 'package:life_berg/view/screens/personal_statistics/statistics_controller.dart';
 import 'package:life_berg/view/widget/custom_drop_down_header.dart';
 import 'package:life_berg/view/widget/my_text.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
+import '../../../../generated/assets.dart';
+
 class Globals extends StatelessWidget {
   Globals({Key? key}) : super(key: key);
-  final List<GoalsChartDateModel> globalScoreChartData = [
-    GoalsChartDateModel(
-      'Jan - Mar',
-      0,
-    ),
-    GoalsChartDateModel(
-      'Apr - July',
-      40,
-    ),
-    GoalsChartDateModel(
-      'Aug - Oct',
-      10,
-    ),
-    GoalsChartDateModel(
-      'Nov-Jan',
-      25,
-    ),
-  ];
+
+  final StatisticsController statisticsController =
+      Get.find<StatisticsController>();
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       children: [
-        GoalChart(
-          globalScoreChartDataSource: globalScoreChartData,
-          primaryXYAxisMax: 3,
-          primaryXYAxisMin: 0,
-          primaryYAxisMax: 100,
-          primaryYAxisMin: 0,
-        ),
-        Positioned(
-          top: 20,
-          right: 40,
-          child: CustomDropDownHeader(
-            onTap: () {},
-            title: 'Sleep',
-            bgColor: kDarkBlueColor,
+        Obx(
+          () => GoalChart(
+            statisticsController.goalReportChart.value,
+            primaryXYAxisMax: 5,
+            primaryXYAxisMin: 0,
+            primaryYAxisMax: 100,
+            primaryYAxisMin: 0,
           ),
         ),
+        Positioned(
+            top: 15,
+            right: 30,
+            child: Container(
+              width: 110,
+              child: CustomDropdown<int>(
+                maxlines: 1,
+                closedHeaderPadding:
+                    EdgeInsets.symmetric(horizontal: 7.0, vertical: 5),
+                listItemBuilder: (context, item, isSelected, onItemSelect) {
+                  return Text(
+                    statisticsController.goalsList[item].name ?? "",
+                    style: const TextStyle(color: Colors.black, fontSize: 11),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  );
+                },
+                hideSelectedFieldWhenExpanded: true,
+                headerBuilder: (
+                  context,
+                  item,
+                  isSelected,
+                ) {
+                  return Text(
+                    statisticsController.goalsList[item].name ?? "",
+                    style: const TextStyle(color: Colors.white, fontSize: 12),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  );
+                },
+                decoration: CustomDropdownDecoration(
+                  closedFillColor: kDarkBlueColor,
+                  expandedFillColor: kSecondaryColor,
+                  closedBorderRadius: BorderRadius.all(Radius.circular(8)),
+                  expandedBorderRadius: BorderRadius.all(Radius.circular(8)),
+                  closedSuffixIcon: const Icon(
+                    Icons.keyboard_arrow_down,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                  expandedSuffixIcon: const Icon(
+                    Icons.keyboard_arrow_up,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                  closedShadow: [
+                    BoxShadow(
+                        offset: Offset(0, 0),
+                        color: Colors.grey.shade300,
+                        blurRadius: 8,
+                        spreadRadius: 0.2),
+                  ],
+                ),
+                items: statisticsController.goalsListIndex,
+                initialItem: statisticsController.selectedGoalIndex.value,
+                onChanged: (value) {
+                  statisticsController.selectedGoalIndex.value = value as int;
+                  statisticsController.getGoalReport(
+                      statisticsController
+                          .goalsList[
+                              statisticsController.selectedGoalIndex.value]
+                          .sId!,
+                      false,
+                      false);
+                },
+              ),
+            )),
       ],
     );
   }
@@ -52,8 +104,8 @@ class Globals extends StatelessWidget {
 
 // ignore: must_be_immutable
 class GoalChart extends StatelessWidget {
-  GoalChart({
-    this.globalScoreChartDataSource,
+  GoalChart(
+    this.globalScoreChartDataSource, {
     this.primaryYAxisMax,
     this.primaryYAxisMin,
     this.primaryYAxisInterval,
@@ -62,7 +114,7 @@ class GoalChart extends StatelessWidget {
     this.primaryXYAxisInterval,
   });
 
-  List<GoalsChartDateModel>? globalScoreChartDataSource;
+  List<GoalChartDateModel> globalScoreChartDataSource;
 
   double? primaryYAxisMax;
   double? primaryYAxisMin;
@@ -79,6 +131,25 @@ class GoalChart extends StatelessWidget {
       child: SfCartesianChart(
         tooltipBehavior: TooltipBehavior(
           enable: true,
+          activationMode: ActivationMode.singleTap,
+          builder: (dynamic data, dynamic point, dynamic series, int pointIndex, int seriesIndex) {
+            if (data.comment != null && data.comment!.isNotEmpty) {
+              return Container(
+                padding: EdgeInsets.all(8),
+                child: Text(
+                  data.comment!,
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontFamily: 'Ubuntu',
+                  ),
+                ),
+              );
+            } else {
+              // Return an empty container if the comment is empty to hide the tooltip
+              return SizedBox.shrink();
+            }
+          },
         ),
         margin: EdgeInsets.symmetric(horizontal: 15),
         borderWidth: 0,
@@ -133,54 +204,46 @@ class GoalChart extends StatelessWidget {
 
   dynamic graphData() {
     return <ChartSeries>[
-      LineSeries<GoalsChartDateModel, dynamic>(
+      LineSeries<GoalChartDateModel, dynamic>(
         dataSource: globalScoreChartDataSource!,
-        xValueMapper: (GoalsChartDateModel data, _) => data.xValueMapper,
-        yValueMapper: (GoalsChartDateModel data, _) => data.yValueMapper,
+        xValueMapper: (GoalChartDateModel data, _) => data.xValueMapper,
+        yValueMapper: (GoalChartDateModel data, _) => data.yValueMapper,
         xAxisName: 'xAxis',
         yAxisName: 'yAxis',
         markerSettings: MarkerSettings(
           isVisible: true,
           borderColor: kMapMarkerBorderColor,
         ),
-        dataLabelSettings: DataLabelSettings(
-          isVisible: true,
-          margin: EdgeInsets.symmetric(vertical: 4),
-          builder: (data, point, series, pointIndex, seriesIndex) {
-            if (pointIndex == 1) {
-              return MyText(
-                text: 'Tension headache',
-                size: 8,
-              );
-            } else if (pointIndex == 2) {
-              return MyText(
-                text: 'Annual leave',
-                size: 8,
-              );
-            } else if (pointIndex == 3) {
-              return MyText(
-                text: 'In hospital with Ellie',
-                size: 8,
-              );
-            } else {
-              return SizedBox();
-            }
-          },
-        ),
+        // dataLabelSettings: DataLabelSettings(
+        //   isVisible: true,
+        //   margin: EdgeInsets.symmetric(vertical: 4),
+        //   builder: (data, point, series, pointIndex, seriesIndex) {
+        //     if (data.comment.toString().isNotEmpty) {
+        //       return MyText(
+        //         text: data.comment,
+        //         size: 8,
+        //       );
+        //     } else {
+        //       return SizedBox();
+        //     }
+        //   },
+        // ),
         color: kDarkBlueColor,
       ),
     ];
   }
 }
 
-class GoalsChartDateModel {
-  GoalsChartDateModel(
+class GoalChartDateModel {
+  GoalChartDateModel(
     this.xValueMapper,
     this.yValueMapper,
+    this.comment,
   );
 
   String? xValueMapper;
 
   //CHANGE IT ACCORDING TO YOUR NEED
-  int? yValueMapper;
+  double? yValueMapper;
+  String? comment;
 }

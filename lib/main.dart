@@ -3,16 +3,11 @@ import 'dart:io';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
 import 'package:keyboard_dismisser/keyboard_dismisser.dart';
 import 'package:life_berg/config/routes/routes.dart';
 import 'package:life_berg/config/theme/light_theme.dart';
-import 'package:life_berg/controller/admin_controller/wellbeing_action_plan_controller.dart';
-import 'package:life_berg/controller/auth_controller/complete_profile_controller.dart';
-import 'package:life_berg/controller/auth_controller/goal_controller.dart';
-import 'package:life_berg/controller/journal_controller/journal_controller.dart';
 import 'package:life_berg/controller/personal_development_controller/personal_development_controller.dart';
 import 'package:life_berg/shareprefrences/user_sharedprefrence.dart';
 import 'package:life_berg/utils/pref_utils.dart';
@@ -23,7 +18,6 @@ Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 Future<void> main() async {
   Get.put(PersonalDevelopmentController());
-  Get.put(WellbeingActionPlanController());
   Platform.isAndroid
       ? await Firebase.initializeApp(
           options: FirebaseOptions(

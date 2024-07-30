@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:life_berg/constant/color.dart';
 import 'package:life_berg/generated/assets.dart';
+import 'package:life_berg/utils/pref_utils.dart';
 import 'package:life_berg/view/screens/archive_items/archive_items.dart';
 import 'package:life_berg/view/screens/settings/edit_daily_past_reports.dart';
+import 'package:life_berg/view/screens/settings/settings_screens/settings_controller.dart';
 import 'package:life_berg/view/widget/custom_bottom_sheet.dart';
 import 'package:life_berg/view/widget/my_border_button.dart';
 import 'package:life_berg/view/widget/my_text.dart';
@@ -12,8 +15,25 @@ import 'package:life_berg/view/widget/simple_app_bar.dart';
 
 import '../../../widgets/flutter_time_picker_spinner.dart';
 
-class HistoricalReportingGoals extends StatelessWidget {
-  const HistoricalReportingGoals({Key? key}) : super(key: key);
+class HistoricalReportingGoals extends StatefulWidget {
+  HistoricalReportingGoals({Key? key}) : super(key: key);
+
+  @override
+  State<HistoricalReportingGoals> createState() =>
+      _HistoricalReportingGoalsState();
+}
+
+class _HistoricalReportingGoalsState extends State<HistoricalReportingGoals> {
+  String? day;
+
+  @override
+  void initState() {
+    super.initState();
+    day = PrefUtils().newGoalStartTime;
+    if (mounted) {
+      setState(() {});
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -86,6 +106,7 @@ class HistoricalReportingGoals extends StatelessWidget {
                                 weight: FontWeight.w500,
                               ),
                               TimePickerSpinner(
+                                time: DateFormat("HH:mm a").parse(day!),
                                 is24HourMode: false,
                                 normalTextStyle: TextStyle(
                                   fontSize: 20,
@@ -100,12 +121,25 @@ class HistoricalReportingGoals extends StatelessWidget {
                                 itemHeight: 50,
                                 isForce2Digits: false,
                                 minutesInterval: 1,
-                                onTimeChange: (time) {},
+                                onTimeChange: (time) {
+                                  day = DateFormat("HH:mm a").format(time);
+                                  if (mounted) {
+                                    setState(() {});
+                                  }
+                                },
                               ),
                               SizedBox(),
                             ],
                           ),
-                          onTap: () => Get.back(),
+                          onTap: () {
+                            PrefUtils().newGoalStartTime = day!.toUpperCase();
+                            if(mounted){
+                              setState(() {
+
+                              });
+                            }
+                            Get.back();
+                          },
                           buttonText: 'Confirm',
                           isButtonDisable: false,
                         );
@@ -147,7 +181,7 @@ class HistoricalReportingGoals extends StatelessWidget {
                       color: kSecondaryColor,
                     ),
                     child: MyText(
-                      text: '03:00 AM',
+                      text: PrefUtils().newGoalStartTime,
                       size: 16,
                       color: kTextColor,
                     ),

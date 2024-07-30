@@ -1,8 +1,12 @@
+import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_smart_dialog/flutter_smart_dialog.dart';
 import 'package:get/get.dart';
+import 'package:get/get_rx/get_rx.dart';
+import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:life_berg/apis/http_manager.dart';
 import 'package:life_berg/model/generic_response.dart';
@@ -30,10 +34,17 @@ class HomeController extends FullLifeCycleController with FullLifeCycleMixin {
   RxBool isLoadingGoals = true.obs;
   RxBool isShowHighlight = false.obs;
 
+  Timer? _timer;
+
   User? user;
   RxString fullName = "".obs;
   RxString userName = "".obs;
   RxString userProfileImageUrl = "".obs;
+
+  RxDouble wellbeingPercentage = 0.0.obs;
+  RxDouble vocationPercentage = 0.0.obs;
+  RxDouble personalDevPercentage = 0.0.obs;
+  RxDouble globalPercentage = 0.0.obs;
 
   XFile? xFile;
   RxString imageFilePath = "".obs;
@@ -47,6 +58,10 @@ class HomeController extends FullLifeCycleController with FullLifeCycleMixin {
   RxBool isHighlightChecked = false.obs;
 
   List<GoalSubmitData> goalSubmitData = [];
+
+  RxInt streakDays = 0.obs;
+
+  RxBool isGoalSubmittedToday = false.obs;
 
   RxString selectedAvatar = "".obs;
   final List<String> avatars = [
@@ -79,16 +94,26 @@ class HomeController extends FullLifeCycleController with FullLifeCycleMixin {
     Assets.avatarA28,
   ];
 
+  List<String> skippedGoalIds = [];
+
   @override
   void onInit() {
     super.onInit();
+    _startTimer();
     moodCommentController = TextEditingController();
     goalCommentController = TextEditingController();
     _getUserData();
   }
 
+  void _startTimer() {
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      checkAndResetGoals();
+    });
+  }
+
   @override
   void onClose() {
+    _timer?.cancel();
     // moodCommentController.dispose();
     // goalCommentController.dispose();
     // learnedTodayController.dispose();
@@ -117,38 +142,178 @@ class HomeController extends FullLifeCycleController with FullLifeCycleMixin {
         goalSubmitData.clear();
         goalSubmitData.addAll(goalSubmitDataList);
       }
-      isShowTomorrowHighlight();
+      if (PrefUtils().getSkippedGoals.isNotEmpty) {
+        skippedGoalIds =
+            List<String>.from(jsonDecode(PrefUtils().getSkippedGoals));
+      }
       getUserGoals(isShowLoading: isShowLoading);
+      getUserDetail();
     }
   }
 
-  isShowTomorrowHighlight() {
-    if (PrefUtils().tomorrowHighlightGoalDate.isNotEmpty) {
-      var tomorrowHighlightDate =
-          DateTime.parse(PrefUtils().tomorrowHighlightGoalDate);
-      var now = DateTime.now();
-      if (tomorrowHighlightDate.year == now.year &&
-          tomorrowHighlightDate.month == now.month &&
-          tomorrowHighlightDate.day == now.day) {
-        isShowHighlight.value = true;
-      } else {
-        isShowHighlight.value = false;
+  bool isGoalSkipped(String goalId) {
+    for (var skippedId in skippedGoalIds) {
+      if (goalId == skippedId) {
+        return true;
       }
+    }
+    return false;
+  }
+
+  String getIcebergComment() {
+    if (globalPercentage.value == 100) {
+      Random random = Random();
+      double randomNumber = random.nextDouble() + 1;
+      if (randomNumber == 1) {
+        return "Amazing! You have perfectly achieved all of your goals!";
+      } else if (randomNumber == 2) {
+        return "Wow! You have scored across all of your goals!";
+      }
+    } else if (wellbeingPercentage.value == 100) {
+      return "Wonderful! You have achieved all of your wellbeing goals!";
+    } else if (vocationPercentage.value == 100) {
+      return "Wonderful! You have achieved all of your vocational goals!";
+    } else if (personalDevPercentage.value == 100) {
+      return "Wonderful! You have achieved all of your personal development goals!";
+    } else if (globalPercentage.value >= 80 && globalPercentage.value <= 90) {
+      return "Brilliant! Keep up the great work!";
+    } else if (globalPercentage.value >= 60 && globalPercentage.value <= 79) {
+      return "Fantastic! Keep up the great work!";
+    } else if (globalPercentage.value >= 40 && globalPercentage.value >= 59) {
+      return "Great work! Keep the momentum going!";
+    } else if (globalPercentage.value >= 20 && globalPercentage.value <= 39) {
+      return "You're on a roll! Keep it up!";
+    } else if (globalPercentage.value >= 1 && globalPercentage.value <= 19) {
+      return "Really nice work, you achieved more goals than yesterday!";
+    } else if (globalPercentage.value == 0) {
+      Random random = Random();
+      double randomNumber = random.nextDouble() + 1;
+      if (randomNumber == 1) {
+        return "Hello! It's great to see you checking in!";
+      } else if (randomNumber == 2) {
+        return "Remember to create a daily highlight for tomorrow!";
+      }
+    }
+    return "";
+  }
+
+  String getIcebergJson() {
+    if (globalPercentage.value >= 0 && globalPercentage.value <= 20) {
+      return Assets.iceBergImageOne;
+    } else if (globalPercentage.value > 20 && globalPercentage.value <= 40) {
+      return Assets.iceBergImageTwo;
+    } else if (globalPercentage.value > 40 && globalPercentage.value <= 60) {
+      return Assets.iceBergImageThree;
+    } else if (globalPercentage.value > 60 && globalPercentage.value <= 80) {
+      return Assets.iceBergImageFour;
     } else {
-      isShowHighlight.value = false;
+      return Assets.iceBergImageFive;
     }
   }
 
   checkAndResetGoals() async {
+    if (PrefUtils().isGoalSubmittedToday != isGoalSubmittedToday.value) {
+      isGoalSubmittedToday.value = PrefUtils().isGoalSubmittedToday;
+    }
     DateTime now = DateTime.now();
     DateTime? lastCheckedDate = PrefUtils().lastSavedDate.isNotEmpty
         ? DateTime.parse(PrefUtils().lastSavedDate)
         : null;
     if (lastCheckedDate == null ||
         DateUtility.isResetTimeReached(now, lastCheckedDate)) {
+      isGoalSubmittedToday.value = false;
+      PrefUtils().lastHighlightText = "";
+      PrefUtils().lastLearntText = "";
+      PrefUtils().lastGratefulText = "";
+      PrefUtils().isGoalSubmittedToday = false;
       PrefUtils().submittedGoals = "";
+      PrefUtils().setSkippedGoals = "";
       PrefUtils().lastSavedDate = now.toIso8601String();
+      if (PrefUtils().tomorrowHighlightGoalDate.isNotEmpty) {
+        var tomorrowHighlightDate =
+            DateTime.parse(PrefUtils().tomorrowHighlightGoalDate);
+        var now = DateTime.now();
+        if (tomorrowHighlightDate.year == now.year &&
+            tomorrowHighlightDate.month == now.month &&
+            tomorrowHighlightDate.day == now.day) {
+          isShowHighlight.value = true;
+        } else {
+          isShowHighlight.value = false;
+        }
+      } else {
+        isShowHighlight.value = false;
+      }
     }
+  }
+
+  void calculatePercentage() {
+    double wellbeingCompletion = 0;
+    int wellbeingGoalsCount = 0;
+
+    double vocationCompletion = 0;
+    int vocationGoalsCount = 0;
+
+    double personalDevCompletion = 0;
+    int personalDevGoalsCount = 0;
+
+    List<Goal> goals = [];
+    goals.addAll(wellBeingGoals);
+    goals.addAll(vocationalGoals);
+    goals.addAll(personalDevGoals);
+
+    double totalCompletion = 0;
+    int nonSkippedGoalsCount = 0;
+
+    goals.forEach((goal) {
+      if (!goal.isSkipped.value) {
+        double completion = 0;
+
+        if (goal.goalMeasure!.type == "boolean") {
+          completion = goal.isChecked.value ? 1 : 0;
+        } else if (goal.goalMeasure!.type == "string") {
+          completion = goal.sliderValue.value / 10.0;
+        }
+
+        totalCompletion += completion;
+        nonSkippedGoalsCount++;
+
+        switch (goal.category?.name) {
+          case "Wellbeing":
+            wellbeingCompletion += completion;
+            wellbeingGoalsCount++;
+            break;
+          case "Vocational":
+            vocationCompletion += completion;
+            vocationGoalsCount++;
+            break;
+          case "Personal Development":
+            personalDevCompletion += completion;
+            personalDevGoalsCount++;
+            break;
+        }
+      }
+    });
+
+    double wellbeingPer = wellbeingGoalsCount > 0
+        ? (wellbeingCompletion / wellbeingGoalsCount) * 100
+        : 0;
+    double vocationPer = vocationGoalsCount > 0
+        ? (vocationCompletion / vocationGoalsCount) * 100
+        : 0;
+    double personalDevPer = personalDevGoalsCount > 0
+        ? (personalDevCompletion / personalDevGoalsCount) * 100
+        : 0;
+
+    wellbeingPercentage.value = wellbeingPer;
+    vocationPercentage.value = vocationPer;
+    personalDevPercentage.value = personalDevPer;
+
+    // Calculate the global score based on all non-skipped goals
+    double globalPer = nonSkippedGoalsCount > 0
+        ? (totalCompletion / nonSkippedGoalsCount) * 100
+        : 0;
+
+    globalPercentage.value = globalPer;
   }
 
   saveLocalData(Goal goal, bool isChecked, String trackValue) {
@@ -165,7 +330,11 @@ class HomeController extends FullLifeCycleController with FullLifeCycleMixin {
     }
     if (!isFound) {
       GoalSubmitData goalData = GoalSubmitData(
-          goal.sId!, goal.goalMeasure!.type!, isChecked, trackValue);
+        goal.sId!,
+        goal.goalMeasure!.type!,
+        isChecked,
+        trackValue,
+      );
       goalSubmitData.add(goalData);
     }
     String jsonString =
@@ -260,12 +429,14 @@ class HomeController extends FullLifeCycleController with FullLifeCycleMixin {
           }
         } else {
           imageUploadedCallback(false);
-          ToastUtils.showToast("Some error occurred. please upload image again.",
+          ToastUtils.showToast(
+              "Some error occurred. please upload image again.",
               color: kRedColor);
         }
       } else {
         imageUploadedCallback(false);
-        ToastUtils.showToast("Some error occurred. please upload image again.", color: kRedColor);
+        ToastUtils.showToast("Some error occurred. please upload image again.",
+            color: kRedColor);
       }
     });
   }
@@ -335,7 +506,7 @@ class HomeController extends FullLifeCycleController with FullLifeCycleMixin {
       isLoadingGoals.value = true;
     }
     FocusManager.instance.primaryFocus?.unfocus();
-    httpManager.getUserGoalsList(PrefUtils().token).then((value) {
+    httpManager.getUserGoalsList(PrefUtils().token, "active").then((value) {
       if (value.error == null) {
         if (value.snapshot is! ErrorResponse) {
           GoalsListResponse goalsListResponse = value.snapshot;
@@ -346,27 +517,34 @@ class HomeController extends FullLifeCycleController with FullLifeCycleMixin {
               wellBeingGoals.clear();
               if (goalsListResponse.data!.vocational != null) {
                 for (var goal in goalsListResponse.data!.vocational!) {
+                  goal.isSkipped.value = isGoalSkipped(goal.sId!);
                   goal.isChecked.value = checkIsGoalChecked(goal);
                   goal.sliderValue.value =
                       double.parse(checkGoalTrackValue(goal));
                   vocationalGoals.add(goal);
                 }
+                calculatePercentage();
               }
               if (goalsListResponse.data!.personalDevelopment != null) {
                 for (var goal in goalsListResponse.data!.personalDevelopment!) {
+                  goal.isSkipped.value = isGoalSkipped(goal.sId!);
                   goal.isChecked.value = checkIsGoalChecked(goal);
                   goal.sliderValue.value =
                       double.parse(checkGoalTrackValue(goal));
                   personalDevGoals.add(goal);
                 }
+
+                calculatePercentage();
               }
               if (goalsListResponse.data!.wellBeing != null) {
                 for (var goal in goalsListResponse.data!.wellBeing!) {
+                  goal.isSkipped.value = isGoalSkipped(goal.sId!);
                   goal.isChecked.value = checkIsGoalChecked(goal);
                   goal.sliderValue.value =
                       double.parse(checkGoalTrackValue(goal));
                   wellBeingGoals.add(goal);
                 }
+                calculatePercentage();
               }
             }
           } else {
@@ -410,6 +588,24 @@ class HomeController extends FullLifeCycleController with FullLifeCycleMixin {
               personalDevGoals.removeAt(index);
               break;
           }
+        }
+      } else {
+        ToastUtils.showToast(someError, color: kRedColor);
+      }
+    });
+  }
+
+  getUserDetail() {
+    httpManager
+        .getCurrentUserDetail(
+      PrefUtils().token,
+    )
+        .then((response) {
+      if (response.error == null) {
+        UserResponse userResponse = response.snapshot;
+        if (userResponse.success == true) {
+          PrefUtils().user = json.encode(userResponse.user);
+          streakDays.value = userResponse.user!.currentStreak ?? 0;
         }
       } else {
         ToastUtils.showToast(someError, color: kRedColor);

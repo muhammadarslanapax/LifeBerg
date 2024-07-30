@@ -1,31 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:life_berg/constant/color.dart';
+import 'package:life_berg/constant/strings.dart';
+import 'package:life_berg/view/widget/charts_widget/mood_chart.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+
+import '../../statistics_controller.dart';
 
 // ignore: must_be_immutable
 class MoodChartOneWeek extends StatelessWidget {
-  final List<MoodChartOneWeekDataModel> dummyData = [
-    MoodChartOneWeekDataModel(
-      'Jan - Mar',
-      0,
-    ),
-    MoodChartOneWeekDataModel(
-      'Apr - July',
-      80,
-    ),
-    MoodChartOneWeekDataModel(
-      'Aug - Oct',
-      50,
-    ),
-    MoodChartOneWeekDataModel(
-      'Nov-Jan',
-      25,
-    ),
-    MoodChartOneWeekDataModel(
-      '',
-      70,
-    ),
-  ];
+  final String? type;
+
+  MoodChartOneWeek(this.type, {Key? key}) : super(key: key);
+
+  final StatisticsController statisticsController =
+      Get.find<StatisticsController>();
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +52,15 @@ class MoodChartOneWeek extends StatelessWidget {
       ),
       primaryXAxis: CategoryAxis(
         name: 'xAxis',
-        maximum: 3,
+        maximum: type == "one_week"
+            ? 6
+            : type == "one_month"
+                ? 30
+                : type == "three_month"
+                    ? 2
+                    : type == "six_month"
+                        ? 5
+                        : 11,
         minimum: 0,
         majorGridLines: MajorGridLines(
           width: 0,
@@ -85,14 +83,15 @@ class MoodChartOneWeek extends StatelessWidget {
 
   dynamic graphData() {
     return <ChartSeries>[
-      LineSeries<MoodChartOneWeekDataModel, dynamic>(
-        dataSource: dummyData,
+      LineSeries<MoodChartDataModel, dynamic>(
+        dataSource: statisticsController.getMoodHistoryStats(
+            statisticsController.moodHistory, type!),
         markerSettings: MarkerSettings(
           isVisible: true,
           borderColor: kMapMarkerBorderColor,
         ),
-        xValueMapper: (MoodChartOneWeekDataModel data, _) => data.xValueMapper,
-        yValueMapper: (MoodChartOneWeekDataModel data, _) => data.yValueMapper,
+        xValueMapper: (MoodChartDataModel data, _) => data.xValueMapper,
+        yValueMapper: (MoodChartDataModel data, _) => data.yValueMapper,
         xAxisName: 'xAxis',
         yAxisName: 'yAxis',
         color: kDarkBlueColor,

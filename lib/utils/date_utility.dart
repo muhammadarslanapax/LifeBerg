@@ -2,7 +2,7 @@ import 'package:intl/intl.dart';
 
 class DateUtility {
   static bool isResetTimeReached(DateTime now, DateTime lastCheckedDate) {
-    DateTime resetTimeToday = DateTime(now.year, now.month, now.day, 2, 0);
+    DateTime resetTimeToday = DateTime(now.year, now.month, now.day, 13, 38);
 
     bool isAfterResetToday =
         now.isAfter(resetTimeToday) || now.isAtSameMomentAs(resetTimeToday);

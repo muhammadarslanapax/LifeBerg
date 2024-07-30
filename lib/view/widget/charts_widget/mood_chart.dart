@@ -3,35 +3,38 @@ import 'package:life_berg/constant/color.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 // ignore: must_be_immutable
+class MoodChartDataModel {
+  MoodChartDataModel(this.xValueMapper, this.yValueMapper);
+
+  String xValueMapper;
+  int yValueMapper;
+}
+
 class MoodChart extends StatelessWidget {
   MoodChart({
-    this.moodChartDataSource,
-    this.primaryYAxisMax,
-    this.primaryYAxisMin,
-    this.primaryYAxisInterval,
+    required this.moodChartDataSource,
+    this.primaryYAxisMax = 100,
+    this.primaryYAxisMin = 0,
+    this.primaryYAxisInterval = 20,
     this.primaryXYAxisMax,
     this.primaryXYAxisMin,
-    this.primaryXYAxisInterval,
+    this.primaryXYAxisInterval = 1,
   });
 
-  List<MoodChartDataModel>? moodChartDataSource;
-
-  double? primaryYAxisMax;
-  double? primaryYAxisMin;
-  double? primaryYAxisInterval;
-
-  double? primaryXYAxisMax;
-  double? primaryXYAxisMin;
-  double? primaryXYAxisInterval;
+  final List<MoodChartDataModel> moodChartDataSource;
+  final double primaryYAxisMax;
+  final double primaryYAxisMin;
+  final double primaryYAxisInterval;
+  final double? primaryXYAxisMax;
+  final double? primaryXYAxisMin;
+  final double primaryXYAxisInterval;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       height: 200,
       child: SfCartesianChart(
-        tooltipBehavior: TooltipBehavior(
-          enable: true,
-        ),
+        tooltipBehavior: TooltipBehavior(enable: true),
         margin: EdgeInsets.zero,
         borderWidth: 0,
         borderColor: Colors.transparent,
@@ -40,21 +43,17 @@ class MoodChart extends StatelessWidget {
         primaryYAxis: NumericAxis(
           name: 'yAxis',
           maximum: primaryYAxisMax,
-          minimum: primaryXYAxisMin,
+          minimum: primaryYAxisMin,
           interval: primaryYAxisInterval,
           plotOffset: 10.0,
           majorGridLines: MajorGridLines(
             width: 1.2,
             color: kChartBorderColor,
           ),
-          majorTickLines: MajorTickLines(
-            width: 0,
-          ),
-          axisLine: AxisLine(
-            width: 0,
-          ),
+          majorTickLines: MajorTickLines(width: 0),
+          axisLine: AxisLine(width: 0),
           labelStyle: TextStyle(
-            color: kChartLabelColor,
+            color: Colors.black,
             fontSize: 11.0,
             fontFamily: 'Ubuntu',
           ),
@@ -64,17 +63,11 @@ class MoodChart extends StatelessWidget {
           maximum: primaryXYAxisMax,
           minimum: primaryXYAxisMin,
           interval: primaryXYAxisInterval,
-          majorGridLines: MajorGridLines(
-            width: 0,
-          ),
-          axisLine: AxisLine(
-            width: 0,
-          ),
-          majorTickLines: MajorTickLines(
-            width: 0,
-          ),
+          majorGridLines: MajorGridLines(width: 0),
+          axisLine: AxisLine(width: 0),
+          majorTickLines: MajorTickLines(width: 0),
           labelStyle: TextStyle(
-            color: kChartLabelColor,
+            color: Colors.black,
             fontSize: 11.0,
             fontFamily: 'Ubuntu',
           ),
@@ -84,10 +77,14 @@ class MoodChart extends StatelessWidget {
     );
   }
 
-  dynamic graphData() {
-    return <ChartSeries>[
-      LineSeries<MoodChartDataModel, dynamic>(
-        dataSource: moodChartDataSource!,
+  List<ChartSeries<MoodChartDataModel, String>> graphData() {
+    return <ChartSeries<MoodChartDataModel, String>>[
+      LineSeries<MoodChartDataModel, String>(
+        dataSource: moodChartDataSource,
+        markerSettings: MarkerSettings(
+          isVisible: true,
+          borderColor: kMapMarkerBorderColor,
+        ),
         xValueMapper: (MoodChartDataModel data, _) => data.xValueMapper,
         yValueMapper: (MoodChartDataModel data, _) => data.yValueMapper,
         xAxisName: 'xAxis',
@@ -96,14 +93,4 @@ class MoodChart extends StatelessWidget {
       ),
     ];
   }
-}
-
-class MoodChartDataModel {
-  MoodChartDataModel(
-    this.xValueMapper,
-    this.yValueMapper,
-  );
-
-  String? xValueMapper;
-  int? yValueMapper;
 }

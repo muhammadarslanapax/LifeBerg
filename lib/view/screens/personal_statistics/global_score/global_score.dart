@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:life_berg/constant/color.dart';
+import 'package:life_berg/view/screens/personal_statistics/statistics_controller.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
+import 'gloabl_score_charts/global_score_one_week_chart.dart';
+
 class GlobalScore extends StatelessWidget {
+  final StatisticsController statisticsController =
+      Get.find<StatisticsController>();
+
   final List<GlobalScoreChartDateModel> globalScoreChartData = [
     GlobalScoreChartDateModel(
       'Jan - Mar',
       0,
-      .5,
+      5.0,
       0,
       0,
     ),
@@ -39,103 +46,133 @@ class GlobalScore extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 200,
-      child: SfCartesianChart(
-        tooltipBehavior: TooltipBehavior(
-          enable: true,
-        ),
-        margin: EdgeInsets.symmetric(horizontal: 15),
-        borderWidth: 0,
-        borderColor: Colors.transparent,
-        plotAreaBorderWidth: 0,
-        enableAxisAnimation: true,
-        primaryYAxis: NumericAxis(
-          numberFormat: NumberFormat.percentPattern(),
-          name: 'yAxis',
-          maximum: 10.0,
-          minimum: 0,
-          plotOffset: 10.0,
-          majorGridLines: MajorGridLines(
-            width: 1.2,
-            color: kChartBorderColor,
-          ),
-          majorTickLines: MajorTickLines(
-            width: 0,
-          ),
-          axisLine: AxisLine(
-            width: 0,
-          ),
-          labelStyle: TextStyle(
-            color: kChartLabelColor,
-            fontSize: 11.0,
-            fontFamily: 'Ubuntu',
-          ),
-        ),
-        primaryXAxis: CategoryAxis(
-          name: 'xAxis',
-          maximum: 3,
-          minimum: 0,
-          majorGridLines: MajorGridLines(
-            width: 0,
-          ),
-          axisLine: AxisLine(
-            width: 0,
-          ),
-          majorTickLines: MajorTickLines(
-            width: 0,
-          ),
-          labelStyle: TextStyle(
-            color: kChartLabelColor,
-            fontSize: 11.0,
-            fontFamily: 'Ubuntu',
-          ),
-        ),
-        series: graphData(globalScoreChartData),
+      child: Obx(
+        () => statisticsController.isLoadingGoalsReport.value == true
+            ? Center(
+                child: CircularProgressIndicator(),
+              )
+            : SfCartesianChart(
+                tooltipBehavior: TooltipBehavior(
+                    enable: true,
+                    header: '',
+                    canShowMarker: true,
+                    textStyle: TextStyle(color: Colors.white),
+                    color: Colors.black.withOpacity(0.7),
+                    builder: (dynamic data, dynamic point, dynamic series,
+                        int index, int d) {
+                      return Container(
+                        padding: EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.7),
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        child: Text(
+                          '${data.date}\nGlobal: ${data.global}\nWellbeing: ${data.wellbeing}\nVocational: ${data.vocational}\nPersonal Development: ${data.personalDevelopment}',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      );
+                    }),
+                margin: EdgeInsets.symmetric(horizontal: 15),
+                borderWidth: 0,
+                borderColor: Colors.transparent,
+                plotAreaBorderWidth: 0,
+                enableAxisAnimation: true,
+                primaryYAxis: NumericAxis(
+                  name: 'yAxis',
+                  maximum: 100,
+                  minimum: 0,
+                  plotOffset: 10.0,
+                  majorGridLines: MajorGridLines(
+                    width: 1.2,
+                    color: kChartBorderColor,
+                  ),
+                  majorTickLines: MajorTickLines(
+                    width: 0,
+                  ),
+                  axisLine: AxisLine(
+                    width: 0,
+                  ),
+                  labelStyle: TextStyle(
+                    color: kChartLabelColor,
+                    fontSize: 11.0,
+                    fontFamily: 'Ubuntu',
+                  ),
+                ),
+                primaryXAxis: CategoryAxis(
+                  name: 'xAxis',
+                  maximum: 5,
+                  minimum: 0,
+                  majorGridLines: MajorGridLines(
+                    width: 0,
+                  ),
+                  axisLine: AxisLine(
+                    width: 0,
+                  ),
+                  majorTickLines: MajorTickLines(
+                    width: 0,
+                  ),
+                  labelStyle: TextStyle(
+                    color: kChartLabelColor,
+                    fontSize: 11.0,
+                    fontFamily: 'Ubuntu',
+                  ),
+                ),
+                series: graphData(statisticsController.chartData),
+              ),
       ),
     );
   }
 
-  dynamic graphData(List<GlobalScoreChartDateModel> dataSource) {
+  dynamic graphData(
+      List<GlobalScoreChartOneWeekDataModel> globalScoreChartData) {
     return <ChartSeries>[
-      StackedLineSeries<GlobalScoreChartDateModel, dynamic>(
-        dataSource: dataSource,
-        xValueMapper: (GlobalScoreChartDateModel data, _) => data.xValueMapper,
-        yValueMapper: (GlobalScoreChartDateModel data, _) => data.unKnownValue,
+      StackedLineSeries<GlobalScoreChartOneWeekDataModel, dynamic>(
+        groupName: "Global",
+        dataSource: globalScoreChartData,
+        xValueMapper: (GlobalScoreChartOneWeekDataModel data, _) => data.date,
+        yValueMapper: (GlobalScoreChartOneWeekDataModel data, _) => data.global,
         xAxisName: 'xAxis',
         yAxisName: 'yAxis',
         color: kLifeBergBlueColor,
       ),
-      StackedAreaSeries<GlobalScoreChartDateModel, dynamic>(
-        dataSource: dataSource,
-        xValueMapper: (GlobalScoreChartDateModel data, _) => data.xValueMapper,
-        yValueMapper: (GlobalScoreChartDateModel data, _) => data.unKnownValue,
+      StackedAreaSeries<GlobalScoreChartOneWeekDataModel, dynamic>(
+        groupName: "Global B",
+        dataSource: globalScoreChartData,
+        xValueMapper: (GlobalScoreChartOneWeekDataModel data, _) => data.date,
+        yValueMapper: (GlobalScoreChartOneWeekDataModel data, _) => data.global,
         xAxisName: 'xAxis',
         yAxisName: 'yAxis',
         color: kLifeBergBlueColor.withOpacity(0.22),
       ),
-      StackedLineSeries<GlobalScoreChartDateModel, dynamic>(
-        dataSource: dataSource,
-        xValueMapper: (GlobalScoreChartDateModel data, _) => data.xValueMapper,
-        yValueMapper: (GlobalScoreChartDateModel data, _) =>
-            data.dailyGratitude,
+      StackedLineSeries<GlobalScoreChartOneWeekDataModel, dynamic>(
+        groupName: "Wellbeing",
+        dataSource: globalScoreChartData,
+        xValueMapper: (GlobalScoreChartOneWeekDataModel data, _) => data.date,
+        yValueMapper: (GlobalScoreChartOneWeekDataModel data, _) =>
+            data.wellbeing,
         xAxisName: 'xAxis',
         yAxisName: 'yAxis',
-        color: kDailyGratitudeColor,
+        color: kStreaksColor,
       ),
-      StackedLineSeries<GlobalScoreChartDateModel, dynamic>(
-        dataSource: dataSource,
-        xValueMapper: (GlobalScoreChartDateModel data, _) => data.xValueMapper,
-        yValueMapper: (GlobalScoreChartDateModel data, _) => data.quiteTime,
-        xAxisName: 'xAxis',
-        yAxisName: 'yAxis',
-        color: kQuiteTimeColor,
-      ),
-      StackedLineSeries<GlobalScoreChartDateModel, dynamic>(
-        dataSource: dataSource,
-        xValueMapper: (GlobalScoreChartDateModel data, _) => data.xValueMapper,
-        yValueMapper: (GlobalScoreChartDateModel data, _) => data.rCGPA,
+      StackedLineSeries<GlobalScoreChartOneWeekDataModel, dynamic>(
+        dataSource: globalScoreChartData,
+        groupName: "Vocational",
+        xValueMapper: (GlobalScoreChartOneWeekDataModel data, _) => data.date,
+        yValueMapper: (GlobalScoreChartOneWeekDataModel data, _) =>
+            data.vocational,
         xAxisName: 'xAxis',
         yAxisName: 'yAxis',
         color: kRACGPExamColor,
+      ),
+      StackedLineSeries<GlobalScoreChartOneWeekDataModel, dynamic>(
+        dataSource: globalScoreChartData,
+        groupName: "Personal Development",
+        xValueMapper: (GlobalScoreChartOneWeekDataModel data, _) => data.date,
+        yValueMapper: (GlobalScoreChartOneWeekDataModel data, _) =>
+            data.personalDevelopment,
+        xAxisName: 'xAxis',
+        yAxisName: 'yAxis',
+        color: kDailyGratitudeColor,
       ),
     ];
   }

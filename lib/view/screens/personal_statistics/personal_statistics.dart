@@ -10,6 +10,7 @@ import 'package:life_berg/view/screens/personal_statistics/goals/goals.dart';
 import 'package:life_berg/view/screens/personal_statistics/goals/goals_expand.dart';
 import 'package:life_berg/view/screens/personal_statistics/mood/mood_expand.dart';
 import 'package:life_berg/view/screens/personal_statistics/score_board/score_board.dart';
+import 'package:life_berg/view/screens/personal_statistics/statistics_controller.dart';
 import 'package:life_berg/view/screens/settings/settings_screens/points/points_expand.dart';
 import 'package:life_berg/view/widget/charts_widget/mood_chart.dart';
 import 'package:life_berg/view/widget/charts_widget/points_accural_chart.dart';
@@ -31,8 +32,12 @@ class PersonalStatistics extends StatefulWidget {
 
 class _PersonalStatisticsState extends State<PersonalStatistics>
     with SingleTickerProviderStateMixin {
+  final StatisticsController statisticsController =
+      Get.put(StatisticsController());
+
   late TabController tabController;
   int currentTab = 0;
+  String? data;
 
   final List<MoodChartDataModel> dummyData = [
     MoodChartDataModel(
@@ -149,6 +154,7 @@ class _PersonalStatisticsState extends State<PersonalStatistics>
         padding: EdgeInsets.zero,
         physics: BouncingScrollPhysics(),
         children: [
+          // Text(data!),
           Padding(
             padding: EdgeInsets.all(15),
             child: SizedBox(
@@ -206,52 +212,88 @@ class _PersonalStatisticsState extends State<PersonalStatistics>
                 SizedBox(
                   height: 32,
                 ),
-                HeadingActionTile(
-                  heading: 'Scoreboard',
-                  haveTrailing: true,
-                  onTap: () => Get.to(
-                    () => ScoreBoard(),
-                  ),
-                ),
-                CustomIconTile(
-                  title: 'Daily gratitude',
-                  leadingColor: kDailyGratitudeColor,
-                  points: 86,
-                ),
-                CustomIconTile(
-                  title: 'Quiet Time',
-                  leadingColor: kStreaksColor,
-                  points: 100,
-                ),
-                CustomIconTile(
-                  title: 'RACGP Exam',
-                  leadingColor: kRACGPExamColor,
-                  points: 86,
-                ),
-                CustomIconTile(
-                  title: '10 Steps a day',
-                  leadingColor: kDayStepColor,
-                  points: 95,
-                ),
-                CustomIconTile(
-                  title: '20 mins cardio',
-                  leadingColor: kRACGPExamColor,
-                  points: 62,
-                ),
+                Obx(() => statisticsController.isLoadingGoalsReport.value ==
+                        true
+                    ? SizedBox(
+                        height: 300,
+                        child: Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      )
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          HeadingActionTile(
+                            heading: 'Scoreboard',
+                            haveTrailing: true,
+                            onTap: () => Get.to(
+                              () => ScoreBoard(),
+                            ),
+                          ),
+                          ListView.builder(
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemBuilder: (BuildContext ctx, index) {
+                              return CustomIconTile(
+                                title: statisticsController
+                                    .goalCompletionList[index]['name'],
+                                leadingColor: statisticsController
+                                    .getCategoryColor(statisticsController
+                                        .goalCompletionList[index]['category']),
+                                points: statisticsController
+                                    .goalCompletionList[index]
+                                        ['completionPercentage']
+                                    .toInt(),
+                              );
+                            },
+                            itemCount:
+                                statisticsController.goalCompletionList.length,
+                          )
+                        ],
+                      )),
+                // CustomIconTile(
+                //   title: 'Quiet Time',
+                //   leadingColor: kStreaksColor,
+                //   points: 100,
+                // ),
+                // CustomIconTile(
+                //   title: 'RACGP Exam',
+                //   leadingColor: kRACGPExamColor,
+                //   points: 86,
+                // ),
+                // CustomIconTile(
+                //   title: '10 Steps a day',
+                //   leadingColor: kDayStepColor,
+                //   points: 95,
+                // ),
+                // CustomIconTile(
+                //   title: '20 mins cardio',
+                //   leadingColor: kRACGPExamColor,
+                //   points: 62,
+                // ),
                 SizedBox(
                   height: 24,
                 ),
-                HeadingActionTile(
-                  heading: 'Mood',
-                  haveTrailing: true,
-                  onTap: () => Get.to(() => MoodExpand()),
-                ),
-                MoodChart(
-                  moodChartDataSource: dummyData,
-                  primaryXYAxisMax: 3,
-                  primaryXYAxisMin: 0,
-                  primaryYAxisMax: 100,
-                  primaryYAxisMin: 0,
+                Obx(
+                  () => statisticsController.isLoadingMoodHistory.value == true
+                      ? SizedBox(
+                          height: 300,
+                          child: Center(child: CircularProgressIndicator()),
+                        )
+                      : Column(
+                          children: [
+                            HeadingActionTile(
+                              heading: 'Mood',
+                              haveTrailing: true,
+                              onTap: () => Get.to(() =>
+                                  MoodExpand(statisticsController.moodHistory)),
+                            ),
+                            MoodChart(
+                              moodChartDataSource:
+                                  statisticsController.moodChartData,
+                            ),
+                          ],
+                        ),
                 ),
                 MainHeading(
                   paddingTop: 26,
@@ -261,35 +303,41 @@ class _PersonalStatisticsState extends State<PersonalStatistics>
                 Row(
                   children: [
                     Expanded(
-                      child: MilestoneCard(
-                        icon: Assets.imagesGoalsAchieve,
-                        points: '328',
-                        title: 'Goals\nAchieved',
+                      child: Obx(
+                        () => MilestoneCard(
+                          icon: Assets.imagesGoalsAchieve,
+                          points: statisticsController.goalsAchieved.value
+                              .toString(),
+                          title: 'Goals\nAchieved',
+                        ),
                       ),
                     ),
                     SizedBox(
                       width: 8,
                     ),
                     Expanded(
-                      child: MilestoneCard(
-                        icon: Assets.imagesBestStreaks,
-                        points: '45',
-                        title: 'Best\nStreaks',
-                      ),
+                      child: Obx(() => MilestoneCard(
+                            icon: Assets.imagesBestStreaks,
+                            points:
+                                statisticsController.topStreak.value.toString(),
+                            title: 'Best\nStreaks',
+                          )),
                     ),
                     SizedBox(
                       width: 8,
                     ),
                     Expanded(
-                      child: MilestoneCard(
+                        child: Obx(
+                      () => MilestoneCard(
                         icon: Assets.imagesPerfectDays,
-                        points: '62',
+                        points:
+                            statisticsController.perfectDays.value.toString(),
                         title: 'Perfect\nDays',
                       ),
-                    ),
+                    )),
                   ],
                 ),
-                MainHeading(
+                /*MainHeading(
                   paddingTop: 32,
                   text: 'Points Breakdown',
                   paddingBottom: 12,
@@ -310,7 +358,6 @@ class _PersonalStatisticsState extends State<PersonalStatistics>
                             yValueMapper: (ChartData data, _) => data.y,
                             cornerStyle: CornerStyle.bothFlat,
                             innerRadius: '80%',
-
                           ),
                         ],
                       ),
@@ -355,7 +402,7 @@ class _PersonalStatisticsState extends State<PersonalStatistics>
                   primaryXYAxisMin: 0,
                   primaryYAxisMax: 8,
                   primaryYAxisMin: 0,
-                ),
+                ),*/
                 SizedBox(
                   height: 30,
                 ),

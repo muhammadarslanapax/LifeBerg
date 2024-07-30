@@ -29,6 +29,8 @@ class _ComparisonExpandState extends State<ComparisonExpand> {
     '1 yr',
   ];
 
+  String? data;
+
   List<Widget> tabViews = [
     ComparisonChartOneWeek(),
     Container(),
@@ -64,6 +66,7 @@ class _ComparisonExpandState extends State<ComparisonExpand> {
           physics: BouncingScrollPhysics(),
           padding: EdgeInsets.zero,
           children: [
+            Text(data!),
             Padding(
               padding: EdgeInsets.all(15),
               child: SizedBox(

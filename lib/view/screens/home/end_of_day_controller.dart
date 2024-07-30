@@ -22,6 +22,7 @@ class EndOfDayController extends GetxController {
       TextEditingController();
 
   User? user;
+  RxString userName = "".obs;
 
   @override
   void onInit() {
@@ -34,12 +35,22 @@ class EndOfDayController extends GetxController {
     learnedTodayController.selection = TextSelection.fromPosition(
       TextPosition(offset: learnedTodayController.text.length),
     );
+    if (PrefUtils().lastGratefulText.isNotEmpty) {
+      greatFulController.text = PrefUtils().lastGratefulText;
+    }
+    if (PrefUtils().lastLearntText.isNotEmpty) {
+      learnedTodayController.text = PrefUtils().lastLearntText;
+    }
+    if (PrefUtils().lastHighlightText.isNotEmpty) {
+      tomorrowHighlightController.text = PrefUtils().lastHighlightText;
+    }
     _getUserData();
   }
 
   _getUserData() {
     if (PrefUtils().user.isNotEmpty) {
       user = User.fromJson(json.decode(PrefUtils().user));
+      userName.value = user?.userName ?? "";
     }
   }
 
