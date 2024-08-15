@@ -24,7 +24,7 @@ class ScoreBoard extends StatelessWidget {
     return Scaffold(
       backgroundColor: kSecondaryColor,
       appBar: simpleAppBar(
-        title: 'ScoreBoard',
+        title: 'Scoreboard',
       ),
       body: Padding(
         padding: EdgeInsets.symmetric(
@@ -40,99 +40,166 @@ class ScoreBoard extends StatelessWidget {
               customTrailingIcon: Assets.imagesPointsAccuralClose,
               onTap: () => Get.back(),
             ),
-            GestureDetector(
-              onTap: () {
-                showMenu(
-                  elevation: 10,
-                  constraints: BoxConstraints(
-                    maxWidth: 206,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    showMenu(
+                      elevation: 10,
+                      constraints: BoxConstraints(
+                        maxWidth: 150,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      context: context,
+                      position: RelativeRect.fromLTRB(0.0, 170.0, 0.0, 0.0),
+                      items: [
+                        scoreBoardMenuItem(
+                            title: 'Percentage',
+                            icon: '',
+                            onTap: () {
+                              scoreBoardController.sortBy.value = "Percentage";
+                              scoreBoardController
+                                  .calculateGoalPercentagesForLastWeek(
+                                  statisticsController
+                                      .goalReportListResponse!);
+                              Navigator.of(context).pop();
+                            }),
+                        scoreBoardMenuItem(
+                          borderColor: Colors.transparent,
+                            title: 'Importance',
+                            icon: '',
+                            onTap: () {
+                              scoreBoardController.sortBy.value =
+                                  "Importance";
+                              scoreBoardController
+                                  .calculateGoalPercentagesForLastWeek(
+                                  statisticsController
+                                      .goalReportListResponse!);
+                              Navigator.of(context).pop();
+                            }),
+                      ],
+                    );
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Obx(() => MyText(
+                            text: scoreBoardController.sortBy.value,
+                            size: 12,
+                            paddingRight: 8,
+                          )),
+                      Image.asset(
+                        Assets.imagesArrowDown,
+                        height: 20,
+                      ),
+                    ],
                   ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+                ),
+                GestureDetector(
+                  onTap: () {
+                    showMenu(
+                      elevation: 10,
+                      constraints: BoxConstraints(
+                        maxWidth: 150,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      context: context,
+                      position: RelativeRect.fromLTRB(110.0, 170.0, 0.0, 0.0),
+                      items: [
+                        scoreBoardMenuItem(
+                            title: 'This week',
+                            icon: '',
+                            onTap: () {
+                              scoreBoardController.graphType.value =
+                                  "This week";
+                              scoreBoardController
+                                  .calculateGoalPercentagesForLastWeek(
+                                      statisticsController
+                                          .goalReportListResponse!);
+                              Navigator.of(context).pop();
+                            }),
+                        scoreBoardMenuItem(
+                            title: 'This month',
+                            icon: '',
+                            onTap: () {
+                              scoreBoardController.graphType.value =
+                                  "This month";
+                              scoreBoardController
+                                  .calculateGoalPercentagesForLastWeek(
+                                      statisticsController
+                                          .goalReportListResponse!);
+                              Navigator.of(context).pop();
+                            }),
+                        scoreBoardMenuItem(
+                            title: 'This year',
+                            icon: '',
+                            onTap: () {
+                              scoreBoardController.graphType.value =
+                                  "This year";
+                              scoreBoardController
+                                  .calculateGoalPercentagesForLastWeek(
+                                      statisticsController
+                                          .goalReportListResponse!);
+                              Navigator.of(context).pop();
+                            }),
+                        scoreBoardMenuItem(
+                            title: 'All',
+                            icon: '',
+                            borderColor: Colors.transparent,
+                            onTap: () {
+                              scoreBoardController.graphType.value = "All";
+                              scoreBoardController
+                                  .calculateGoalPercentagesForLastWeek(
+                                      statisticsController
+                                          .goalReportListResponse!);
+                              Navigator.of(context).pop();
+                            }),
+                      ],
+                    );
+                  },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Obx(() => MyText(
+                            text: scoreBoardController.graphType.value,
+                            size: 12,
+                            paddingRight: 8,
+                          )),
+                      Image.asset(
+                        Assets.imagesArrowDown,
+                        height: 20,
+                      ),
+                    ],
                   ),
-                  context: context,
-                  position: RelativeRect.fromLTRB(110.0, 170.0, 0.0, 0.0),
-                  items: [
-                    menuItem(
-                        title: 'Past week',
-                        icon: '',
-                        onTap: () {
-                          scoreBoardController.graphType.value = "Past week";
-                          scoreBoardController
-                              .calculateGoalPercentagesForLastWeek(
-                                  statisticsController.goalReportListResponse!);
-                          Navigator.of(context).pop();
-                        }),
-                    menuItem(
-                        title: 'Past month',
-                        icon: '',
-                        onTap: () {
-                          scoreBoardController.graphType.value = "Past month";
-                          scoreBoardController
-                              .calculateGoalPercentagesForLastWeek(
-                                  statisticsController.goalReportListResponse!);
-                          Navigator.of(context).pop();
-                        }),
-                    menuItem(
-                        title: 'Past year',
-                        icon: '',
-                        onTap: () {
-                          scoreBoardController.graphType.value = "Past year";
-                          scoreBoardController
-                              .calculateGoalPercentagesForLastWeek(
-                                  statisticsController.goalReportListResponse!);
-                          Navigator.of(context).pop();
-                        }),
-                    menuItem(
-                        title: 'All',
-                        icon: '',
-                        borderColor: Colors.transparent,
-                        onTap: () {
-                          scoreBoardController.graphType.value = "All";
-                          scoreBoardController
-                              .calculateGoalPercentagesForLastWeek(
-                                  statisticsController.goalReportListResponse!);
-                          Navigator.of(context).pop();
-                        }),
-                  ],
-                );
-              },
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  Obx(() => MyText(
-                        text: scoreBoardController.graphType.value,
-                        size: 12,
-                        paddingRight: 8,
-                      )),
-                  Image.asset(
-                    Assets.imagesArrowDown,
-                    height: 20,
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
             SizedBox(
               height: 10,
             ),
             Expanded(
-              child:
-                  Obx(() => ListView.builder(
-                    itemBuilder: (BuildContext ctx, index) {
-                      return CustomIconTile(
-                        title: scoreBoardController.goalCompletionList[index]['name'],
-                        leadingColor: statisticsController.getCategoryColor(
-                            scoreBoardController.goalCompletionList[index]
-                            ['category']),
-                        points: scoreBoardController.goalCompletionList[index]
-                        ['completionPercentage']
-                            .toInt(),
-                      );
-                    },
-                    itemCount: scoreBoardController
-                        .goalCompletionList
-                        .length,
-                  ),),
+              child: Obx(
+                () => ListView.builder(
+                  itemBuilder: (BuildContext ctx, index) {
+                    return CustomIconTile(
+                      title: scoreBoardController.goalCompletionList[index]
+                          ['name'],
+                      leadingColor: statisticsController.getCategoryColor(
+                          scoreBoardController.goalCompletionList[index]
+                              ['category']),
+                      points: scoreBoardController.goalCompletionList[index]
+                              ['completionPercentage']
+                          .toInt(),
+                    );
+                  },
+                  itemCount: scoreBoardController.goalCompletionList.length,
+                ),
+              ),
             ),
             /*CustomIconTile(
               title: 'Daily gratitude',

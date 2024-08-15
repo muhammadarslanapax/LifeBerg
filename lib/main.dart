@@ -12,6 +12,7 @@ import 'package:life_berg/controller/personal_development_controller/personal_de
 import 'package:life_berg/shareprefrences/user_sharedprefrence.dart';
 import 'package:life_berg/utils/pref_utils.dart';
 
+
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
 }

@@ -25,7 +25,9 @@ class _SplashScreenState extends State<SplashScreen> {
       Duration(seconds: 2),
       () => Get.offAll(() => !PrefUtils().getIsShowIntro ?
           PrefUtils().loggedIn ?
-              BottomNavBar() :
+              BottomNavBar(
+                key: bottomNavBarKey,
+              ) :
       Login() : OnBoarding()),
     );
   }

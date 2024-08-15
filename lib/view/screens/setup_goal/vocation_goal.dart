@@ -65,7 +65,7 @@ class VocationGoal extends StatelessWidget {
                         .asMap()
                         .map((i, element) => MapEntry(
                               i,
-                              element != "Other"
+                              element != ""
                                   ? Obx(
                                       () {
                                         return ToggleButton(

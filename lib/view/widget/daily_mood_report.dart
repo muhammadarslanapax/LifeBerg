@@ -22,13 +22,8 @@ class DailyMoodReport extends StatelessWidget {
   DailyMoodReport({
     Key? key,
   }) : super(key: key);
-  final List<String> emojis = [
-    Assets.imagesVeryBad,
-    Assets.imagesBad,
-    Assets.imagesAverage,
-    Assets.imagesVeryGood,
-    Assets.imagesExcellent,
-  ];
+
+  final HomeController homeController = Get.find<HomeController>();
 
   @override
   Widget build(BuildContext context) {
@@ -37,7 +32,7 @@ class DailyMoodReport extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: List.generate(
-          emojis.length,
+          homeController.emojis.length,
           (index) {
             return GestureDetector(
               onTap: () {
@@ -52,20 +47,26 @@ class DailyMoodReport extends StatelessWidget {
                   },
                 );
               },
-              child: Container(
-                height: 30,
-                width: 30,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    width: 2.0,
-                    color: kDarkBlueColor,
+              child: Obx(
+                () => Container(
+                  height: 30,
+                  width: 30,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: homeController.savedSelectedMood.value.value ==
+                            homeController.emojis[index].value.value
+                        ? kLightPrimaryColor
+                        : Colors.transparent,
+                    border: Border.all(
+                      width: 2.0,
+                      color: kDarkBlueColor,
+                    ),
                   ),
-                ),
-                child: Center(
-                  child: Image.asset(
-                    emojis[index],
-                    height: 11.5,
+                  child: Center(
+                    child: Image.asset(
+                      homeController.emojis[index].emoji.value,
+                      height: 11.5,
+                    ),
                   ),
                 ),
               ),
@@ -81,14 +82,6 @@ class DailyMoodSheet extends StatelessWidget {
   final HomeController homeController = Get.find<HomeController>();
 
   DailyMoodSheet({Key? key}) : super(key: key);
-
-  final List<RxMoodData> emojis = [
-    RxMoodData(emoji: Assets.imagesVeryBad, value: 1),
-    RxMoodData(emoji: Assets.imagesBad, value: 2),
-    RxMoodData(emoji: Assets.imagesAverage, value: 3),
-    RxMoodData(emoji: Assets.imagesVeryGood, value: 4),
-    RxMoodData(emoji: Assets.imagesExcellent, value: 5),
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -120,14 +113,14 @@ class DailyMoodSheet extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: List.generate(
-                    emojis.length,
+                    homeController.emojis.length,
                     (index) {
                       return Obx(() {
                         return GestureDetector(
                           onTap: () {
                             homeController.updateEmoji(
-                                emojis[index].emoji.value,
-                                emojis[index].value.value);
+                                homeController.emojis[index].emoji.value,
+                                homeController.emojis[index].value.value);
                           },
                           child: Container(
                             height: 30,
@@ -135,7 +128,7 @@ class DailyMoodSheet extends StatelessWidget {
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: homeController.selectedMood.value.value ==
-                                      emojis[index].value.value
+                                      homeController.emojis[index].value.value
                                   ? kLightPrimaryColor
                                   : Colors.transparent,
                               border: Border.all(
@@ -145,7 +138,7 @@ class DailyMoodSheet extends StatelessWidget {
                             ),
                             child: Center(
                               child: Image.asset(
-                                emojis[index].emoji.value,
+                                homeController.emojis[index].emoji.value,
                                 height: 11.5,
                               ),
                             ),
@@ -186,6 +179,8 @@ class DailyMoodSheet extends StatelessWidget {
                       homeController.updateUserMood();
                       PrefUtils().savedMood =
                           homeController.selectedMood.value.value.toString();
+                      PrefUtils().savedMoodComment =
+                          homeController.moodCommentController.text.toString();
                       Get.dialog(
                         ImageDialog(
                           heading: 'Your mood has been captured',

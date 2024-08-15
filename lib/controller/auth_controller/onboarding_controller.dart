@@ -50,16 +50,16 @@ class OnboardingController extends GetxController {
   }
 
   final List<String> vocationGoalList = [
-    "Case logs",
-    "Task prioritisation",
-    "Project X",
-    "Research X",
-    "Plan kid’s activities",
-    "Use organiser",
-    "Study group",
-    "Patient care",
-    "Mentoring",
-    "Other"
+    "Patient care,",
+    "Research",
+    "Project",
+    "Study",
+    "Prioritisation",
+    "Mentor others",
+    "Innovation",
+    "Household tasks",
+    "Children's activities",
+    ""
   ];
 
   void getVocationGoal(int index) {
@@ -68,14 +68,15 @@ class OnboardingController extends GetxController {
   }
 
   final List<String> personalDevelopmentList = [
-    "Step out of comfort zone",
-    "Acts of kindness",
-    "Try new recipes",
-    "Acts of kindness",
-    "Weights",
-    "Quit smoking",
-    "Gratitude journal",
-    "Other"
+    "Acts of kindness,",
+    "Speak up",
+    "Sports",
+    "Cooking",
+    "Reduce screen time",
+    "Music",
+    "Learn something new",
+    "Reflection",
+    ""
   ];
 
   void getPersonalDevelopments(int index) {

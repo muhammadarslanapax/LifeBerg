@@ -91,7 +91,7 @@ class AddNewJournal extends StatelessWidget {
                 }
               }, journal!.sId ?? "");
             } else {
-              controller.addNewJournal((isCreated) {
+              controller.addNewJournal((isCreated,id) {
                 if (isCreated) {
                   controller.isShowDevelopmentSearch.value = false;
                   controller.isShowGratitudeSearch.value = false;

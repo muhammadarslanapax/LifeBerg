@@ -61,7 +61,9 @@ class WeAreOff extends StatelessWidget {
               radius: 16,
               isDisable: false,
               text: 'Let’s go!',
-              onTap: () => Get.offAll(() => BottomNavBar()),
+              onTap: () => Get.offAll(() => BottomNavBar(
+                    key: bottomNavBarKey,
+                  )),
             ),
           ),
           SizedBox(

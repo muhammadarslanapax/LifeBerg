@@ -17,6 +17,7 @@ import '../../constant/color.dart';
 import '../../model/error/error_response.dart';
 import '../../model/generic_response.dart';
 import '../../model/goal/goal.dart';
+import '../../model/journal/add_journal_response.dart';
 import '../../utils/pref_utils.dart';
 import '../../utils/toast_utils.dart';
 
@@ -99,8 +100,15 @@ class JournalController extends GetxController
     );
     tabController.addListener(() {
       currentTab = tabController.index;
+      print(currentTab);
     });
     getUserJournals();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    tabController.dispose();
   }
 
   setInitialText() {
@@ -146,13 +154,13 @@ class JournalController extends GetxController
   }
 
   getUserJournals() async {
-    allDevelopmentJournals.clear();
-    allGratitudeJournals.clear();
-    gratitudeJournals.clear();
-    developmentJournals.clear();
     isLoadingJournals.value = true;
     FocusManager.instance.primaryFocus?.unfocus();
     httpManager.getJournals(PrefUtils().token).then((value) {
+      allDevelopmentJournals.clear();
+      allGratitudeJournals.clear();
+      gratitudeJournals.clear();
+      developmentJournals.clear();
       if (value.error == null) {
         if (value.snapshot is! ErrorResponse) {
           JournalListResponse journalListResponse = value.snapshot;
@@ -236,33 +244,55 @@ class JournalController extends GetxController
     });
   }
 
-  addNewJournal(Function(bool isSuccess) onJournalCreate, String journal,
-      String color, String category) {
+  addNewJournal(Function(bool isSuccess, String journalId) onJournalCreate,
+      String journal, String color, String category,
+      {String id = ""}) {
     FocusManager.instance.primaryFocus?.unfocus();
     SmartDialog.showLoading(msg: pleaseWait);
-    httpManager
-        .addNewJournal(
-      PrefUtils().token,
-      journal,
-      color,
-      category,
-    )
-        .then((response) {
-      SmartDialog.dismiss();
-      if (response.error == null) {
-        if (response.snapshot! is! ErrorResponse) {
-          GenericResponse genericResponse = response.snapshot;
-          if (genericResponse.success == true) {
-            onJournalCreate(true);
-          } else {
-            onJournalCreate(false);
+    if (id.isNotEmpty) {
+      httpManager
+          .updateJournal(PrefUtils().token, id, journal, "")
+          .then((response) {
+        SmartDialog.dismiss();
+        if (response.error == null) {
+          if (response.snapshot! is! ErrorResponse) {
+            GenericResponse genericResponse = response.snapshot;
+            if (genericResponse.success == true) {
+              onJournalCreate(true, id);
+            } else {
+              onJournalCreate(false, "");
+            }
           }
+        } else {
+          onJournalCreate(false, "");
+          ToastUtils.showToast(someError, color: kRedColor);
         }
-      } else {
-        onJournalCreate(false);
-        ToastUtils.showToast(someError, color: kRedColor);
-      }
-    });
+      });
+    } else {
+      httpManager
+          .addNewJournal(
+        PrefUtils().token,
+        journal,
+        color,
+        category,
+      )
+          .then((response) {
+        SmartDialog.dismiss();
+        if (response.error == null) {
+          if (response.snapshot! is! ErrorResponse) {
+            AddJournalResponse addJournalResponse = response.snapshot;
+            if (addJournalResponse.success == true) {
+              onJournalCreate(true, addJournalResponse.data!.sId!);
+            } else {
+              onJournalCreate(false, "");
+            }
+          }
+        } else {
+          onJournalCreate(false, "");
+          ToastUtils.showToast(someError, color: kRedColor);
+        }
+      });
+    }
   }
 
   submitReport(Function(bool isSuccess) onReportSubmit, String highlight,

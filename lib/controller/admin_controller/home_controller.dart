@@ -50,6 +50,15 @@ class HomeController extends FullLifeCycleController with FullLifeCycleMixin {
   RxString imageFilePath = "".obs;
 
   RxMoodData selectedMood = RxMoodData(emoji: "", value: -1);
+  RxMoodData savedSelectedMood = RxMoodData(emoji: "", value: -1);
+
+  final List<RxMoodData> emojis = [
+    RxMoodData(emoji: Assets.imagesVeryBad, value: 1),
+    RxMoodData(emoji: Assets.imagesBad, value: 2),
+    RxMoodData(emoji: Assets.imagesAverage, value: 3),
+    RxMoodData(emoji: Assets.imagesVeryGood, value: 4),
+    RxMoodData(emoji: Assets.imagesExcellent, value: 5),
+  ];
 
   List<Goal> wellBeingGoals = <Goal>[].obs;
   List<Goal> vocationalGoals = <Goal>[].obs;
@@ -100,9 +109,23 @@ class HomeController extends FullLifeCycleController with FullLifeCycleMixin {
   void onInit() {
     super.onInit();
     _startTimer();
+    print("Home Init");
     moodCommentController = TextEditingController();
     goalCommentController = TextEditingController();
-    _getUserData();
+    setTodayMood();
+    getUserData();
+  }
+
+  setTodayMood(){
+    if (PrefUtils().savedMoodComment.isNotEmpty) {
+      moodCommentController.text = PrefUtils().savedMoodComment;
+    }
+    if (PrefUtils().savedMood.isNotEmpty) {
+      savedSelectedMood.value.value = emojis[int.parse(PrefUtils().savedMood) - 1].value.value;
+      savedSelectedMood.emoji.value = emojis[int.parse(PrefUtils().savedMood) - 1].emoji.value;
+      updateEmoji(emojis[int.parse(PrefUtils().savedMood) - 1].emoji.value,
+          emojis[int.parse(PrefUtils().savedMood) - 1].value.value);
+    }
   }
 
   void _startTimer() {
@@ -112,8 +135,15 @@ class HomeController extends FullLifeCycleController with FullLifeCycleMixin {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    print("Home Dispose");
+  }
+
+  @override
   void onClose() {
     _timer?.cancel();
+    print("Home Close");
     // moodCommentController.dispose();
     // goalCommentController.dispose();
     // learnedTodayController.dispose();
@@ -127,7 +157,7 @@ class HomeController extends FullLifeCycleController with FullLifeCycleMixin {
     selectedMood.value.value = value;
   }
 
-  _getUserData({bool isShowLoading = true}) {
+  getUserData({bool isShowLoading = true}) {
     if (PrefUtils().user.isNotEmpty) {
       checkAndResetGoals();
       user = User.fromJson(json.decode(PrefUtils().user));
@@ -163,7 +193,7 @@ class HomeController extends FullLifeCycleController with FullLifeCycleMixin {
   String getIcebergComment() {
     if (globalPercentage.value == 100) {
       Random random = Random();
-      double randomNumber = random.nextDouble() + 1;
+      int randomNumber = 1 + random.nextInt(2);
       if (randomNumber == 1) {
         return "Amazing! You have perfectly achieved all of your goals!";
       } else if (randomNumber == 2) {
@@ -179,7 +209,7 @@ class HomeController extends FullLifeCycleController with FullLifeCycleMixin {
       return "Brilliant! Keep up the great work!";
     } else if (globalPercentage.value >= 60 && globalPercentage.value <= 79) {
       return "Fantastic! Keep up the great work!";
-    } else if (globalPercentage.value >= 40 && globalPercentage.value >= 59) {
+    } else if (globalPercentage.value >= 40 && globalPercentage.value <= 59) {
       return "Great work! Keep the momentum going!";
     } else if (globalPercentage.value >= 20 && globalPercentage.value <= 39) {
       return "You're on a roll! Keep it up!";
@@ -187,7 +217,7 @@ class HomeController extends FullLifeCycleController with FullLifeCycleMixin {
       return "Really nice work, you achieved more goals than yesterday!";
     } else if (globalPercentage.value == 0) {
       Random random = Random();
-      double randomNumber = random.nextDouble() + 1;
+      int randomNumber = 1 + random.nextInt(2);
       if (randomNumber == 1) {
         return "Hello! It's great to see you checking in!";
       } else if (randomNumber == 2) {
@@ -225,9 +255,13 @@ class HomeController extends FullLifeCycleController with FullLifeCycleMixin {
       PrefUtils().lastHighlightText = "";
       PrefUtils().lastLearntText = "";
       PrefUtils().lastGratefulText = "";
+      PrefUtils().lastGratefulTextId = "";
+      PrefUtils().lastLearntTextId = "";
       PrefUtils().isGoalSubmittedToday = false;
       PrefUtils().submittedGoals = "";
       PrefUtils().setSkippedGoals = "";
+      PrefUtils().savedMood = "";
+      PrefUtils().savedMoodComment = "";
       PrefUtils().lastSavedDate = now.toIso8601String();
       if (PrefUtils().tomorrowHighlightGoalDate.isNotEmpty) {
         var tomorrowHighlightDate =
@@ -334,6 +368,33 @@ class HomeController extends FullLifeCycleController with FullLifeCycleMixin {
         goal.goalMeasure!.type!,
         isChecked,
         trackValue,
+        "",
+      );
+      goalSubmitData.add(goalData);
+    }
+    String jsonString =
+        jsonEncode(goalSubmitData.map((goal) => goal.toJson()).toList());
+    PrefUtils().submittedGoals = jsonString;
+  }
+
+  saveLocalGoalComment(
+    Goal goal,
+  ) {
+    bool isFound = false;
+    goal.comment = goalCommentController.text.toString();
+    for (var goals in goalSubmitData) {
+      if (goals.goalId == goal.sId) {
+        goals.comment = goalCommentController.text.toString();
+        isFound = true;
+      }
+    }
+    if (!isFound) {
+      GoalSubmitData goalData = GoalSubmitData(
+        goal.sId!,
+        goal.goalMeasure!.type!,
+        false,
+        "0.0",
+        goalCommentController.text.toString(),
       );
       goalSubmitData.add(goalData);
     }
@@ -349,6 +410,15 @@ class HomeController extends FullLifeCycleController with FullLifeCycleMixin {
       }
     }
     return false;
+  }
+
+  String getGoalComment(Goal goal) {
+    for (var goalData in goalSubmitData) {
+      if (goalData.goalId == goal.sId!) {
+        return goalData.comment;
+      }
+    }
+    return "";
   }
 
   String checkGoalTrackValue(Goal goal) {
@@ -485,6 +555,7 @@ class HomeController extends FullLifeCycleController with FullLifeCycleMixin {
         if (value.snapshot is! ErrorResponse) {
           GenericResponse genericResponse = value.snapshot;
           if (genericResponse.success == true) {
+            setTodayMood();
           } else {
             SmartDialog.dismiss();
             ToastUtils.showToast(genericResponse.message ?? "",
@@ -521,6 +592,7 @@ class HomeController extends FullLifeCycleController with FullLifeCycleMixin {
                   goal.isChecked.value = checkIsGoalChecked(goal);
                   goal.sliderValue.value =
                       double.parse(checkGoalTrackValue(goal));
+                  goal.comment = getGoalComment(goal);
                   vocationalGoals.add(goal);
                 }
                 calculatePercentage();
@@ -531,6 +603,7 @@ class HomeController extends FullLifeCycleController with FullLifeCycleMixin {
                   goal.isChecked.value = checkIsGoalChecked(goal);
                   goal.sliderValue.value =
                       double.parse(checkGoalTrackValue(goal));
+                  goal.comment = getGoalComment(goal);
                   personalDevGoals.add(goal);
                 }
 
@@ -542,6 +615,7 @@ class HomeController extends FullLifeCycleController with FullLifeCycleMixin {
                   goal.isChecked.value = checkIsGoalChecked(goal);
                   goal.sliderValue.value =
                       double.parse(checkGoalTrackValue(goal));
+                  goal.comment = getGoalComment(goal);
                   wellBeingGoals.add(goal);
                 }
                 calculatePercentage();
@@ -688,7 +762,7 @@ class HomeController extends FullLifeCycleController with FullLifeCycleMixin {
 
   @override
   void onResumed() {
-    _getUserData(isShowLoading: false);
+    getUserData(isShowLoading: false);
   }
 
   @override

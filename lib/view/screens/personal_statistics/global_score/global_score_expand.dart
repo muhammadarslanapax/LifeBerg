@@ -29,24 +29,29 @@ class _GlobalScoreExpandState extends State<GlobalScoreExpand>
     super.initState();
     tabController = TabController(length: 5, vsync: this);
     tabController.addListener(() {
-      switch (tabController.index) {
-        case 0:
-          globalScoreController.tabType.value = "one_week";
-          break;
-        case 1:
-          globalScoreController.tabType.value = "one_month";
-          break;
-        case 2:
-          globalScoreController.tabType.value = "three_month";
-          break;
-        case 3:
-          globalScoreController.tabType.value = "six_month";
-          break;
-        case 4:
-          globalScoreController.tabType.value = "one_year";
-          break;
+      if(tabController.indexIsChanging){
+
+      }else {
+        globalScoreController.chartData.clear();
+        switch (tabController.index) {
+          case 0:
+            globalScoreController.tabType.value = "one_week";
+            break;
+          case 1:
+            globalScoreController.tabType.value = "one_month";
+            break;
+          case 2:
+            globalScoreController.tabType.value = "three_month";
+            break;
+          case 3:
+            globalScoreController.tabType.value = "six_month";
+            break;
+          case 4:
+            globalScoreController.tabType.value = "one_year";
+            break;
+        }
+        globalScoreController.getGlobalScoreReport();
       }
-      globalScoreController.getGlobalScoreReport();
     });
   }
 

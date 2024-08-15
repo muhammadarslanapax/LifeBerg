@@ -39,28 +39,6 @@ class _PersonalStatisticsState extends State<PersonalStatistics>
   int currentTab = 0;
   String? data;
 
-  final List<MoodChartDataModel> dummyData = [
-    MoodChartDataModel(
-      'Jan - Mar',
-      0,
-    ),
-    MoodChartDataModel(
-      'Apr - July',
-      25,
-    ),
-    MoodChartDataModel(
-      'Aug - Oct',
-      50,
-    ),
-    MoodChartDataModel(
-      'Nov-Jan',
-      25,
-    ),
-    MoodChartDataModel(
-      '',
-      70,
-    ),
-  ];
 
   List<String> tabs = [
     'Global Score',
@@ -197,7 +175,7 @@ class _PersonalStatisticsState extends State<PersonalStatistics>
             ),
           ),
           Container(
-            height: 200,
+            height: 240,
             child: TabBarView(
               physics: BouncingScrollPhysics(),
               controller: tabController,
@@ -286,7 +264,7 @@ class _PersonalStatisticsState extends State<PersonalStatistics>
                               heading: 'Mood',
                               haveTrailing: true,
                               onTap: () => Get.to(() =>
-                                  MoodExpand(statisticsController.moodHistory)),
+                                  MoodExpand()),
                             ),
                             MoodChart(
                               moodChartDataSource:

@@ -15,6 +15,7 @@ import 'package:life_berg/view/screens/admin/wellbeing_action_plan/wellbeing_act
 import 'package:life_berg/view/screens/admin/wellbeing_action_plan/wellbing_action_plan_controller.dart';
 import 'package:life_berg/view/screens/bottom_nav_bar/bottom_nav_bar.dart';
 import 'package:life_berg/view/screens/home/end_of_day_controller.dart';
+import 'package:life_berg/view/screens/personal_statistics/statistics_controller.dart';
 import 'package:life_berg/view/widget/custom_bottom_sheet.dart';
 import 'package:life_berg/view/widget/main_heading.dart';
 import 'package:life_berg/view/widget/my_button.dart';
@@ -36,6 +37,8 @@ class EndOfDayReport extends StatelessWidget {
   final HomeController homeController = Get.find<HomeController>();
   final JournalController journalController = Get.put(JournalController());
   final EndOfDayController endOfDayController = Get.put(EndOfDayController());
+  final StatisticsController statisticsController =
+      Get.find<StatisticsController>();
 
   EndOfDayReport({Key? key}) : super(key: key);
 
@@ -247,7 +250,9 @@ class EndOfDayReport extends StatelessWidget {
             MyButton(
               radius: 16.0,
               height: 56,
-              text: submit,
+              text: homeController.isGoalSubmittedToday.value == true
+                  ? reSubmit
+                  : submit,
               onTap: () {
                 homeController.isGoalSubmittedToday.value = true;
                 PrefUtils().lastLearntText =
@@ -288,11 +293,14 @@ class EndOfDayReport extends StatelessWidget {
                   journalController.submitReport((isSuccess) {
                     if (greatFull.isNotEmpty &&
                         greatFull.replaceAll(" ", "") != "\u2022") {
-                      journalController.addNewJournal((isSuccess) {
+                      journalController.addNewJournal((isSuccess, id) {
                         if (isSuccess) {
+                          PrefUtils().lastGratefulTextId = id;
                           if (learnedToday.isNotEmpty &&
                               learnedToday.replaceAll(" ", "") != "\u2022") {
-                            journalController.addNewJournal((isSuccess) {
+                            journalController.addNewJournal((isSuccess, id) {
+                              journalController.getUserJournals();
+                              PrefUtils().lastLearntTextId = id;
                               SmartDialog.dismiss();
                               journalController.getUserJournals();
                               endOfDayController.setInitialBulletPoint();
@@ -301,7 +309,8 @@ class EndOfDayReport extends StatelessWidget {
                                 endOfDayController.learnedTodayController.text
                                     .toString(),
                                 colorToHex(kTertiaryColor),
-                                "Development");
+                                "Development",
+                                id: PrefUtils().lastLearntTextId);
                           } else {
                             SmartDialog.dismiss();
                             journalController.getUserJournals();
@@ -310,14 +319,18 @@ class EndOfDayReport extends StatelessWidget {
                           }
                         }
                       }, endOfDayController.greatFulController.text.toString(),
-                          colorToHex(kTertiaryColor), "Gratitudes");
+                          colorToHex(kTertiaryColor), "Gratitudes",
+                          id: PrefUtils().lastGratefulTextId);
                     } else if (learnedToday.isNotEmpty &&
                         learnedToday.replaceAll(" ", "") != "\u2022") {
-                      journalController.addNewJournal((isSuccess) {
+                      journalController.addNewJournal((isSuccess, id) {
                         if (isSuccess) {
+                          PrefUtils().lastLearntTextId = id;
                           if (greatFull.isNotEmpty &&
                               greatFull.replaceAll(" ", "") != "\u2022") {
-                            journalController.addNewJournal((isSuccess) {
+                            journalController.addNewJournal((isSuccess, id) {
+                              journalController.getUserJournals();
+                              PrefUtils().lastGratefulTextId = id;
                               SmartDialog.dismiss();
                               journalController.getUserJournals();
                               endOfDayController.setInitialBulletPoint();
@@ -326,7 +339,8 @@ class EndOfDayReport extends StatelessWidget {
                                 endOfDayController.greatFulController.text
                                     .toString(),
                                 colorToHex(kTertiaryColor),
-                                "Gratitudes");
+                                "Gratitudes",
+                                id: PrefUtils().lastGratefulTextId);
                           } else {
                             SmartDialog.dismiss();
                             journalController.getUserJournals();
@@ -338,7 +352,8 @@ class EndOfDayReport extends StatelessWidget {
                           endOfDayController.learnedTodayController.text
                               .toString(),
                           colorToHex(kTertiaryColor),
-                          "Development");
+                          "Development",
+                          id: PrefUtils().lastLearntTextId);
                     } else {
                       SmartDialog.dismiss();
                       showEndDayReportSuccessDialog(context);
@@ -430,13 +445,24 @@ class EndOfDayReport extends StatelessWidget {
                         right: 0,
                         child: MyText(
                           onTap: () {
+                            statisticsController.getUserData();
                             Get.back();
-                            Get.offAll(
-                              () => BottomNavBar(
-                                currentIndex: 4,
-                                currentRoute: '/personal_statistics',
-                              ),
-                            );
+                            Get.back();
+                            final state = bottomNavBarKey.currentState
+                                as BottomNavBarState?;
+                            state?.selectTab(4);
+                            // Navigator.of(context).pushAndRemoveUntil(
+                            //     MaterialPageRoute(builder: (_) =>BottomNavBar(
+                            //       currentIndex: 4,
+                            //       currentRoute: '/personal_statistics',
+                            //     )),
+                            //     (route) => false);
+                            // Get.offAll(
+                            //   () => BottomNavBar(
+                            //     currentIndex: 4,
+                            //     currentRoute: '/personal_statistics',
+                            //   ),
+                            // );
                           },
                           align: TextAlign.end,
                           text: okay_,

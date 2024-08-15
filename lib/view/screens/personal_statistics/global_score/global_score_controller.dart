@@ -75,49 +75,31 @@ class GlobalScoreController extends FullLifeCycleController
 
   List<GlobalScoreChartOneWeekDataModel> getGlobalScoreReport() {
     isLoadingGoalsReport.value = true;
-    chartData.clear();
     if (tabType.value == "one_week") {
-      Map<String, Map<String, List<double>>> categorizedData = {
-        'Mon': {'Vocational': [], 'Wellbeing': [], 'Personal Development': []},
-        'Tue': {'Vocational': [], 'Wellbeing': [], 'Personal Development': []},
-        'Wed': {'Vocational': [], 'Wellbeing': [], 'Personal Development': []},
-        'Thu': {'Vocational': [], 'Wellbeing': [], 'Personal Development': []},
-        'Fri': {'Vocational': [], 'Wellbeing': [], 'Personal Development': []},
-        'Sat': {'Vocational': [], 'Wellbeing': [], 'Personal Development': []},
-        'Sun': {'Vocational': [], 'Wellbeing': [], 'Personal Development': []},
-      };
+      Map<String, Map<String, List<double>>> categorizedData = {};
+      Map<String, int> totalGoals = {};
 
-      // Track total goals and completed goals for each day
-      Map<String, int> totalGoals = {
-        'Mon': 0,
-        'Tue': 0,
-        'Wed': 0,
-        'Thu': 0,
-        'Fri': 0,
-        'Sat': 0,
-        'Sun': 0
-      };
-      Map<String, int> completedGoals = {
-        'Mon': 0,
-        'Tue': 0,
-        'Wed': 0,
-        'Thu': 0,
-        'Fri': 0,
-        'Sat': 0,
-        'Sun': 0
-      };
+      DateTime now = DateTime.now();
+      DateTime startOfLastWeek = now.subtract(Duration(days: 7));
 
-      DateTime currentDate = DateTime.now();
-      DateTime oneWeekAgo = currentDate.subtract(Duration(days: 6));
+      for (int i = 1; i <= 7; i++) {
+        DateTime date = startOfLastWeek.add(Duration(days: i));
+        String formattedDate = DateFormat('yyyy-MM-dd').format(date);
+        categorizedData[formattedDate] = {
+          'Vocational': [],
+          'Wellbeing': [],
+          'Personal Development': []
+        };
+        totalGoals[formattedDate] = 0;
+      }
 
       for (var report in controller.goalReportListResponse!.data!) {
         DateTime reportDate = DateTime.parse(report.date!);
-        if (reportDate.isBefore(oneWeekAgo) ||
-            reportDate.isAfter(currentDate)) {
+        String formattedDate = DateFormat('yyyy-MM-dd').format(reportDate);
+
+        if (!categorizedData.containsKey(formattedDate)) {
           continue;
         }
-
-        String dayOfWeek = getDayOfWeek(reportDate);
 
         for (var detail in report.details!) {
           if (detail.goal != null) {
@@ -125,56 +107,50 @@ class GlobalScoreController extends FullLifeCycleController
 
             if (detail.type == 'string') {
               double value = double.parse(detail.value!);
-              completionPercentage = value > 50 ? 100 : 0;
+              completionPercentage = value * 10;
             } else if (detail.type == 'boolean') {
               bool value = detail.value == 'true';
               completionPercentage = value ? 100 : 0;
             }
 
-            categorizedData[dayOfWeek]?[detail.goal!.category!.name]
+            categorizedData[formattedDate]?[detail.goal!.category!.name]
                 ?.add(completionPercentage);
 
-            // Update total and completed goals
-            totalGoals[dayOfWeek] = (totalGoals[dayOfWeek] ?? 0) + 1;
-            if (completionPercentage == 100) {
-              completedGoals[dayOfWeek] = (completedGoals[dayOfWeek] ?? 0) + 1;
-            }
+            totalGoals[formattedDate] = (totalGoals[formattedDate] ?? 0) + 1;
           }
         }
       }
 
-      categorizedData.forEach((day, categoryData) {
-        double vocationalAvg = calculateAverage(categoryData['Vocational']!);
-        double wellbeingAvg = calculateAverage(categoryData['Wellbeing']!);
-        double personalDevelopmentAvg =
-            calculateAverage(categoryData['Personal Development']!);
+      for (int i = 1; i <= 7; i++) {
+        DateTime date = startOfLastWeek.add(Duration(days: i));
+        String formattedDate = DateFormat('yyyy-MM-dd').format(date);
 
-        // Calculate global average as the ratio of completed goals to total goals
-        double globalAvg = totalGoals[day]! > 0
-            ? (completedGoals[day]! / totalGoals[day]!) * 100
+        double vocationalAvg =
+        calculateAverage(categorizedData[formattedDate]!['Vocational']!);
+        double wellbeingAvg =
+        calculateAverage(categorizedData[formattedDate]!['Wellbeing']!);
+        double personalDevelopmentAvg =
+        calculateAverage(categorizedData[formattedDate]!['Personal Development']!);
+
+        double globalAvg = totalGoals[formattedDate]! > 0
+            ? ((vocationalAvg + wellbeingAvg + personalDevelopmentAvg) / 3)
             : 0;
 
-        // Debug prints
-        print('Day: $day');
-        print('Total Goals: ${totalGoals[day]}');
-        print('Completed Goals: ${completedGoals[day]}');
-        print('Global Avg: $globalAvg');
-
         chartData.add(GlobalScoreChartOneWeekDataModel(
-          day,
+          formattedDate,
           globalAvg.clamp(0, 100).toInt(),
           wellbeingAvg.clamp(0, 100).toInt(),
           vocationalAvg.clamp(0, 100).toInt(),
           personalDevelopmentAvg.clamp(0, 100).toInt(),
         ));
-      });
+      }
+
     } else if (tabType.value == "one_month") {
       Map<String, Map<String, List<double>>> categorizedData = {};
 
       DateTime currentDate = DateTime.now();
       DateTime oneMonthAgo = currentDate.subtract(Duration(days: 30));
 
-      // Generate date labels for the last 30 days
       for (int i = 0; i <= 30; i++) {
         DateTime date = currentDate.subtract(Duration(days: i));
         String label = DateFormat('MMM dd').format(date);
@@ -185,14 +161,11 @@ class GlobalScoreController extends FullLifeCycleController
         };
       }
 
-      // Track total goals and completed goals
       Map<String, int> totalGoals = {};
-      Map<String, int> completedGoals = {};
 
       for (var report in controller.goalReportListResponse!.data!) {
         DateTime reportDate = DateTime.parse(report.date!);
-        if (reportDate.isBefore(oneMonthAgo) ||
-            reportDate.isAfter(currentDate)) {
+        if (reportDate.isBefore(oneMonthAgo) || reportDate.isAfter(currentDate)) {
           continue;
         }
 
@@ -204,7 +177,7 @@ class GlobalScoreController extends FullLifeCycleController
 
             if (detail.type == 'string') {
               double value = double.parse(detail.value!);
-              completionPercentage = value > 50 ? 100 : 0;
+              completionPercentage = value * 10;
             } else if (detail.type == 'boolean') {
               bool value = detail.value == 'true';
               completionPercentage = value ? 100 : 0;
@@ -213,11 +186,7 @@ class GlobalScoreController extends FullLifeCycleController
             categorizedData[dateLabel]?[detail.goal!.category!.name]
                 ?.add(completionPercentage);
 
-            // Initialize counters if necessary
             totalGoals[dateLabel] = (totalGoals[dateLabel] ?? 0) + 1;
-            if (completionPercentage == 100) {
-              completedGoals[dateLabel] = (completedGoals[dateLabel] ?? 0) + 1;
-            }
           }
         }
       }
@@ -225,22 +194,11 @@ class GlobalScoreController extends FullLifeCycleController
       categorizedData.forEach((dateLabel, categoryData) {
         double vocationalAvg = calculateAverage(categoryData['Vocational']!);
         double wellbeingAvg = calculateAverage(categoryData['Wellbeing']!);
-        double personalDevelopmentAvg =
-            calculateAverage(categoryData['Personal Development']!);
+        double personalDevelopmentAvg = calculateAverage(categoryData['Personal Development']!);
 
-        // Calculate global average as the ratio of completed goals to total goals
-        double globalAvg = (totalGoals.containsKey(dateLabel) &&
-                totalGoals[dateLabel]! > 0)
-            ? (completedGoals.containsKey(dateLabel)
-                ? (completedGoals[dateLabel]! / totalGoals[dateLabel]!) * 100
-                : 0)
+        double globalAvg = totalGoals.containsKey(dateLabel) && totalGoals[dateLabel]! > 0
+            ? ((vocationalAvg + wellbeingAvg + personalDevelopmentAvg) / 3)
             : 0;
-
-        // Debug prints
-        print('Date: $dateLabel');
-        print('Total Goals: ${totalGoals[dateLabel]}');
-        print('Completed Goals: ${completedGoals[dateLabel]}');
-        print('Global Avg: $globalAvg');
 
         chartData.add(GlobalScoreChartOneWeekDataModel(
           dateLabel,
@@ -250,14 +208,13 @@ class GlobalScoreController extends FullLifeCycleController
           personalDevelopmentAvg.clamp(0, 100).toInt(),
         ));
       });
+
     } else if (tabType.value == "three_month") {
       Map<String, Map<String, List<double>>> categorizedData = {};
 
       DateTime currentDate = DateTime.now();
-      DateTime threeMonthsAgo =
-          DateTime(currentDate.year, currentDate.month - 2, 1);
+      DateTime threeMonthsAgo = DateTime(currentDate.year, currentDate.month - 2, 1);
 
-      // Generate month labels for the last 3 months
       for (int i = 2; i >= 0; i--) {
         DateTime date = DateTime(currentDate.year, currentDate.month - i, 1);
         String label = DateFormat('MMM').format(date);
@@ -268,14 +225,11 @@ class GlobalScoreController extends FullLifeCycleController
         };
       }
 
-      // Track total goals and completed goals for each month
       Map<String, int> totalGoals = {};
-      Map<String, int> completedGoals = {};
 
       for (var report in controller.goalReportListResponse!.data!) {
         DateTime reportDate = DateTime.parse(report.date!);
-        if (reportDate.isBefore(threeMonthsAgo) ||
-            reportDate.isAfter(currentDate)) {
+        if (reportDate.isBefore(threeMonthsAgo) || reportDate.isAfter(currentDate)) {
           continue;
         }
 
@@ -287,7 +241,7 @@ class GlobalScoreController extends FullLifeCycleController
 
             if (detail.type == 'string') {
               double value = double.parse(detail.value!);
-              completionPercentage = value > 50 ? 100 : 0;
+              completionPercentage = value * 10;
             } else if (detail.type == 'boolean') {
               bool value = detail.value == 'true';
               completionPercentage = value ? 100 : 0;
@@ -296,12 +250,7 @@ class GlobalScoreController extends FullLifeCycleController
             categorizedData[monthLabel]?[detail.goal!.category!.name]
                 ?.add(completionPercentage);
 
-            // Initialize counters if necessary
             totalGoals[monthLabel] = (totalGoals[monthLabel] ?? 0) + 1;
-            if (completionPercentage == 100) {
-              completedGoals[monthLabel] =
-                  (completedGoals[monthLabel] ?? 0) + 1;
-            }
           }
         }
       }
@@ -309,22 +258,11 @@ class GlobalScoreController extends FullLifeCycleController
       categorizedData.forEach((monthLabel, categoryData) {
         double vocationalAvg = calculateAverage(categoryData['Vocational']!);
         double wellbeingAvg = calculateAverage(categoryData['Wellbeing']!);
-        double personalDevelopmentAvg =
-            calculateAverage(categoryData['Personal Development']!);
+        double personalDevelopmentAvg = calculateAverage(categoryData['Personal Development']!);
 
-        // Calculate global average as the ratio of completed goals to total goals
-        double globalAvg = (totalGoals.containsKey(monthLabel) &&
-                totalGoals[monthLabel]! > 0)
-            ? (completedGoals.containsKey(monthLabel)
-                ? (completedGoals[monthLabel]! / totalGoals[monthLabel]!) * 100
-                : 0)
+        double globalAvg = totalGoals.containsKey(monthLabel) && totalGoals[monthLabel]! > 0
+            ? ((vocationalAvg + wellbeingAvg + personalDevelopmentAvg) / 3)
             : 0;
-
-        // Debug prints
-        print('Month: $monthLabel');
-        print('Total Goals: ${totalGoals[monthLabel]}');
-        print('Completed Goals: ${completedGoals[monthLabel]}');
-        print('Global Avg: $globalAvg');
 
         chartData.add(GlobalScoreChartOneWeekDataModel(
           monthLabel,
@@ -334,14 +272,13 @@ class GlobalScoreController extends FullLifeCycleController
           personalDevelopmentAvg.clamp(0, 100).toInt(),
         ));
       });
+
     } else if (tabType.value == "six_month") {
       Map<String, Map<String, List<double>>> categorizedData = {};
 
       DateTime currentDate = DateTime.now();
-      DateTime sixMonthsAgo =
-          DateTime(currentDate.year, currentDate.month - 5, 1);
+      DateTime sixMonthsAgo = DateTime(currentDate.year, currentDate.month - 5, 1);
 
-      // Generate month labels for the last 6 months
       for (int i = 5; i >= 0; i--) {
         DateTime date = DateTime(currentDate.year, currentDate.month - i, 1);
         String label = DateFormat('MMM').format(date);
@@ -352,14 +289,12 @@ class GlobalScoreController extends FullLifeCycleController
         };
       }
 
-      // Track total goals and completed goals for each month
+
       Map<String, int> totalGoals = {};
-      Map<String, int> completedGoals = {};
 
       for (var report in controller.goalReportListResponse!.data!) {
         DateTime reportDate = DateTime.parse(report.date!);
-        if (reportDate.isBefore(sixMonthsAgo) ||
-            reportDate.isAfter(currentDate)) {
+        if (reportDate.isBefore(sixMonthsAgo) || reportDate.isAfter(currentDate)) {
           continue;
         }
 
@@ -371,9 +306,7 @@ class GlobalScoreController extends FullLifeCycleController
 
             if (detail.type == 'string') {
               double value = double.parse(detail.value!);
-              completionPercentage = value > 50
-                  ? 100
-                  : 0; // Assuming a goal is considered complete if value > 50
+              completionPercentage = value * 10;
             } else if (detail.type == 'boolean') {
               bool value = detail.value == 'true';
               completionPercentage = value ? 100 : 0;
@@ -382,12 +315,7 @@ class GlobalScoreController extends FullLifeCycleController
             categorizedData[monthLabel]?[detail.goal!.category!.name]
                 ?.add(completionPercentage);
 
-            // Initialize counters if necessary
             totalGoals[monthLabel] = (totalGoals[monthLabel] ?? 0) + 1;
-            if (completionPercentage == 100) {
-              completedGoals[monthLabel] =
-                  (completedGoals[monthLabel] ?? 0) + 1;
-            }
           }
         }
       }
@@ -395,22 +323,12 @@ class GlobalScoreController extends FullLifeCycleController
       categorizedData.forEach((monthLabel, categoryData) {
         double vocationalAvg = calculateAverage(categoryData['Vocational']!);
         double wellbeingAvg = calculateAverage(categoryData['Wellbeing']!);
-        double personalDevelopmentAvg =
-            calculateAverage(categoryData['Personal Development']!);
+        double personalDevelopmentAvg = calculateAverage(categoryData['Personal Development']!);
 
-        // Calculate global average as the ratio of completed goals to total goals
-        double globalAvg = (totalGoals.containsKey(monthLabel) &&
-                totalGoals[monthLabel]! > 0)
-            ? (completedGoals.containsKey(monthLabel)
-                ? (completedGoals[monthLabel]! / totalGoals[monthLabel]!) * 100
-                : 0)
+        // Calculate global average based on weighted contributions
+        double globalAvg = totalGoals.containsKey(monthLabel) && totalGoals[monthLabel]! > 0
+            ? ((vocationalAvg + wellbeingAvg + personalDevelopmentAvg) / 3)
             : 0;
-
-        // Debug prints
-        print('Month: $monthLabel');
-        print('Total Goals: ${totalGoals[monthLabel]}');
-        print('Completed Goals: ${completedGoals[monthLabel]}');
-        print('Global Avg: $globalAvg');
 
         chartData.add(GlobalScoreChartOneWeekDataModel(
           monthLabel,
@@ -420,14 +338,13 @@ class GlobalScoreController extends FullLifeCycleController
           personalDevelopmentAvg.clamp(0, 100).toInt(),
         ));
       });
+
     } else {
       Map<String, Map<String, List<double>>> categorizedData = {};
 
       DateTime currentDate = DateTime.now();
-      DateTime twelveMonthsAgo = DateTime(
-          currentDate.year, currentDate.month - 11, 1);
+      DateTime twelveMonthsAgo = DateTime(currentDate.year, currentDate.month - 11, 1);
 
-      // Generate month labels for the last 12 months
       for (int i = 11; i >= 0; i--) {
         DateTime date = DateTime(currentDate.year, currentDate.month - i, 1);
         String label = DateFormat('MMM').format(date);
@@ -438,14 +355,11 @@ class GlobalScoreController extends FullLifeCycleController
         };
       }
 
-      // Track total goals and completed goals for each month
       Map<String, int> totalGoals = {};
-      Map<String, int> completedGoals = {};
 
       for (var report in controller.goalReportListResponse!.data!) {
         DateTime reportDate = DateTime.parse(report.date!);
-        if (reportDate.isBefore(twelveMonthsAgo) ||
-            reportDate.isAfter(currentDate)) {
+        if (reportDate.isBefore(twelveMonthsAgo) || reportDate.isAfter(currentDate)) {
           continue;
         }
 
@@ -457,21 +371,15 @@ class GlobalScoreController extends FullLifeCycleController
 
             if (detail.type == 'string') {
               double value = double.parse(detail.value!);
-              completionPercentage = (value / 10) * 100;
+              completionPercentage = value * 10;
             } else if (detail.type == 'boolean') {
               bool value = detail.value == 'true';
               completionPercentage = value ? 100 : 0;
             }
 
-            categorizedData[monthLabel]?[detail.goal!.category!.name]?.add(
-                completionPercentage);
-
-            // Initialize counters if necessary
+            categorizedData[monthLabel]?[detail.goal!.category!.name]
+                ?.add(completionPercentage);
             totalGoals[monthLabel] = (totalGoals[monthLabel] ?? 0) + 1;
-            if (completionPercentage == 100) {
-              completedGoals[monthLabel] =
-                  (completedGoals[monthLabel] ?? 0) + 1;
-            }
           }
         }
       }
@@ -479,22 +387,12 @@ class GlobalScoreController extends FullLifeCycleController
       categorizedData.forEach((monthLabel, categoryData) {
         double vocationalAvg = calculateAverage(categoryData['Vocational']!);
         double wellbeingAvg = calculateAverage(categoryData['Wellbeing']!);
-        double personalDevelopmentAvg = calculateAverage(
-            categoryData['Personal Development']!);
+        double personalDevelopmentAvg =
+        calculateAverage(categoryData['Personal Development']!);
 
-        // Calculate global average as the ratio of completed goals to total goals
-        double globalAvg = (totalGoals.containsKey(monthLabel) &&
-            totalGoals[monthLabel]! > 0)
-            ? (completedGoals.containsKey(monthLabel)
-            ? (completedGoals[monthLabel]! / totalGoals[monthLabel]!) * 100
-            : 0)
+        double globalAvg = totalGoals.containsKey(monthLabel) && totalGoals[monthLabel]! > 0
+            ? ((vocationalAvg + wellbeingAvg + personalDevelopmentAvg) / 3)
             : 0;
-
-        // Debug prints
-        print('Month: $monthLabel');
-        print('Total Goals: ${totalGoals[monthLabel]}');
-        print('Completed Goals: ${completedGoals[monthLabel]}');
-        print('Global Avg: $globalAvg');
 
         chartData.add(GlobalScoreChartOneWeekDataModel(
           monthLabel,
@@ -505,8 +403,8 @@ class GlobalScoreController extends FullLifeCycleController
         ));
       });
     }
-    if (tabType.value != "three_month" && tabType.value != "six_month" &&
-    tabType.value != "one_year") {
+
+    if (tabType.value == "one_month") {
       chartData.value = chartData.reversed.toList();
     }
     isLoadingGoalsReport.value = false;

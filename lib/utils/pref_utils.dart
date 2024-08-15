@@ -102,6 +102,12 @@ class PrefUtils {
     _sharedPreferences!.setString(lastSavedMood, value);
   }
 
+  String get savedMoodComment => _sharedPreferences!.getString(lastSavedMoodComment) ?? "";
+
+  set savedMoodComment(String value) {
+    _sharedPreferences!.setString(lastSavedMoodComment, value);
+  }
+
   String get lastGratefulText =>
       _sharedPreferences!.getString(lastSavedGrateful) ?? "";
 
@@ -109,11 +115,25 @@ class PrefUtils {
     _sharedPreferences!.setString(lastSavedGrateful, value);
   }
 
+  String get lastGratefulTextId =>
+      _sharedPreferences!.getString(lastSavedGratefulId) ?? "";
+
+  set lastGratefulTextId(String value) {
+    _sharedPreferences!.setString(lastSavedGratefulId, value);
+  }
+
   String get lastLearntText =>
       _sharedPreferences!.getString(lastSavedLearnt) ?? "";
 
   set lastLearntText(String value) {
     _sharedPreferences!.setString(lastSavedLearnt, value);
+  }
+
+  String get lastLearntTextId =>
+      _sharedPreferences!.getString(lastSavedLearntId) ?? "";
+
+  set lastLearntTextId(String value) {
+    _sharedPreferences!.setString(lastSavedLearntId, value);
   }
 
   String get lastHighlightText =>

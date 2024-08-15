@@ -24,7 +24,7 @@ class CustomSlider extends StatelessWidget {
         activeTrackHeight: 4,
         inactiveTrackHeight: 4,
         thumbRadius: 4,
-        overlayRadius: 5
+        overlayRadius: 8
       ),
       child: SfSlider(
         value: value!.value,

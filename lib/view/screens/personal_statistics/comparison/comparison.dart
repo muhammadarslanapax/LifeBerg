@@ -1,6 +1,7 @@
 import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:life_berg/constant/color.dart';
 import 'package:life_berg/view/screens/personal_statistics/statistics_controller.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
@@ -11,29 +12,6 @@ class Comparison extends StatelessWidget {
   final StatisticsController statisticsController =
       Get.find<StatisticsController>();
 
-  final List<ComparisonChartDataModel> dataSource = [
-    ComparisonChartDataModel(
-      'Jan - Mar',
-      35,
-      45,
-    ),
-    ComparisonChartDataModel(
-      'Apr - July',
-      40,
-      30,
-    ),
-    ComparisonChartDataModel(
-      'Aug - Oct',
-      45,
-      30,
-    ),
-    ComparisonChartDataModel(
-      'Nov-Jan',
-      25,
-      15,
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -42,14 +20,14 @@ class Comparison extends StatelessWidget {
         children: [
           Obx(() => ComparisonChart(
                 dataSource: statisticsController.comparisonChartData.value,
-                primaryXYAxisMax: 5,
+                primaryXYAxisMax: 6,
                 primaryXYAxisMin: 0,
                 primaryYAxisMax: 100,
                 primaryYAxisMin: 0,
               )),
           Positioned(
-              bottom: 30,
-              left: 40,
+              bottom: 10,
+              right: 10,
               child: Row(
                 children: [
                   Container(
@@ -57,7 +35,7 @@ class Comparison extends StatelessWidget {
                     child: CustomDropdown<int>(
                       maxlines: 1,
                       closedHeaderPadding:
-                          EdgeInsets.symmetric(horizontal: 7.0, vertical: 5),
+                          EdgeInsets.symmetric(horizontal: 7.0, vertical: 4),
                       listItemBuilder:
                           (context, item, isSelected, onItemSelect) {
                         return Text(
@@ -117,70 +95,6 @@ class Comparison extends StatelessWidget {
                       },
                     ),
                   ),
-                  // Container(
-                  //     // width: 100,
-                  //     height: 30,
-                  //     child: Obx(
-                  //       () => DropdownButtonHideUnderline(
-                  //         child: DropdownButton2(
-                  //           style: TextStyle(
-                  //             fontSize: 10,
-                  //             color: Colors.white,
-                  //           ),
-                  //           items: statisticsController.goalsListIndex
-                  //               .map(
-                  //                 (item) => DropdownMenuItem<int>(
-                  //                   value: item,
-                  //                   child: MyText(
-                  //                     text: statisticsController
-                  //                         .goalsList[item].name,
-                  //                     size: 12,
-                  //                   ),
-                  //                 ),
-                  //               )
-                  //               .toList(),
-                  //           value: statisticsController
-                  //               .selectedFirstGoalIndex.value,
-                  //           onChanged: (index) {
-                  //             statisticsController
-                  //                 .selectedFirstGoalIndex.value = index as int;
-                  //             statisticsController
-                  //                 .getComparisonGoalReport(true);
-                  //           },
-                  //           icon: Image.asset(
-                  //             Assets.imagesDropIcon,
-                  //             height: 12,
-                  //           ),
-                  //           isDense: true,
-                  //           isExpanded: false,
-                  //           buttonHeight: 40,
-                  //           buttonPadding: EdgeInsets.symmetric(
-                  //             horizontal: 10,
-                  //           ),
-                  //           buttonDecoration: BoxDecoration(
-                  //             borderRadius: BorderRadius.circular(8),
-                  //             color: kDarkBlueColor,
-                  //           ),
-                  //           buttonElevation: 0,
-                  //           itemHeight: 30,
-                  //           itemPadding: EdgeInsets.symmetric(
-                  //             horizontal: 10,
-                  //           ),
-                  //           dropdownMaxHeight: 200,
-                  //           // dropdownWidth: Get.width * 0.92,
-                  //           dropdownPadding: null,
-                  //           dropdownDecoration: BoxDecoration(
-                  //             borderRadius: BorderRadius.circular(8),
-                  //             color: kSecondaryColor,
-                  //           ),
-                  //           dropdownElevation: 4,
-                  //           scrollbarRadius: const Radius.circular(40),
-                  //           scrollbarThickness: 6,
-                  //           scrollbarAlwaysShow: true,
-                  //           offset: const Offset(-2, -5),
-                  //         ),
-                  //       ),
-                  //     )),
                   SizedBox(
                     width: 8,
                   ),
@@ -189,7 +103,7 @@ class Comparison extends StatelessWidget {
                     child: CustomDropdown<int>(
                       maxlines: 1,
                       closedHeaderPadding:
-                          EdgeInsets.symmetric(horizontal: 7.0, vertical: 5),
+                          EdgeInsets.symmetric(horizontal: 7.0, vertical: 4),
                       listItemBuilder:
                           (context, item, isSelected, onItemSelect) {
                         return Text(
@@ -249,70 +163,6 @@ class Comparison extends StatelessWidget {
                       },
                     ),
                   ),
-                  // Container(
-                  //     // width: 100,
-                  //     height: 30,
-                  //     child: Obx(
-                  //       () => DropdownButtonHideUnderline(
-                  //         child: DropdownButton2(
-                  //           style: TextStyle(
-                  //             fontSize: 10,
-                  //             color: Colors.white,
-                  //           ),
-                  //           items: statisticsController.goalsListIndex
-                  //               .map(
-                  //                 (item) => DropdownMenuItem<int>(
-                  //                   value: item,
-                  //                   child: MyText(
-                  //                     text: statisticsController
-                  //                         .goalsList[item].name,
-                  //                     size: 12,
-                  //                   ),
-                  //                 ),
-                  //               )
-                  //               .toList(),
-                  //           value: statisticsController
-                  //               .selectedSecondGoalIndex.value,
-                  //           onChanged: (index) {
-                  //             statisticsController
-                  //                 .selectedSecondGoalIndex.value = index as int;
-                  //             statisticsController
-                  //                 .getComparisonGoalReport(false);
-                  //           },
-                  //           icon: Image.asset(
-                  //             Assets.imagesDropIcon,
-                  //             height: 12,
-                  //           ),
-                  //           isDense: true,
-                  //           isExpanded: false,
-                  //           buttonHeight: 40,
-                  //           buttonPadding: EdgeInsets.symmetric(
-                  //             horizontal: 10,
-                  //           ),
-                  //           buttonDecoration: BoxDecoration(
-                  //             borderRadius: BorderRadius.circular(8),
-                  //             color: kCardioColor,
-                  //           ),
-                  //           buttonElevation: 0,
-                  //           itemHeight: 30,
-                  //           itemPadding: EdgeInsets.symmetric(
-                  //             horizontal: 10,
-                  //           ),
-                  //           dropdownMaxHeight: 200,
-                  //           // dropdownWidth: Get.width * 0.92,
-                  //           dropdownPadding: null,
-                  //           dropdownDecoration: BoxDecoration(
-                  //             borderRadius: BorderRadius.circular(8),
-                  //             color: Colors.white,
-                  //           ),
-                  //           dropdownElevation: 4,
-                  //           scrollbarRadius: const Radius.circular(40),
-                  //           scrollbarThickness: 6,
-                  //           scrollbarAlwaysShow: true,
-                  //           offset: const Offset(-2, -5),
-                  //         ),
-                  //       ),
-                  //     )),
                 ],
               )),
         ],
@@ -346,10 +196,10 @@ class ComparisonChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 200,
+      height: 240,
       child: SfCartesianChart(
         tooltipBehavior: TooltipBehavior(
-          enable: true,
+          enable: false,
         ),
         margin: EdgeInsets.zero,
         borderWidth: 0,
@@ -361,9 +211,10 @@ class ComparisonChart extends StatelessWidget {
           maximum: primaryYAxisMax,
           minimum: primaryXYAxisMin,
           interval: primaryYAxisInterval,
-          plotOffset: 10.0,
+          plotOffset: 30.0,
           majorGridLines: MajorGridLines(
-            width: 0,
+            width: 1.2,
+            color: kChartBorderColor,
           ),
           majorTickLines: MajorTickLines(
             width: 0,
@@ -407,18 +258,26 @@ class ComparisonChart extends StatelessWidget {
       StackedLineSeries<ComparisonChartDataModel, dynamic>(
         dataSource: dataSource!,
         groupName: "Goal One",
-        xValueMapper: (ComparisonChartDataModel data, _) => data.xValueMapper,
+        xValueMapper: (ComparisonChartDataModel data, _) => DateFormat("EEE").format(DateTime.parse(data.xValueMapper!)),
         yValueMapper: (ComparisonChartDataModel data, _) => data.goalOne,
         xAxisName: 'xAxis',
         yAxisName: 'yAxis',
+        markerSettings: MarkerSettings(
+          isVisible: true,
+          borderColor: kMapMarkerBorderColor,
+        ),
         color: kDarkBlueColor,
       ),
       StackedLineSeries<ComparisonChartDataModel, dynamic>(
           dataSource: dataSource!,
           groupName: "Goal Two",
-          xValueMapper: (ComparisonChartDataModel data, _) => data.xValueMapper,
+          xValueMapper: (ComparisonChartDataModel data, _) => DateFormat("EEE").format(DateTime.parse(data.xValueMapper!)),
           yValueMapper: (ComparisonChartDataModel data, _) => data.goalTwo,
           xAxisName: 'xAxis',
+          markerSettings: MarkerSettings(
+            isVisible: true,
+            borderColor: kMapMarkerBorderColor,
+          ),
           yAxisName: 'yAxis',
           color: kCardioColor),
     ];

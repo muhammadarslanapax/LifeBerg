@@ -7,7 +7,9 @@ import 'package:get/get_rx/get_rx.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:intl/intl.dart';
 import 'package:life_berg/apis/http_manager.dart';
+import 'package:life_berg/controller/admin_controller/home_controller.dart';
 import 'package:life_berg/model/goal/goals_list_response.dart';
+import 'package:life_berg/model/goal_mood_report/check_reports.dart';
 import 'package:life_berg/model/goal_report/details.dart';
 import 'package:life_berg/model/goal_report/goal_report_list_response.dart';
 import 'package:life_berg/model/goal_report/goal_report_list_response_data.dart';
@@ -16,10 +18,17 @@ import 'package:life_berg/model/mood_history/mood_history_response_data.dart';
 import 'package:life_berg/view/screens/personal_statistics/statistics_controller.dart';
 
 import '../../../../constant/color.dart';
+import '../../../../constant/strings.dart';
+import '../../../../generated/assets.dart';
 import '../../../../model/error/error_response.dart';
+import '../../../../model/generic_response.dart';
+import '../../../../model/goal/goal.dart';
+import '../../../../model/goal/goal_submit/goal_submit_data.dart';
+import '../../../../model/goal_mood_report/goal_date_response.dart';
 import '../../../../model/user/user.dart';
 import '../../../../utils/pref_utils.dart';
 import '../../../../utils/toast_utils.dart';
+import '../../../widget/my_dialog.dart';
 import 'goals.dart';
 
 class GoalExpandController extends FullLifeCycleController
@@ -28,6 +37,10 @@ class GoalExpandController extends FullLifeCycleController
 
   final StatisticsController statisticsController =
       Get.find<StatisticsController>();
+
+  final HomeController homeController = Get.find<HomeController>();
+
+  final TextEditingController commentController = TextEditingController();
 
   RxList<GoalReportListResponseData> expandedGoalReport =
       <GoalReportListResponseData>[].obs;
@@ -96,6 +109,7 @@ class GoalExpandController extends FullLifeCycleController
             if (goalReportListResponse.data != null) {
               expandedGoalReport.clear();
               expandedGoalReport.addAll(goalReportListResponse.data!);
+              expandedGoalReport.sort((a, b) => DateTime.parse(b.date!).compareTo(DateTime.parse(a.date!)));
               processExpandSpecificGoalChart(goalReportListResponse);
             }
           } else {
@@ -121,115 +135,103 @@ class GoalExpandController extends FullLifeCycleController
       GoalReportListResponse goalReportListResponse) {
     expandedGoalReportChart.clear();
     if (tabType.value == "one_week") {
-      Map<String, List<int>> days = {
-        'Mon': [],
-        'Tue': [],
-        'Wed': [],
-        'Thu': [],
-        'Fri': [],
-        'Sat': [],
-        'Sun': []
-      };
-
-      Map<String, List<String>> comments = {
-        'Mon': [],
-        'Tue': [],
-        'Wed': [],
-        'Thu': [],
-        'Fri': [],
-        'Sat': [],
-        'Sun': []
-      };
+      Map<String, List<int>> dayValues = {};
+      Map<String, List<String>> dayComments = {};
+      Map<String, List<String>> goalIds = {};
 
       DateTime now = DateTime.now();
-      DateTime startOfWeek =
-          now.subtract(Duration(days: now.weekday - 1)); // Monday of this week
-      DateTime endOfWeek =
-          startOfWeek.add(Duration(days: 6)); // Sunday of this week
+      DateTime startOfLastWeek = now.subtract(Duration(days: 7));
 
-      // Iterate over the response data
+      for (int i = 1; i <= 7; i++) {
+        DateTime date = startOfLastWeek.add(Duration(days: i));
+        String formattedDate = DateFormat('yyyy-MM-dd').format(date);
+        dayValues[formattedDate] = [];
+        dayComments[formattedDate] = [];
+        goalIds[formattedDate] = [];
+      }
+
       for (var report in goalReportListResponse.data!) {
-        DateTime date = DateTime.parse(report.date!);
+        if (report.details != null && report.details!.isNotEmpty) {
+          DateTime date = DateTime.parse(report.date!);
+          String formattedDate = DateFormat('yyyy-MM-dd').format(date);
 
-        // Check if the date is within the current week
-        if (date.isAfter(startOfWeek.subtract(Duration(days: 1))) &&
-            date.isBefore(endOfWeek.add(Duration(days: 1)))) {
-          int value = 0;
+          if (dayValues.containsKey(formattedDate)) {
+            int value = 0;
 
-          // Check if the goal measure is a boolean or a string
-          if (report.details![0].type == 'boolean') {
-            value = report.details![0].value == 'true' ? 100 : 0;
-          } else if (report.details![0].type == 'string') {
-            value = int.parse(report.details![0].value!) *
-                10; // Scale 0-10 to 0-100
-          }
+            if (report.details![0].type == 'boolean') {
+              value = report.details![0].value == 'true' ? 100 : 0;
+            } else if (report.details![0].type == 'string') {
+              value = int.parse(report.details![0].value!) * 10;
+            }
 
-          String comment = report.details![0].comment ?? "";
+            String comment = report.details![0].comment ?? "";
 
-          // Assign to the correct day of the week
-          String dayOfWeek = DateFormat('EEE')
-              .format(date); // Get day of the week in 'Mon', 'Tue', etc.
-          if (days.containsKey(dayOfWeek)) {
-            days[dayOfWeek]!.add(value);
+            dayValues[formattedDate]!.add(value);
+            goalIds[formattedDate]!.add(report.details![0].goal!.sId!);
             if (comment.isNotEmpty) {
-              comments[dayOfWeek]!.add(comment);
+              dayComments[formattedDate]!.add(comment);
             }
           }
         }
       }
 
-      days.forEach((day, values) {
-        if (values.isNotEmpty) {
-          double average = values.reduce((a, b) => a + b) / values.length;
-          String comment = comments[day]!.join(', ');
-          expandedGoalReportChart
-              .add(GoalChartDateModel(day, average, comment));
-        } else {
-          expandedGoalReportChart.add(GoalChartDateModel(day, 0, ''));
-        }
-      });
+      for (int i = 1; i <= 7; i++) {
+        DateTime date = startOfLastWeek.add(Duration(days: i));
+        String formattedDate = DateFormat('yyyy-MM-dd').format(date);
+
+        double average = dayValues[formattedDate]!.isNotEmpty
+            ? dayValues[formattedDate]!.reduce((a, b) => a + b) /
+                dayValues[formattedDate]!.length
+            : 0;
+        String comments = dayComments[formattedDate]!.join(', ');
+        String goalId = goalIds[formattedDate]!.join(', ');
+
+        expandedGoalReportChart.add(GoalChartDateModel(
+            formattedDate, average, comments,
+            goalId: goalId));
+      }
     } else if (tabType.value == "one_month") {
       DateTime now = DateTime.now();
-      DateTime startOfMonth =
-          now.subtract(Duration(days: 30)); // Start of 30 days ago
-      DateTime endOfMonth = now; // End of the current date
+      DateTime startOfMonth = now.subtract(Duration(days: 30));
+      DateTime endOfMonth = now;
 
       Map<String, List<int>> days = {};
       Map<String, List<String>> comments = {};
+      Map<String, List<String>> goalIds = {};
 
-      // Generate day labels for the last 30 days
       for (int i = 0; i <= 30; i++) {
         DateTime day = now.subtract(Duration(days: i));
-        String label = DateFormat('MMM dd').format(day);
+        String label = DateFormat('yyyy-MM-dd').format(day);
         days[label] = [];
+        goalIds[label] = [];
         comments[label] = [];
       }
 
-      // Iterate over the response data
       for (var report in goalReportListResponse.data!) {
-        DateTime date = DateTime.parse(report.date!);
+        if (report.details != null && report.details!.isNotEmpty) {
+          if (report.details != null && report.details!.isNotEmpty) {
+            DateTime date = DateTime.parse(report.date!);
 
-        // Check if the date is within the last 30 days
-        if (date.isAfter(startOfMonth.subtract(Duration(days: 1))) &&
-            date.isBefore(endOfMonth.add(Duration(days: 1)))) {
-          int value = 0;
+            if (date.isAfter(startOfMonth.subtract(Duration(days: 1))) &&
+                date.isBefore(endOfMonth.add(Duration(days: 1)))) {
+              int value = 0;
 
-          // Check if the goal measure is a boolean or a string
-          if (report.details![0].type == 'boolean') {
-            value = report.details![0].value == 'true' ? 100 : 0;
-          } else if (report.details![0].type == 'string') {
-            value = int.parse(report.details![0].value!) *
-                10; // Scale 0-10 to 0-100
-          }
+              if (report.details![0].type == 'boolean') {
+                value = report.details![0].value == 'true' ? 100 : 0;
+              } else if (report.details![0].type == 'string') {
+                value = int.parse(report.details![0].value!) * 10;
+              }
 
-          String comment = report.details![0].comment ?? "";
+              String comment = report.details![0].comment ?? "";
 
-          // Assign to the correct day
-          String dayLabel = DateFormat('MMM dd').format(date);
-          if (days.containsKey(dayLabel)) {
-            days[dayLabel]!.add(value);
-            if (comment.isNotEmpty) {
-              comments[dayLabel]!.add(comment);
+              String dayLabel = DateFormat('yyyy-MM-dd').format(date);
+              if (days.containsKey(dayLabel)) {
+                days[dayLabel]!.add(value);
+                goalIds[dayLabel]!.add(report.details![0].goal!.sId!);
+                if (comment.isNotEmpty) {
+                  comments[dayLabel]!.add(comment);
+                }
+              }
             }
           }
         }
@@ -239,23 +241,22 @@ class GoalExpandController extends FullLifeCycleController
         if (values.isNotEmpty) {
           double average = values.reduce((a, b) => a + b) / values.length;
           String comment = comments[label]!.join(', ');
+          String goalId = goalIds[label]!.join(', ');
           expandedGoalReportChart
-              .add(GoalChartDateModel(label, average, comment));
+              .add(GoalChartDateModel(label, average, comment,
+          goalId: goalId));
         } else {
           expandedGoalReportChart.add(GoalChartDateModel(label, 0, ''));
         }
       });
     } else if (tabType.value == "six_month") {
       DateTime now = DateTime.now();
-      DateTime startOfSixMonths =
-          DateTime(now.year, now.month - 5, 1); // Start of six months ago
-      DateTime endOfSixMonths =
-          DateTime(now.year, now.month + 1, 0); // End of the current month
+      DateTime startOfSixMonths = DateTime(now.year, now.month - 5, 1);
+      DateTime endOfSixMonths = DateTime(now.year, now.month + 1, 0);
 
       Map<String, List<int>> months = {};
       Map<String, List<String>> comments = {};
 
-      // Generate month labels for the last six months
       for (int i = 0; i < 6; i++) {
         DateTime monthStart = DateTime(now.year, now.month - i, 1);
         String label = DateFormat('MMM').format(monthStart);
@@ -263,31 +264,28 @@ class GoalExpandController extends FullLifeCycleController
         comments[label] = [];
       }
 
-      // Iterate over the response data
       for (var report in goalReportListResponse.data!) {
-        DateTime date = DateTime.parse(report.date!);
+        if (report.details != null && report.details!.isNotEmpty) {
+          DateTime date = DateTime.parse(report.date!);
 
-        // Check if the date is within the last six months
-        if (date.isAfter(startOfSixMonths.subtract(Duration(days: 1))) &&
-            date.isBefore(endOfSixMonths.add(Duration(days: 1)))) {
-          int value = 0;
+          if (date.isAfter(startOfSixMonths.subtract(Duration(days: 1))) &&
+              date.isBefore(endOfSixMonths.add(Duration(days: 1)))) {
+            int value = 0;
 
-          // Check if the goal measure is a boolean or a string
-          if (report.details![0].type == 'boolean') {
-            value = report.details![0].value == 'true' ? 100 : 0;
-          } else if (report.details![0].type == 'string') {
-            value = int.parse(report.details![0].value!) *
-                10; // Scale 0-10 to 0-100
-          }
+            if (report.details![0].type == 'boolean') {
+              value = report.details![0].value == 'true' ? 100 : 0;
+            } else if (report.details![0].type == 'string') {
+              value = int.parse(report.details![0].value!) * 10;
+            }
 
-          String comment = report.details![0].comment ?? "";
+            String comment = report.details![0].comment ?? "";
 
-          // Assign to the correct month
-          String monthLabel = DateFormat('MMM').format(date);
-          if (months.containsKey(monthLabel)) {
-            months[monthLabel]!.add(value);
-            if (comment.isNotEmpty) {
-              comments[monthLabel]!.add(comment);
+            String monthLabel = DateFormat('MMM').format(date);
+            if (months.containsKey(monthLabel)) {
+              months[monthLabel]!.add(value);
+              if (comment.isNotEmpty) {
+                comments[monthLabel]!.add(comment);
+              }
             }
           }
         }
@@ -305,15 +303,12 @@ class GoalExpandController extends FullLifeCycleController
       });
     } else if (tabType.value == "three_month") {
       DateTime now = DateTime.now();
-      DateTime startOfThreeMonths =
-          DateTime(now.year, now.month - 2, 1); // Start of three months ago
-      DateTime endOfThreeMonths =
-          DateTime(now.year, now.month + 1, 0); // End of the current month
+      DateTime startOfThreeMonths = DateTime(now.year, now.month - 2, 1);
+      DateTime endOfThreeMonths = DateTime(now.year, now.month + 1, 0);
 
       Map<String, List<int>> months = {};
       Map<String, List<String>> comments = {};
 
-      // Generate month labels for the last three months
       for (int i = 0; i < 3; i++) {
         DateTime monthStart = DateTime(now.year, now.month - i, 1);
         String label = DateFormat('MMM').format(monthStart);
@@ -321,31 +316,28 @@ class GoalExpandController extends FullLifeCycleController
         comments[label] = [];
       }
 
-      // Iterate over the response data
       for (var report in goalReportListResponse.data!) {
-        DateTime date = DateTime.parse(report.date!);
+        if (report.details != null && report.details!.isNotEmpty) {
+          DateTime date = DateTime.parse(report.date!);
 
-        // Check if the date is within the last three months
-        if (date.isAfter(startOfThreeMonths.subtract(Duration(days: 1))) &&
-            date.isBefore(endOfThreeMonths.add(Duration(days: 1)))) {
-          int value = 0;
+          if (date.isAfter(startOfThreeMonths.subtract(Duration(days: 1))) &&
+              date.isBefore(endOfThreeMonths.add(Duration(days: 1)))) {
+            int value = 0;
 
-          // Check if the goal measure is a boolean or a string
-          if (report.details![0].type == 'boolean') {
-            value = report.details![0].value == 'true' ? 100 : 0;
-          } else if (report.details![0].type == 'string') {
-            value = int.parse(report.details![0].value!) *
-                10; // Scale 0-10 to 0-100
-          }
+            if (report.details![0].type == 'boolean') {
+              value = report.details![0].value == 'true' ? 100 : 0;
+            } else if (report.details![0].type == 'string') {
+              value = int.parse(report.details![0].value!) * 10;
+            }
 
-          String comment = report.details![0].comment ?? "";
+            String comment = report.details![0].comment ?? "";
 
-          // Assign to the correct month
-          String monthLabel = DateFormat('MMM').format(date);
-          if (months.containsKey(monthLabel)) {
-            months[monthLabel]!.add(value);
-            if (comment.isNotEmpty) {
-              comments[monthLabel]!.add(comment);
+            String monthLabel = DateFormat('MMM').format(date);
+            if (months.containsKey(monthLabel)) {
+              months[monthLabel]!.add(value);
+              if (comment.isNotEmpty) {
+                comments[monthLabel]!.add(comment);
+              }
             }
           }
         }
@@ -363,15 +355,12 @@ class GoalExpandController extends FullLifeCycleController
       });
     } else {
       DateTime now = DateTime.now();
-      DateTime startOfYear =
-          DateTime(now.year, now.month - 11, 1); // Start of twelve months ago
-      DateTime endOfYear =
-          DateTime(now.year, now.month + 1, 0); // End of the current month
+      DateTime startOfYear = DateTime(now.year, now.month - 11, 1);
+      DateTime endOfYear = DateTime(now.year, now.month + 1, 0);
 
       Map<String, List<int>> months = {};
       Map<String, List<String>> comments = {};
 
-      // Generate month labels for the last year
       for (int i = 0; i < 12; i++) {
         DateTime monthStart = DateTime(now.year, now.month - i, 1);
         String label = DateFormat('MMM').format(monthStart);
@@ -379,31 +368,28 @@ class GoalExpandController extends FullLifeCycleController
         comments[label] = [];
       }
 
-      // Iterate over the response data
       for (var report in goalReportListResponse.data!) {
-        DateTime date = DateTime.parse(report.date!);
+        if (report.details != null && report.details!.isNotEmpty) {
+          DateTime date = DateTime.parse(report.date!);
 
-        // Check if the date is within the last year
-        if (date.isAfter(startOfYear.subtract(Duration(days: 1))) &&
-            date.isBefore(endOfYear.add(Duration(days: 1)))) {
-          int value = 0;
+          if (date.isAfter(startOfYear.subtract(Duration(days: 1))) &&
+              date.isBefore(endOfYear.add(Duration(days: 1)))) {
+            int value = 0;
 
-          // Check if the goal measure is a boolean or a string
-          if (report.details![0].type == 'boolean') {
-            value = report.details![0].value == 'true' ? 100 : 0;
-          } else if (report.details![0].type == 'string') {
-            value = int.parse(report.details![0].value!) *
-                10; // Scale 0-10 to 0-100
-          }
+            if (report.details![0].type == 'boolean') {
+              value = report.details![0].value == 'true' ? 100 : 0;
+            } else if (report.details![0].type == 'string') {
+              value = int.parse(report.details![0].value!) * 10;
+            }
 
-          String comment = report.details![0].comment ?? "";
+            String comment = report.details![0].comment ?? "";
 
-          // Assign to the correct month
-          String monthLabel = DateFormat('MMM').format(date);
-          if (months.containsKey(monthLabel)) {
-            months[monthLabel]!.add(value);
-            if (comment.isNotEmpty) {
-              comments[monthLabel]!.add(comment);
+            String monthLabel = DateFormat('MMM').format(date);
+            if (months.containsKey(monthLabel)) {
+              months[monthLabel]!.add(value);
+              if (comment.isNotEmpty) {
+                comments[monthLabel]!.add(comment);
+              }
             }
           }
         }
@@ -421,11 +407,127 @@ class GoalExpandController extends FullLifeCycleController
       });
     }
 
-    // if(tabType.value != "one_week") {
-    expandedGoalReportChart.value = expandedGoalReportChart.reversed.toList();
-    // }
+    if (tabType.value != "one_week") {
+      expandedGoalReportChart.value = expandedGoalReportChart.reversed.toList();
+    }
     isLoadingData.value = false;
     return expandedGoalReportChart;
+  }
+
+  getGoalReportByDate(String date, GoalReportListResponseData data,
+      {bool isForDelete = false}) async {
+    SmartDialog.showLoading();
+    FocusManager.instance.primaryFocus?.unfocus();
+    httpManager.getGoalReportByDate(PrefUtils().token, date).then((value) {
+      if (value.error == null) {
+        if (value.snapshot is! ErrorResponse) {
+          GoalDateResponse goalDateResponse = value.snapshot;
+          if (goalDateResponse.success == true) {
+            if (goalDateResponse.data != null) {
+              if (goalDateResponse.data!.checkReports != null) {
+                for (var report
+                    in goalDateResponse.data!.checkReports!.details!) {
+                  if (report.goal!.sId == data.details![0].goal!.sId) {
+                    report.comment = data.details![0].comment;
+                  }
+                }
+                updateComment((isSuccess) => null,
+                    goalDateResponse.data!.checkReports!, data, date,
+                    isForDelete: isForDelete);
+              }
+            }
+          } else {
+            SmartDialog.dismiss();
+            ToastUtils.showToast(goalDateResponse.message ?? "",
+                color: kRedColor);
+          }
+        } else {
+          ErrorResponse errorResponse = value.snapshot;
+          ToastUtils.showToast(errorResponse.error!.details!.message ?? "",
+              color: kRedColor);
+        }
+      } else {
+        ToastUtils.showToast(value.error ?? "", color: kRedColor);
+      }
+    });
+  }
+
+  updateComment(Function(bool isSuccess) onReportSubmit, CheckReports reports,
+      GoalReportListResponseData data, String date,
+      {bool isForDelete = false}) {
+    FocusManager.instance.primaryFocus?.unfocus();
+    httpManager
+        .updateCommentGoalReport(PrefUtils().token, "", reports, date: date)
+        .then((response) {
+      if (response.error == null) {
+        if (response.snapshot! is! ErrorResponse) {
+          GenericResponse genericResponse = response.snapshot;
+          if (genericResponse.success == true) {
+            SmartDialog.dismiss();
+            onReportSubmit(true);
+            List<GoalSubmitData> goalSubmitData = [];
+            if (PrefUtils().submittedGoals.isNotEmpty) {
+              List<dynamic> jsonList = jsonDecode(PrefUtils().submittedGoals);
+              List<GoalSubmitData> goalSubmitDataList = jsonList
+                  .map((jsonItem) => GoalSubmitData.fromJson(jsonItem))
+                  .toList();
+              goalSubmitData.addAll(goalSubmitDataList);
+            }
+            for (var goals in goalSubmitData) {
+              if (goals.goalId == data.details![0].goal!.sId &&
+                  DateFormat("yyyy-MM-dd")
+                          .format(DateTime.parse(PrefUtils().lastSavedDate)) ==
+                      date) {
+                goals.comment = commentController.text;
+              }
+            }
+            String jsonString = jsonEncode(
+                goalSubmitData.map((goal) => goal.toJson()).toList());
+            PrefUtils().submittedGoals = jsonString;
+            homeController.getUserData();
+            getGoalReport(
+                statisticsController.goalsList[selectedGoalIndex.value].sId!);
+            if (!isForDelete) {
+              Get.dialog(
+                MyDialog(
+                  icon: Assets.imagesComment,
+                  heading: commentAdded,
+                  content: commentAddedDes,
+                  onOkay: () {
+                    Get.back();
+                  },
+                ),
+              );
+            }
+          } else {
+            SmartDialog.dismiss();
+            onReportSubmit(false);
+          }
+        }
+      } else {
+        SmartDialog.dismiss();
+        onReportSubmit(false);
+        ToastUtils.showToast(someError, color: kRedColor);
+      }
+    });
+  }
+
+  addCommentOnGoal(String goalId, int index) {
+    FocusManager.instance.primaryFocus?.unfocus();
+    SmartDialog.showLoading();
+    httpManager
+        .addCommentOnGoal(PrefUtils().token, goalId, "")
+        .then((response) {
+      SmartDialog.dismiss();
+      if (response.error == null) {
+        if (response.snapshot! is! ErrorResponse) {
+          expandedGoalReport[index].details![0].comment = "";
+          expandedGoalReportChart.refresh();
+        }
+      } else {
+        ToastUtils.showToast("Some error occurred.", color: kRedColor);
+      }
+    });
   }
 
   @override

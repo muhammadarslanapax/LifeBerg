@@ -10,14 +10,15 @@ import 'package:life_berg/view/widget/my_text.dart';
 import 'package:life_berg/view/widget/note_tile.dart';
 import 'package:life_berg/view/widget/simple_app_bar.dart';
 
+import '../../../../constant/strings.dart';
 import '../../../../model/mood_history/mood_history_response_data.dart';
+import '../../../widget/custom_bottom_sheet.dart';
+import '../../../widget/my_text_field.dart';
 
 // ignore: must_be_immutable
 class MoodExpand extends StatelessWidget {
-  final List<MoodHistoryResponseData> moodHistory;
-
-  MoodExpand(this.moodHistory, {Key? key}) : super(key: key);
-
+  MoodExpand({Key? key}) : super(key: key);
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final StatisticsController statisticsController =
       Get.find<StatisticsController>();
 
@@ -29,13 +30,81 @@ class MoodExpand extends StatelessWidget {
     '1 yr',
   ];
 
-  List<Widget> tabViews = [
-    MoodChartOneWeek("one_week"),
-    MoodChartOneWeek("one_month"),
-    MoodChartOneWeek("three_month"),
-    MoodChartOneWeek("six_month"),
-    MoodChartOneWeek("one_year"),
-  ];
+  deleteComment(dynamic data) {
+    String date = data.xValueMapper ?? "";
+    int score = data.yValueMapper ?? "";
+    data.comment = "";
+    statisticsController.updateUserMood(date, score, data.comment, (isSuccess) {
+      MoodHistoryResponseData? report;
+      for (var reportData in statisticsController.moodHistory) {
+        DateTime date = DateTime.parse(reportData.date!);
+        String formattedDate = DateFormat('yyyy-MM-dd').format(date);
+        if (formattedDate == data.xValueMapper) {
+          report = reportData;
+          break;
+        }
+      }
+      if (report != null) {
+        report.comment = data.comment;
+        statisticsController.getMoodHistory();
+      }
+    });
+  }
+
+  showCommentSheet(dynamic data) {
+    showModalBottomSheet(
+      context: _scaffoldKey.currentContext!,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      builder: (_) {
+        return Padding(
+          padding: MediaQuery.of(_scaffoldKey.currentContext!).viewInsets,
+          child: CustomBottomSheet(
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: 15,
+                vertical: 6,
+              ),
+              child: MyTextField(
+                fillColor: Colors.white,
+                maxLines: 1,
+                controller: statisticsController.moodCommentController,
+                hint: addCommentDes,
+                marginBottom: 0.0,
+              ),
+            ),
+            onTap: () {
+              String date = data.xValueMapper ?? "";
+              int score = data.yValueMapper ?? "";
+              print("Date: $date, Score: $score");
+              data.comment =
+                  statisticsController.moodCommentController.text.toString();
+              statisticsController.updateUserMood(date, score, data.comment,
+                  (isSuccess) {
+                    MoodHistoryResponseData? report;
+                    for (var reportData in statisticsController.moodHistory) {
+                      DateTime date = DateTime.parse(reportData.date!);
+                      String formattedDate = DateFormat('yyyy-MM-dd').format(date);
+                      if (formattedDate == data.xValueMapper) {
+                        report = reportData;
+                        break;
+                      }
+                    }
+                    if (report != null) {
+                      report.comment = data.comment;
+                      statisticsController.getMoodHistory();
+                    }
+                Navigator.pop(_scaffoldKey.currentContext!);
+              });
+            },
+            buttonText: submit,
+            isButtonDisable: false,
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +112,7 @@ class MoodExpand extends StatelessWidget {
       length: tabs.length,
       initialIndex: 0,
       child: Scaffold(
+        key: _scaffoldKey,
         backgroundColor: kSecondaryColor,
         appBar: simpleAppBar(
           title: 'Mood',
@@ -98,7 +168,21 @@ class MoodExpand extends StatelessWidget {
               height: 350,
               child: TabBarView(
                 physics: BouncingScrollPhysics(),
-                children: tabViews,
+                children: [
+                  MoodChartOneWeek("one_week", (d) {
+                    showCommentSheet(d);
+                  }, (d) {
+                    deleteComment(d);
+                  }),
+                  MoodChartOneWeek("one_month", (d) {
+                    showCommentSheet(d);
+                  }, (d) {
+                    deleteComment(d);
+                  }),
+                  MoodChartOneWeek("three_month", (d) {}, (d) {}),
+                  MoodChartOneWeek("six_month", (d) {}, (d) {}),
+                  MoodChartOneWeek("one_year", (d) {}, (d) {}),
+                ],
               ),
             ),
             Padding(
@@ -108,19 +192,30 @@ class MoodExpand extends StatelessWidget {
                     HeadingActionTile(
                       heading: 'Notes',
                     ),
-                    ListView.builder(
-                      itemBuilder: (BuildContext ctx, index) {
-                        return (moodHistory[index].comment ?? "").isEmpty
-                            ? SizedBox()
-                            : NotesTile(
-                                note:
-                                    "${DateFormat("dd/MM").format(DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").parse(moodHistory[index].date!))} - ${moodHistory[index].comment ?? ""}",
-                              );
-                      },
-                      itemCount: moodHistory.length,
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                    ),
+                    Obx(() => statisticsController.isLoadingMoodHistory.value ==
+                            true
+                        ? Container(
+                            height: 200,
+                            child: Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                          )
+                        : ListView.builder(
+                            itemBuilder: (BuildContext ctx, index) {
+                              return (statisticsController
+                                              .moodHistory[index].comment ??
+                                          "")
+                                      .isEmpty
+                                  ? SizedBox()
+                                  : NotesTile(
+                                      note:
+                                          "${DateFormat("dd/MM").format(DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").parse(statisticsController.moodHistory[index].date!))} - ${statisticsController.moodHistory[index].comment ?? ""}",
+                                    );
+                            },
+                            itemCount: statisticsController.moodHistory.length,
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                          )),
                   ],
                 )),
             // Padding(

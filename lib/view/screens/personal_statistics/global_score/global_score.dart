@@ -11,41 +11,10 @@ class GlobalScore extends StatelessWidget {
   final StatisticsController statisticsController =
       Get.find<StatisticsController>();
 
-  final List<GlobalScoreChartDateModel> globalScoreChartData = [
-    GlobalScoreChartDateModel(
-      'Jan - Mar',
-      0,
-      5.0,
-      0,
-      0,
-    ),
-    GlobalScoreChartDateModel(
-      'Apr - July',
-      1.0,
-      1.0,
-      2.0,
-      2.5,
-    ),
-    GlobalScoreChartDateModel(
-      'Aug - Oct',
-      3.0,
-      2.0,
-      1.5,
-      2.0,
-    ),
-    GlobalScoreChartDateModel(
-      'Nov-Jan',
-      2.0,
-      1.0,
-      2.0,
-      .5,
-    ),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 200,
+      height: 240,
       child: Obx(
         () => statisticsController.isLoadingGoalsReport.value == true
             ? Center(
@@ -57,17 +26,17 @@ class GlobalScore extends StatelessWidget {
                     header: '',
                     canShowMarker: true,
                     textStyle: TextStyle(color: Colors.white),
-                    color: Colors.black.withOpacity(0.7),
+                    color: kTertiaryColor,
                     builder: (dynamic data, dynamic point, dynamic series,
                         int index, int d) {
                       return Container(
                         padding: EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.7),
+                          color: kTertiaryColor,
                           borderRadius: BorderRadius.circular(5),
                         ),
                         child: Text(
-                          '${data.date}\nGlobal: ${data.global}\nWellbeing: ${data.wellbeing}\nVocational: ${data.vocational}\nPersonal Development: ${data.personalDevelopment}',
+                          'Global: ${data.global}\nWellbeing: ${data.wellbeing}\nVocational: ${data.vocational}\nPersonal Development: ${data.personalDevelopment}',
                           style: TextStyle(color: Colors.white),
                         ),
                       );
@@ -100,7 +69,7 @@ class GlobalScore extends StatelessWidget {
                 ),
                 primaryXAxis: CategoryAxis(
                   name: 'xAxis',
-                  maximum: 5,
+                  maximum: 6,
                   minimum: 0,
                   majorGridLines: MajorGridLines(
                     width: 0,
@@ -129,69 +98,71 @@ class GlobalScore extends StatelessWidget {
       StackedLineSeries<GlobalScoreChartOneWeekDataModel, dynamic>(
         groupName: "Global",
         dataSource: globalScoreChartData,
-        xValueMapper: (GlobalScoreChartOneWeekDataModel data, _) => data.date,
+        xValueMapper: (GlobalScoreChartOneWeekDataModel data, _) => DateFormat("EEE").format(DateTime.parse(data.date!)),
         yValueMapper: (GlobalScoreChartOneWeekDataModel data, _) => data.global,
         xAxisName: 'xAxis',
         yAxisName: 'yAxis',
         color: kLifeBergBlueColor,
+        markerSettings: MarkerSettings(
+          isVisible: true,
+          borderColor: kMapMarkerBorderColor,
+        ),
       ),
       StackedAreaSeries<GlobalScoreChartOneWeekDataModel, dynamic>(
         groupName: "Global B",
         dataSource: globalScoreChartData,
-        xValueMapper: (GlobalScoreChartOneWeekDataModel data, _) => data.date,
+        xValueMapper: (GlobalScoreChartOneWeekDataModel data, _) => DateFormat("EEE").format(DateTime.parse(data.date!)),
         yValueMapper: (GlobalScoreChartOneWeekDataModel data, _) => data.global,
         xAxisName: 'xAxis',
         yAxisName: 'yAxis',
         color: kLifeBergBlueColor.withOpacity(0.22),
+        markerSettings: MarkerSettings(
+          isVisible: true,
+          borderColor: kMapMarkerBorderColor,
+        ),
       ),
       StackedLineSeries<GlobalScoreChartOneWeekDataModel, dynamic>(
         groupName: "Wellbeing",
         dataSource: globalScoreChartData,
-        xValueMapper: (GlobalScoreChartOneWeekDataModel data, _) => data.date,
+        xValueMapper: (GlobalScoreChartOneWeekDataModel data, _) => DateFormat("EEE").format(DateTime.parse(data.date!)),
         yValueMapper: (GlobalScoreChartOneWeekDataModel data, _) =>
             data.wellbeing,
         xAxisName: 'xAxis',
         yAxisName: 'yAxis',
         color: kStreaksColor,
+        markerSettings: MarkerSettings(
+          isVisible: true,
+          borderColor: kMapMarkerBorderColor,
+        ),
       ),
       StackedLineSeries<GlobalScoreChartOneWeekDataModel, dynamic>(
         dataSource: globalScoreChartData,
         groupName: "Vocational",
-        xValueMapper: (GlobalScoreChartOneWeekDataModel data, _) => data.date,
+        xValueMapper: (GlobalScoreChartOneWeekDataModel data, _) => DateFormat("EEE").format(DateTime.parse(data.date!)),
         yValueMapper: (GlobalScoreChartOneWeekDataModel data, _) =>
             data.vocational,
         xAxisName: 'xAxis',
         yAxisName: 'yAxis',
         color: kRACGPExamColor,
+        markerSettings: MarkerSettings(
+          isVisible: true,
+          borderColor: kMapMarkerBorderColor,
+        ),
       ),
       StackedLineSeries<GlobalScoreChartOneWeekDataModel, dynamic>(
         dataSource: globalScoreChartData,
         groupName: "Personal Development",
-        xValueMapper: (GlobalScoreChartOneWeekDataModel data, _) => data.date,
+        xValueMapper: (GlobalScoreChartOneWeekDataModel data, _) => DateFormat("EEE").format(DateTime.parse(data.date!)),
         yValueMapper: (GlobalScoreChartOneWeekDataModel data, _) =>
             data.personalDevelopment,
         xAxisName: 'xAxis',
         yAxisName: 'yAxis',
         color: kDailyGratitudeColor,
+        markerSettings: MarkerSettings(
+          isVisible: true,
+          borderColor: kMapMarkerBorderColor,
+        ),
       ),
     ];
   }
-}
-
-class GlobalScoreChartDateModel {
-  GlobalScoreChartDateModel(
-    this.xValueMapper,
-    this.unKnownValue,
-    this.dailyGratitude,
-    this.quiteTime,
-    this.rCGPA,
-  );
-
-  String? xValueMapper;
-
-  //CHANGE IT ACCORDING TO YOUR NEED
-  double? unKnownValue;
-  double? dailyGratitude;
-  double? quiteTime;
-  double? rCGPA;
 }

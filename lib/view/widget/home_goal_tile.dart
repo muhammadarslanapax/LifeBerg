@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:life_berg/constant/color.dart';
@@ -298,10 +299,6 @@ class _HomeGoalTileState extends State<HomeGoalTile> {
         margin: EdgeInsets.only(
           bottom: 8,
         ),
-        padding: EdgeInsets.symmetric(
-          horizontal: 10,
-          vertical: 10,
-        ),
         decoration: BoxDecoration(
           color: kSecondaryColor,
           borderRadius: BorderRadius.circular(8),
@@ -309,100 +306,135 @@ class _HomeGoalTileState extends State<HomeGoalTile> {
             color: kBorderColor,
           ),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Container(
-              width: 24,
-              height: 24,
-              decoration: BoxDecoration(
-                  color: widget.imageBgColor,
-                  borderRadius: BorderRadius.all(Radius.circular(4))),
-              padding: EdgeInsets.all(3.0),
-              child: /*widget.type == "daily_highlight"
-                  ? SvgPicture.asset(widget.leadingIcon!,
-                      color: widget.leadingColor)
-                  :*/
-                  Image.asset(
-                widget.leadingIcon!,
-                color: widget.leadingColor,
+        child: Slidable(
+          enabled: !widget.goal!.isSkipped.value,
+          key: UniqueKey(),
+          endActionPane: ActionPane(
+            motion: const ScrollMotion(),
+            dragDismissible: false,
+            children: [
+              SlidableAction(
+                onPressed: (ctx) {
+                  widget.goal!.isSkipped.value = true;
+                  homeController.skippedGoalIds.add(widget.goal!.sId!);
+                  PrefUtils().setSkippedGoals =
+                      jsonEncode(homeController.skippedGoalIds);
+                  homeController.calculatePercentage();
+                },
+                borderRadius: BorderRadius.only(
+                    topRight: Radius.circular(8.0),
+                    bottomRight: Radius.circular(8.0)),
+                backgroundColor: kTertiaryColor,
+                foregroundColor: Colors.white,
+                flex: 5,
+                label: 'Skip Goal',
               ),
+            ],
+          ),
+          child: Container(
+            padding: EdgeInsets.symmetric(
+              horizontal: 10,
+              vertical: 10,
             ),
-            Expanded(
-              child: MyText(
-                text: widget.title,
-                size: 16,
-                color: kCoolGreyColor,
-                paddingLeft: 8,
-                paddingRight: 6,
-                maxLines: 1,
-              ),
-            ),
-            widget.haveCheckBox == true
-                ? Obx(() => GestureDetector(
-                      onTap: () {
-                        if (widget.type == "daily_highlight") {
-                          widget.onCheckBoxTap!();
-                        } else {
-                          if (widget.goal!.isSkipped.value == false) {
-                            homeController.saveLocalData(widget.goal!,
-                                !widget.checkBoxValue!.value, "0.0");
-                            widget.onCheckBoxTap!();
-                          }
-                        }
-                      },
-                      child: Container(
-                        height: 18,
-                        width: 18,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(4.0),
-                          border: Border.all(
-                              width: 1,
-                              color: widget.type == "daily_highlight" &&
-                                      widget.checkBoxValue!.value
-                                  ? Colors.transparent
-                                  : widget.type == "daily_highlight" &&
-                                          widget.checkBoxValue!.value == false
-                                      ? kBorderColor
-                                      : widget.checkBoxValue!.value ||
-                                              widget.goal!.isSkipped.value
-                                          ? Colors.transparent
-                                          : kBorderColor),
-                          color: widget.goal != null &&
-                                  widget.goal!.isSkipped.value
-                              ? kUnSelectedColor
-                              : widget.checkBoxValue!.value
-                                  ? kTertiaryColor
-                                  : Colors.white,
-                        ),
-                        child: widget.checkBoxValue!.value ||
-                                (widget.goal != null &&
-                                    widget.goal!.isSkipped.value)
-                            ? Icon(
-                                Icons.check,
-                                color: kPrimaryColor,
-                                size: 11,
-                              )
-                            : Container(),
-                      ),
-                    ))
-                : widget.haveSlider == true
-                    ? SizedBox(
-                        width: 103,
-                        height: 12,
-                        child: CustomSlider(
-                          value: widget.progress,
-                          isSkipped: widget.goal!.isSkipped,
-                          onChanged: (value) {
-                            homeController.saveLocalData(widget.goal!,
-                                !widget.checkBoxValue!.value, value.toString());
-                            widget.onProgressChange!(value);
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                      color: widget.imageBgColor,
+                      borderRadius: BorderRadius.all(Radius.circular(4))),
+                  padding: EdgeInsets.all(3.0),
+                  child: /*widget.type == "daily_highlight"
+                      ? SvgPicture.asset(widget.leadingIcon!,
+                          color: widget.leadingColor)
+                      :*/
+                      Image.asset(
+                    widget.leadingIcon!,
+                    color: widget.leadingColor,
+                  ),
+                ),
+                Expanded(
+                  child: MyText(
+                    text: widget.title,
+                    size: 16,
+                    color: kCoolGreyColor,
+                    paddingLeft: 8,
+                    paddingRight: 6,
+                    maxLines: 1,
+                  ),
+                ),
+                widget.haveCheckBox == true
+                    ? Obx(() => GestureDetector(
+                          onTap: () {
+                            if (widget.type == "daily_highlight") {
+                              widget.onCheckBoxTap!();
+                            } else {
+                              if (widget.goal!.isSkipped.value == false) {
+                                homeController.saveLocalData(widget.goal!,
+                                    !widget.checkBoxValue!.value, "0.0");
+                                widget.onCheckBoxTap!();
+                              }
+                            }
                           },
-                        ),
-                      )
-                    : SizedBox(),
-          ],
+                          child: Container(
+                            height: 18,
+                            width: 18,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(4.0),
+                              border: Border.all(
+                                  width: 1,
+                                  color: widget.type == "daily_highlight" &&
+                                          widget.checkBoxValue!.value
+                                      ? Colors.transparent
+                                      : widget.type == "daily_highlight" &&
+                                              widget.checkBoxValue!.value ==
+                                                  false
+                                          ? kBorderColor
+                                          : widget.checkBoxValue!.value ||
+                                                  widget.goal!.isSkipped.value
+                                              ? Colors.transparent
+                                              : kBorderColor),
+                              color: widget.goal != null &&
+                                      widget.goal!.isSkipped.value
+                                  ? kUnSelectedColor
+                                  : widget.checkBoxValue!.value
+                                      ? kTertiaryColor
+                                      : Colors.white,
+                            ),
+                            child: widget.checkBoxValue!.value ||
+                                    (widget.goal != null &&
+                                        widget.goal!.isSkipped.value)
+                                ? Icon(
+                                    Icons.check,
+                                    color: kPrimaryColor,
+                                    size: 11,
+                                  )
+                                : Container(),
+                          ),
+                        ))
+                    : widget.haveSlider == true
+                        ? SizedBox(
+                            width: 103,
+                            height: 12,
+                            child: CustomSlider(
+                              value: widget.progress,
+                              isSkipped: widget.goal!.isSkipped,
+                              onChanged: (value) {
+                                homeController.saveLocalData(
+                                    widget.goal!,
+                                    !widget.checkBoxValue!.value,
+                                    value.toString());
+                                widget.onProgressChange!(value);
+                              },
+                            ),
+                          )
+                        : SizedBox(),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -441,7 +473,7 @@ class AddComment extends StatelessWidget {
           ),
         ),
         onTap: () {
-          homeController.addCommentOnGoal(goal, type, index);
+          homeController.saveLocalGoalComment(goal);
           Get.dialog(
             MyDialog(
               icon: Assets.imagesComment,

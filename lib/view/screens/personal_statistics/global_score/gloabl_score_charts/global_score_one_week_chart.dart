@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/get_core/src/get_main.dart';
+import 'package:intl/intl.dart';
 import 'package:life_berg/constant/color.dart';
 import 'package:life_berg/view/screens/personal_statistics/global_score/global_score_controller.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
@@ -34,17 +35,17 @@ class _GlobalScoreOneWeekState extends State<GlobalScoreOneWeek> {
                   header: '',
                   canShowMarker: true,
                   textStyle: TextStyle(color: Colors.white),
-                  color: Colors.black.withOpacity(0.7),
+                  color: kTertiaryColor,
                   builder: (dynamic data, dynamic point, dynamic series,
                       int index, int d) {
                     return Container(
                       padding: EdgeInsets.all(8),
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.7),
+                        color: kTertiaryColor,
                         borderRadius: BorderRadius.circular(5),
                       ),
                       child: Text(
-                        '${data.date}\nGlobal: ${data.global}\nWellbeing: ${data.wellbeing}\nVocational: ${data.vocational}\nPersonal Development: ${data.personalDevelopment}',
+                        'Global: ${data.global}\nWellbeing: ${data.wellbeing}\nVocational: ${data.vocational}\nPersonal Development: ${data.personalDevelopment}',
                         style: TextStyle(color: Colors.white),
                       ),
                     );
@@ -112,7 +113,7 @@ class _GlobalScoreOneWeekState extends State<GlobalScoreOneWeek> {
         StackedLineSeries<GlobalScoreChartOneWeekDataModel, dynamic>(
           groupName: "Global",
           dataSource: data,
-          xValueMapper: (GlobalScoreChartOneWeekDataModel data, _) => data.date,
+          xValueMapper: (GlobalScoreChartOneWeekDataModel data, _) => globalScoreController.tabType.value == "one_week" ? DateFormat("EEE").format(DateTime.parse(data.date!)) : data.date,
           yValueMapper: (GlobalScoreChartOneWeekDataModel data, _) =>
               data.global,
           xAxisName: 'xAxis',
@@ -123,7 +124,7 @@ class _GlobalScoreOneWeekState extends State<GlobalScoreOneWeek> {
         StackedAreaSeries<GlobalScoreChartOneWeekDataModel, dynamic>(
           groupName: "Global B",
           dataSource: data,
-          xValueMapper: (GlobalScoreChartOneWeekDataModel data, _) => data.date,
+          xValueMapper: (GlobalScoreChartOneWeekDataModel data, _) => globalScoreController.tabType.value == "one_week" ? DateFormat("EEE").format(DateTime.parse(data.date!)) : data.date,
           yValueMapper: (GlobalScoreChartOneWeekDataModel data, _) =>
               data.global,
           xAxisName: 'xAxis',
@@ -134,7 +135,7 @@ class _GlobalScoreOneWeekState extends State<GlobalScoreOneWeek> {
         StackedLineSeries<GlobalScoreChartOneWeekDataModel, dynamic>(
           groupName: "Wellbeing",
           dataSource: data,
-          xValueMapper: (GlobalScoreChartOneWeekDataModel data, _) => data.date,
+          xValueMapper: (GlobalScoreChartOneWeekDataModel data, _) => globalScoreController.tabType.value == "one_week" ? DateFormat("EEE").format(DateTime.parse(data.date!)) : data.date,
           yValueMapper: (GlobalScoreChartOneWeekDataModel data, _) =>
               data.wellbeing,
           xAxisName: 'xAxis',
@@ -145,7 +146,7 @@ class _GlobalScoreOneWeekState extends State<GlobalScoreOneWeek> {
         StackedLineSeries<GlobalScoreChartOneWeekDataModel, dynamic>(
           dataSource: data,
           groupName: "Vocational",
-          xValueMapper: (GlobalScoreChartOneWeekDataModel data, _) => data.date,
+          xValueMapper: (GlobalScoreChartOneWeekDataModel data, _) => globalScoreController.tabType.value == "one_week" ? DateFormat("EEE").format(DateTime.parse(data.date!)) : data.date,
           yValueMapper: (GlobalScoreChartOneWeekDataModel data, _) =>
               data.vocational,
           xAxisName: 'xAxis',
@@ -156,7 +157,7 @@ class _GlobalScoreOneWeekState extends State<GlobalScoreOneWeek> {
         StackedLineSeries<GlobalScoreChartOneWeekDataModel, dynamic>(
           dataSource: data,
           groupName: "Personal Development",
-          xValueMapper: (GlobalScoreChartOneWeekDataModel data, _) => data.date,
+          xValueMapper: (GlobalScoreChartOneWeekDataModel data, _) => globalScoreController.tabType.value == "one_week" ? DateFormat("EEE").format(DateTime.parse(data.date!)) : data.date,
           yValueMapper: (GlobalScoreChartOneWeekDataModel data, _) =>
               data.personalDevelopment,
           xAxisName: 'xAxis',

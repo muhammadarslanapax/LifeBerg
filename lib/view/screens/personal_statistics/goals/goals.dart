@@ -2,6 +2,7 @@ import 'package:animated_custom_dropdown/custom_dropdown.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:life_berg/constant/color.dart';
 import 'package:life_berg/model/goal/goal.dart';
 import 'package:life_berg/view/screens/personal_statistics/statistics_controller.dart';
@@ -24,7 +25,7 @@ class Globals extends StatelessWidget {
         Obx(
           () => GoalChart(
             statisticsController.goalReportChart.value,
-            primaryXYAxisMax: 5,
+            primaryXYAxisMax: 6,
             primaryXYAxisMin: 0,
             primaryYAxisMax: 100,
             primaryYAxisMin: 0,
@@ -87,13 +88,9 @@ class Globals extends StatelessWidget {
                 initialItem: statisticsController.selectedGoalIndex.value,
                 onChanged: (value) {
                   statisticsController.selectedGoalIndex.value = value as int;
-                  statisticsController.getGoalReport(
-                      statisticsController
-                          .goalsList[
-                              statisticsController.selectedGoalIndex.value]
-                          .sId!,
-                      false,
-                      false);
+                  statisticsController.getGoalReport(statisticsController
+                      .goalsList[statisticsController.selectedGoalIndex.value]
+                      .sId!);
                 },
               ),
             )),
@@ -127,28 +124,42 @@ class GoalChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 200,
+      height: 240,
       child: SfCartesianChart(
         tooltipBehavior: TooltipBehavior(
           enable: true,
+          textStyle: TextStyle(color: Colors.white),
+          header: '',
+          canShowMarker: true,
+          color: kTertiaryColor,
           activationMode: ActivationMode.singleTap,
-          builder: (dynamic data, dynamic point, dynamic series, int pointIndex, int seriesIndex) {
-            if (data.comment != null && data.comment!.isNotEmpty) {
-              return Container(
-                padding: EdgeInsets.all(8),
-                child: Text(
-                  data.comment!,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontFamily: 'Ubuntu',
-                  ),
-                ),
-              );
-            } else {
-              // Return an empty container if the comment is empty to hide the tooltip
-              return SizedBox.shrink();
-            }
+          builder: (dynamic data, dynamic point, dynamic series, int pointIndex,
+              int seriesIndex) {
+            return (data.comment ?? "").isNotEmpty
+                ? Container(
+                    padding: EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: kTertiaryColor,
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    child: Text(
+                      data.comment ?? "",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontFamily: 'Ubuntu',
+                      ),
+                    ),
+                  )
+                : Container(
+                    width: 40,
+                    height: 30,
+                    padding: EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: kTertiaryColor,
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                  );
           },
         ),
         margin: EdgeInsets.symmetric(horizontal: 15),
@@ -163,7 +174,8 @@ class GoalChart extends StatelessWidget {
           interval: primaryYAxisInterval,
           plotOffset: 10.0,
           majorGridLines: MajorGridLines(
-            width: 0,
+            width: 1.2,
+            color: kChartBorderColor,
           ),
           majorTickLines: MajorTickLines(
             width: 0,
@@ -206,7 +218,8 @@ class GoalChart extends StatelessWidget {
     return <ChartSeries>[
       LineSeries<GoalChartDateModel, dynamic>(
         dataSource: globalScoreChartDataSource!,
-        xValueMapper: (GoalChartDateModel data, _) => data.xValueMapper,
+        xValueMapper: (GoalChartDateModel data, _) =>
+            DateFormat("EEE").format(DateTime.parse(data.xValueMapper!)),
         yValueMapper: (GoalChartDateModel data, _) => data.yValueMapper,
         xAxisName: 'xAxis',
         yAxisName: 'yAxis',
@@ -235,15 +248,13 @@ class GoalChart extends StatelessWidget {
 }
 
 class GoalChartDateModel {
-  GoalChartDateModel(
-    this.xValueMapper,
-    this.yValueMapper,
-    this.comment,
-  );
+  GoalChartDateModel(this.xValueMapper, this.yValueMapper, this.comment,
+      {this.color, this.goalId});
 
   String? xValueMapper;
 
-  //CHANGE IT ACCORDING TO YOUR NEED
   double? yValueMapper;
   String? comment;
+  Color? color;
+  String? goalId;
 }

@@ -13,6 +13,8 @@ import 'package:life_berg/model/goal_report/goal_report_list_response.dart';
 import 'package:life_berg/model/goal_report/goal_report_list_response_data.dart';
 import 'package:life_berg/model/mood_history/mood_history_response.dart';
 import 'package:life_berg/model/mood_history/mood_history_response_data.dart';
+import 'package:life_berg/model/top_streak/top_streak_response.dart';
+import 'package:life_berg/model/top_streak/top_streak_response_data.dart';
 
 import '../../../constant/color.dart';
 import '../../../constant/strings.dart';
@@ -37,18 +39,14 @@ class StatisticsController extends FullLifeCycleController
   RxBool isLoadingMoodHistory = true.obs;
   RxBool isLoadingGoals = true.obs;
 
-  List<MoodHistoryResponseData> moodHistory = [];
+  final TextEditingController moodCommentController = TextEditingController();
+
+  RxList<MoodHistoryResponseData> moodHistory = <MoodHistoryResponseData>[].obs;
   final List<MoodChartDataModel> moodChartData = [];
   List<Map<String, dynamic>> goalCompletionList = [];
-  final List<GlobalScoreChartOneWeekDataModel> chartData = [];
+  List<GlobalScoreChartOneWeekDataModel> chartData = [];
   List<Goal> goalsList = [];
   List<int> goalsListIndex = [];
-  RxList<GoalReportListResponseData> expandedGoalReport =
-      <GoalReportListResponseData>[].obs;
-  RxList<GoalReportListResponseData> commentsGoalReport =
-      <GoalReportListResponseData>[].obs;
-  RxList<GoalReportListResponseData> specificGoalReport =
-      <GoalReportListResponseData>[].obs;
 
   RxList<GoalReportListResponse> firstGoalReport =
       <GoalReportListResponse>[].obs;
@@ -82,7 +80,7 @@ class StatisticsController extends FullLifeCycleController
   @override
   void onInit() {
     super.onInit();
-    _getUserData();
+    getUserData();
   }
 
   @override
@@ -90,7 +88,7 @@ class StatisticsController extends FullLifeCycleController
     super.onClose();
   }
 
-  _getUserData({bool isShowLoading = true}) {
+  getUserData({bool isShowLoading = true}) {
     if (PrefUtils().user.isNotEmpty) {
       user = User.fromJson(json.decode(PrefUtils().user));
       fullName.value = user?.fullName ?? "";
@@ -138,8 +136,8 @@ class StatisticsController extends FullLifeCycleController
               getPerfectDays();
               getGoalAchieved();
               goalCompletionList
-                  .addAll(calculateGoalPercentages(goalReportListResponse));
-              processGoalData(goalReportListResponse);
+                  .addAll(calculateScoreboard(goalReportListResponse));
+              processGlobalScore(goalReportListResponse);
             }
           } else {
             SmartDialog.dismiss();
@@ -164,6 +162,7 @@ class StatisticsController extends FullLifeCycleController
     if (isShowLoading) {
       isLoadingMoodHistory.value = true;
       moodHistory.clear();
+      moodChartData.clear();
     }
     FocusManager.instance.primaryFocus?.unfocus();
     httpManager.getAllMoodHistory(PrefUtils().token).then((value) {
@@ -173,8 +172,9 @@ class StatisticsController extends FullLifeCycleController
           if (moodHistoryResponse.success == true) {
             if (moodHistoryResponse.data != null) {
               moodHistory.addAll(moodHistoryResponse.data!);
+              moodHistory.sort((a, b) => DateTime.parse(b.date!).compareTo(DateTime.parse(a.date!)));
               moodChartData
-                  .addAll(groupDataByQuarter(moodHistoryResponse.data!));
+                  .addAll(processMoodChartData(moodHistoryResponse.data!));
             }
           } else {
             SmartDialog.dismiss();
@@ -212,41 +212,100 @@ class StatisticsController extends FullLifeCycleController
     }
   }
 
-  List<MoodChartDataModel> groupDataByQuarter(
-      List<MoodHistoryResponseData> data) {
-    // Creating a map to hold the grouped data
-    final Map<String, List<int>> groupedData = {
-      'Jan-Mar': [],
-      'Apr-Jul': [],
-      'Aug-Oct': [],
-      'Nov-Dec': []
-    };
+  List<GoalChartDateModel> processSpecificGoalChart(
+      GoalReportListResponse goalReportListResponse) {
+    goalReportChart.clear();
 
-    // Defining date format
-    final DateFormat dateFormat = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+    Map<String, List<int>> dayValues = {};
+    Map<String, List<String>> dayComments = {};
 
-    // Iterating through the data
-    for (var entry in data) {
-      final DateTime date = dateFormat.parse(entry.date!, true);
-      final int mood = int.parse(entry.mood!) * 20;
-      final String key = getQuarterKey(date);
+    DateTime now = DateTime.now();
+    DateTime startOfLastWeek = now.subtract(Duration(days: 7));
 
-      if (key.isNotEmpty) {
-        groupedData[key]?.add(mood);
+    for (int i = 1; i <= 7; i++) {
+      DateTime date = startOfLastWeek.add(Duration(days: i));
+      String formattedDate = DateFormat('yyyy-MM-dd').format(date);
+      dayValues[formattedDate] = [];
+      dayComments[formattedDate] = [];
+    }
+
+    for (var report in goalReportListResponse.data!) {
+      if (report.details != null && report.details!.isNotEmpty) {
+        DateTime date = DateTime.parse(report.date!);
+        String formattedDate = DateFormat('yyyy-MM-dd').format(date);
+
+        if (dayValues.containsKey(formattedDate)) {
+          int value = 0;
+
+          if (report.details![0].type == 'boolean') {
+            value = report.details![0].value == 'true' ? 100 : 0;
+          } else if (report.details![0].type == 'string') {
+            value = int.parse(report.details![0].value!) * 10;
+          }
+
+          String comment = report.details![0].comment ?? "";
+
+          dayValues[formattedDate]!.add(value);
+          if (comment.isNotEmpty) {
+            dayComments[formattedDate]!.add(comment);
+          }
+        }
       }
     }
 
-    // Creating MoodChartDataModel instances
-    final List<MoodChartDataModel> moodChartData =
-        groupedData.entries.map((entry) {
-      final String quarter = entry.key;
-      final List<int> moods = entry.value;
-      final int averageMood = moods.isNotEmpty
-          ? (moods.reduce((a, b) => a + b) / moods.length).round()
-          : 0;
+    for (int i = 1; i <= 7; i++) {
+      DateTime date = startOfLastWeek.add(Duration(days: i));
+      String formattedDate = DateFormat('yyyy-MM-dd').format(date);
 
-      return MoodChartDataModel(quarter, averageMood);
-    }).toList();
+      double average = dayValues[formattedDate]!.isNotEmpty
+          ? dayValues[formattedDate]!.reduce((a, b) => a + b) /
+          dayValues[formattedDate]!.length
+          : 0;
+      String comments = dayComments[formattedDate]!.join(', ');
+
+      goalReportChart.add(GoalChartDateModel(formattedDate, average, comments));
+    }
+
+    return goalReportChart;
+  }
+
+  List<MoodChartDataModel> processMoodChartData(
+      List<MoodHistoryResponseData> data) {
+    final Map<String, int?> groupedData = {};
+    final Map<String, String?> commentsMap = {};
+
+    DateTime now = DateTime.now();
+    DateTime startOfLastWeek = now.subtract(Duration(days: 7));
+
+    for (int i = 1; i <= 7; i++) {
+      DateTime date = startOfLastWeek.add(Duration(days: i));
+      String formattedDate = DateFormat('yyyy-MM-dd').format(date);
+      groupedData[formattedDate] = null;
+      commentsMap[formattedDate] = null;
+    }
+
+    for (var entry in data) {
+      DateTime date = DateTime.parse(entry.date!);
+      String formattedDate = DateFormat('yyyy-MM-dd').format(date);
+
+      if (groupedData.containsKey(formattedDate)) {
+        final int mood = int.parse(entry.mood!) * 20;
+        groupedData[formattedDate] = mood;
+        commentsMap[formattedDate] = entry.comment;
+      }
+    }
+
+    final List<MoodChartDataModel> moodChartData = [];
+
+    for (int i = 1; i <= 7; i++) {
+      DateTime date = startOfLastWeek.add(Duration(days: i));
+      String formattedDate = DateFormat('yyyy-MM-dd').format(date);
+      final int? mood = groupedData[formattedDate];
+      final String? comment = commentsMap[formattedDate];
+      // if(mood != null) {
+      moodChartData.add(MoodChartDataModel(formattedDate, mood ?? -1, comment));
+      // }
+    }
 
     return moodChartData;
   }
@@ -267,102 +326,178 @@ class StatisticsController extends FullLifeCycleController
     }
   }
 
-  List<Map<String, dynamic>> generateDynamicPeriods(
-      List<GoalReportListResponseData> data) {
-    final DateFormat dateFormat = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-    DateTime minDate = dateFormat.parse(data!.first.date!, true);
-    DateTime maxDate = dateFormat.parse(data!.first.date!, true);
+  // List<GlobalScoreChartOneWeekDataModel> processGlobalScore(
+  //     GoalReportListResponse data) {
+  //   Map<String, Map<String, List<double>>> categorizedData = {
+  //     'Mon': {'Vocational': [], 'Wellbeing': [], 'Personal Development': []},
+  //     'Tue': {'Vocational': [], 'Wellbeing': [], 'Personal Development': []},
+  //     'Wed': {'Vocational': [], 'Wellbeing': [], 'Personal Development': []},
+  //     'Thu': {'Vocational': [], 'Wellbeing': [], 'Personal Development': []},
+  //     'Fri': {'Vocational': [], 'Wellbeing': [], 'Personal Development': []},
+  //     'Sat': {'Vocational': [], 'Wellbeing': [], 'Personal Development': []},
+  //     'Sun': {'Vocational': [], 'Wellbeing': [], 'Personal Development': []},
+  //   };
+  //
+  //   Map<String, int> totalGoals = {
+  //     'Mon': 0,
+  //     'Tue': 0,
+  //     'Wed': 0,
+  //     'Thu': 0,
+  //     'Fri': 0,
+  //     'Sat': 0,
+  //     'Sun': 0
+  //   };
+  //
+  //   DateTime currentDate = DateTime.now();
+  //   int currentDayOfWeek = currentDate.weekday;
+  //
+  //   // Calculate the start and end of the last week
+  //   DateTime startOfLastWeek =
+  //       currentDate.subtract(Duration(days: currentDayOfWeek + 7));
+  //   DateTime endOfLastWeek = startOfLastWeek.add(Duration(days: 6));
+  //
+  //   // Determine the order of days from today backwards
+  //   List<String> daysOrder = [];
+  //   for (int i = 0; i < 7; i++) {
+  //     DateTime day = currentDate.subtract(Duration(days: i));
+  //     String dayOfWeek = DateFormat('EEE').format(day);
+  //     daysOrder.add(dayOfWeek);
+  //   }
+  //
+  //   // Process the reports
+  //   for (var report in data.data!) {
+  //     DateTime reportDate = DateTime.parse(report.date!);
+  //
+  //     if (reportDate.isBefore(startOfLastWeek) ||
+  //         reportDate.isAfter(endOfLastWeek)) {
+  //       continue;
+  //     }
+  //
+  //     String dayOfWeek = getDayOfWeek(reportDate);
+  //
+  //     for (var detail in report.details!) {
+  //       if (detail.goal != null) {
+  //         double completionPercentage = 0;
+  //
+  //         if (detail.type == 'string') {
+  //           double value = double.parse(detail.value!);
+  //           completionPercentage = value * 10;
+  //         } else if (detail.type == 'boolean') {
+  //           bool value = detail.value == 'true';
+  //           completionPercentage = value ? 100 : 0;
+  //         }
+  //
+  //         categorizedData[dayOfWeek]?[detail.goal!.category!.name]
+  //             ?.add(completionPercentage);
+  //
+  //         // Update total goals
+  //         totalGoals[dayOfWeek] = (totalGoals[dayOfWeek] ?? 0) + 1;
+  //       }
+  //     }
+  //   }
+  //
+  //   for (String day in daysOrder) {
+  //     double vocationalAvg =
+  //         calculateAverage(categorizedData[day]!['Vocational']!);
+  //     double wellbeingAvg =
+  //         calculateAverage(categorizedData[day]!['Wellbeing']!);
+  //     double personalDevelopmentAvg =
+  //         calculateAverage(categorizedData[day]!['Personal Development']!);
+  //
+  //     double globalAvg = totalGoals[day]! > 0
+  //         ? ((vocationalAvg + wellbeingAvg + personalDevelopmentAvg) / 3)
+  //         : 0;
+  //
+  //     // Debug prints
+  //     print('Day: $day');
+  //     print('Total Goals: ${totalGoals[day]}');
+  //     print('Global Avg: $globalAvg');
+  //
+  //     chartData.add(GlobalScoreChartOneWeekDataModel(
+  //       day,
+  //       globalAvg.clamp(0, 100).toInt(),
+  //       wellbeingAvg.clamp(0, 100).toInt(),
+  //       vocationalAvg.clamp(0, 100).toInt(),
+  //       personalDevelopmentAvg.clamp(0, 100).toInt(),
+  //     ));
+  //   }
+  //   chartData = chartData.reversed.toList();
+  //
+  //   return chartData;
+  // }
 
-    for (var entry in data!) {
-      DateTime entryDate = dateFormat.parse(entry.date!, true);
-      if (entryDate.isBefore(minDate)) minDate = entryDate;
-      if (entryDate.isAfter(maxDate)) maxDate = entryDate;
-    }
+  List<GlobalScoreChartOneWeekDataModel> processGlobalScore(
+      GoalReportListResponse data) {
+    Map<String, Map<String, List<double>>> categorizedData = {};
+    Map<String, int> totalGoals = {};
 
-    List<Map<String, dynamic>> periods = [];
-    DateTime currentStart = DateTime(minDate.year, minDate.month, 1);
-    DateTime currentEnd = DateTime(currentStart.year, currentStart.month + 3, 1)
-        .subtract(Duration(days: 1));
+    DateTime now = DateTime.now();
+    DateTime startOfLastWeek = now.subtract(Duration(days: 7));
 
-    while (currentStart.isBefore(maxDate)) {
-      periods.add({
-        'label': DateFormat('MMM').format(currentStart) +
-            ' - ' +
-            DateFormat('MMM').format(currentEnd),
-        'start': currentStart,
-        'end': currentEnd
-      });
-
-      currentStart = DateTime(currentEnd.year, currentEnd.month + 1, 1);
-      currentEnd = DateTime(currentStart.year, currentStart.month + 3, 1)
-          .subtract(Duration(days: 1));
-    }
-
-    return periods;
-  }
-
-  List<GlobalScoreChartOneWeekDataModel> getGlobalScoreReport(String type) {
-    if (type == "one_week") {
-      Map<String, Map<String, List<double>>> categorizedData = {
-        'Mon': {'Vocational': [], 'Wellbeing': [], 'Personal Development': []},
-        'Tue': {'Vocational': [], 'Wellbeing': [], 'Personal Development': []},
-        'Wed': {'Vocational': [], 'Wellbeing': [], 'Personal Development': []},
-        'Thu': {'Vocational': [], 'Wellbeing': [], 'Personal Development': []},
-        'Fri': {'Vocational': [], 'Wellbeing': [], 'Personal Development': []},
-        'Sat': {'Vocational': [], 'Wellbeing': [], 'Personal Development': []},
-        'Sun': {'Vocational': [], 'Wellbeing': [], 'Personal Development': []},
+    for (int i = 1; i <= 7; i++) {
+      DateTime date = startOfLastWeek.add(Duration(days: i));
+      String formattedDate = DateFormat('yyyy-MM-dd').format(date);
+      categorizedData[formattedDate] = {
+        'Vocational': [],
+        'Wellbeing': [],
+        'Personal Development': []
       };
+      totalGoals[formattedDate] = 0;
+    }
 
-      DateTime currentDate = DateTime.now();
-      DateTime oneWeekAgo = currentDate.subtract(Duration(days: 6));
+    for (var report in data.data!) {
+      DateTime reportDate = DateTime.parse(report.date!);
+      String formattedDate = DateFormat('yyyy-MM-dd').format(reportDate);
 
-      for (var report in goalReportListResponse!.data!) {
-        DateTime reportDate = DateTime.parse(report.date!);
-        if (reportDate.isBefore(oneWeekAgo) ||
-            reportDate.isAfter(currentDate)) {
-          continue;
-        }
+      if (!categorizedData.containsKey(formattedDate)) {
+        continue;
+      }
 
-        String category = getDayOfWeek(reportDate);
-
-        for (var detail in report.details!) {
+      for (var detail in report.details!) {
+        if (detail.goal != null) {
           double completionPercentage = 0;
 
           if (detail.type == 'string') {
             double value = double.parse(detail.value!);
-            completionPercentage = (value / 10) * 100;
+            completionPercentage = value * 10;
           } else if (detail.type == 'boolean') {
             bool value = detail.value == 'true';
             completionPercentage = value ? 100 : 0;
           }
 
-          categorizedData[category]?[detail.goal!.category!.name]
+          categorizedData[formattedDate]?[detail.goal!.category!.name]
               ?.add(completionPercentage);
+
+          totalGoals[formattedDate] = (totalGoals[formattedDate] ?? 0) + 1;
         }
       }
-
-      List<GlobalScoreChartOneWeekDataModel> chartData = [];
-      categorizedData.forEach((day, categoryData) {
-        double vocationalAvg = calculateAverage(categoryData['Vocational']!);
-        double wellbeingAvg = calculateAverage(categoryData['Wellbeing']!);
-        double personalDevelopmentAvg =
-            calculateAverage(categoryData['Personal Development']!);
-        double globalAvg =
-            (vocationalAvg + wellbeingAvg + personalDevelopmentAvg) / 3;
-
-        chartData.add(GlobalScoreChartOneWeekDataModel(
-          day,
-          globalAvg.clamp(0, 100).toInt(),
-          wellbeingAvg.clamp(0, 100).toInt(),
-          vocationalAvg.clamp(0, 100).toInt(),
-          personalDevelopmentAvg.clamp(0, 100).toInt(),
-        ));
-      });
-
-      return chartData;
-    } else {
-      return [];
     }
+
+    for (int i = 1; i <= 7; i++) {
+      DateTime date = startOfLastWeek.add(Duration(days: i));
+      String formattedDate = DateFormat('yyyy-MM-dd').format(date);
+
+      double vocationalAvg =
+      calculateAverage(categorizedData[formattedDate]!['Vocational']!);
+      double wellbeingAvg =
+      calculateAverage(categorizedData[formattedDate]!['Wellbeing']!);
+      double personalDevelopmentAvg = calculateAverage(
+          categorizedData[formattedDate]!['Personal Development']!);
+
+      double globalAvg = totalGoals[formattedDate]! > 0
+          ? ((vocationalAvg + wellbeingAvg + personalDevelopmentAvg) / 3)
+          : 0;
+
+      chartData.add(GlobalScoreChartOneWeekDataModel(
+        formattedDate,
+        globalAvg.clamp(0, 100).toInt(),
+        wellbeingAvg.clamp(0, 100).toInt(),
+        vocationalAvg.clamp(0, 100).toInt(),
+        personalDevelopmentAvg.clamp(0, 100).toInt(),
+      ));
+    }
+
+    return chartData;
   }
 
   String getDayOfWeek(DateTime date) {
@@ -386,120 +521,9 @@ class StatisticsController extends FullLifeCycleController
     }
   }
 
-  List<GlobalScoreChartOneWeekDataModel> processGoalData(
-      GoalReportListResponse data) {
-    Map<String, Map<String, List<double>>> categorizedData = {
-      'Jan-Feb': {
-        'Vocational': [],
-        'Wellbeing': [],
-        'Personal Development': []
-      },
-      'Mar-Apr': {
-        'Vocational': [],
-        'Wellbeing': [],
-        'Personal Development': []
-      },
-      'May-Jun': {
-        'Vocational': [],
-        'Wellbeing': [],
-        'Personal Development': []
-      },
-      'Jul-Aug': {
-        'Vocational': [],
-        'Wellbeing': [],
-        'Personal Development': []
-      },
-      'Sep-Oct': {
-        'Vocational': [],
-        'Wellbeing': [],
-        'Personal Development': []
-      },
-      'Nov-Dec': {
-        'Vocational': [],
-        'Wellbeing': [],
-        'Personal Development': []
-      },
-    };
-
-    // Track total goals and completed goals
-    Map<String, int> totalGoals = {
-      'Jan-Feb': 0,
-      'Mar-Apr': 0,
-      'May-Jun': 0,
-      'Jul-Aug': 0,
-      'Sep-Oct': 0,
-      'Nov-Dec': 0
-    };
-    Map<String, int> completedGoals = {
-      'Jan-Feb': 0,
-      'Mar-Apr': 0,
-      'May-Jun': 0,
-      'Jul-Aug': 0,
-      'Sep-Oct': 0,
-      'Nov-Dec': 0
-    };
-
-    for (var report in data.data!) {
-      DateTime reportDate = DateTime.parse(report.date!);
-      String category = getCategory(reportDate);
-
-      for (var detail in report.details!) {
-        if (detail.goal != null) {
-          double completionPercentage = 0;
-
-          if (detail.type == 'string') {
-            double value = double.parse(detail.value!);
-            completionPercentage = value > 50 ? 100 : 0;
-          } else if (detail.type == 'boolean') {
-            bool value = detail.value == 'true';
-            completionPercentage = value ? 100 : 0;
-          }
-
-          categorizedData[category]?[detail.goal!.category!.name]
-              ?.add(completionPercentage);
-
-          // Update total and completed goals
-          totalGoals[category] = (totalGoals[category] ?? 0) + 1;
-          if (completionPercentage == 100) {
-            completedGoals[category] = (completedGoals[category] ?? 0) + 1;
-          }
-        }
-      }
-    }
-
-    categorizedData.forEach((period, categoryData) {
-      double vocationalAvg = calculateAverage(categoryData['Vocational']!);
-      double wellbeingAvg = calculateAverage(categoryData['Wellbeing']!);
-      double personalDevelopmentAvg =
-          calculateAverage(categoryData['Personal Development']!);
-
-      // Calculate global average as the ratio of completed goals to total goals
-      double globalAvg = totalGoals[period]! > 0
-          ? (completedGoals[period]! / totalGoals[period]!) * 100
-          : 0;
-
-      // Debug prints
-      print('Period: $period');
-      print('Total Goals: ${totalGoals[period]}');
-      print('Completed Goals: ${completedGoals[period]}');
-      print('Global Avg: $globalAvg');
-
-      chartData.add(GlobalScoreChartOneWeekDataModel(
-        period,
-        globalAvg.clamp(0, 100).toInt(),
-        wellbeingAvg.clamp(0, 100).toInt(),
-        vocationalAvg.clamp(0, 100).toInt(),
-        personalDevelopmentAvg.clamp(0, 100).toInt(),
-      ));
-    });
-
-    return chartData;
-  }
-
   double calculateAverage(List<double> values) {
-    if (values.isEmpty) return 0.0;
-    double sum = values.reduce((a, b) => a + b);
-    return sum / values.length;
+    if (values.isEmpty) return 0;
+    return values.reduce((a, b) => a + b) / values.length;
   }
 
   String getCategory(DateTime date) {
@@ -521,109 +545,90 @@ class StatisticsController extends FullLifeCycleController
   List<MoodChartDataModel> getMoodHistoryStats(
       List<MoodHistoryResponseData> data, String type) {
     if (type == "one_week") {
-      final Map<String, List<int>> groupedData = {
-        'Mon': [],
-        'Tue': [],
-        'Wed': [],
-        'Thu': [],
-        'Fri': [],
-        'Sat': [],
-        'Sun': []
-      };
+      final Map<String, int?> groupedData = {};
+      final Map<String, String?> commentsMap = {};
 
-      // Define date format
-      final DateFormat dateFormat = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-      final DateFormat dayFormat =
-          DateFormat('EEE'); // Abbreviated day name format
+      DateTime now = DateTime.now();
+      DateTime startOfLastWeek = now.subtract(Duration(days: 7));
 
-      // Get today's date and calculate the date 7 days ago
-      final DateTime today = DateTime.now();
-      final DateTime weekAgo = today.subtract(Duration(days: 7));
+      for (int i = 1; i <= 7; i++) {
+        DateTime date = startOfLastWeek.add(Duration(days: i));
+        String formattedDate = DateFormat('yyyy-MM-dd').format(date);
+        groupedData[formattedDate] = null;
+        commentsMap[formattedDate] = null;
+      }
 
-      // Iterate through the data and group by day abbreviation within the last week
       for (var entry in data) {
-        final DateTime date = dateFormat.parse(entry.date!, true).toLocal();
-        if (date.isAfter(weekAgo) && date.isBefore(today)) {
-          final String dayName = dayFormat.format(date);
-          final int mood = int.parse(entry.mood!) * 20;
+        DateTime date = DateTime.parse(entry.date!);
+        String formattedDate = DateFormat('yyyy-MM-dd').format(date);
 
-          if (groupedData.containsKey(dayName)) {
-            groupedData[dayName]?.add(mood);
-          }
+        if (groupedData.containsKey(formattedDate)) {
+          final int mood = int.parse(entry.mood!) * 20;
+          groupedData[formattedDate] = mood;
+          commentsMap[formattedDate] = entry.comment;
         }
       }
 
-      // Create MoodChartDataModel instances for each day in the last week
       final List<MoodChartDataModel> moodChartData = [];
 
-      for (int i = 0; i < 7; i++) {
-        final DateTime date = today.subtract(Duration(days: i));
-        final String dayName = dayFormat.format(date);
-        final List<int>? moods = groupedData[dayName];
-        final int averageMood = moods != null && moods.isNotEmpty
-            ? (moods.reduce((a, b) => a + b) / moods.length).round()
-            : 0;
-
-        moodChartData.add(MoodChartDataModel(dayName, averageMood));
+      for (int i = 1; i <= 7; i++) {
+        DateTime date = startOfLastWeek.add(Duration(days: i));
+        String formattedDate = DateFormat('yyyy-MM-dd').format(date);
+        final int? mood = groupedData[formattedDate];
+        final String? comment = commentsMap[formattedDate];
+        moodChartData.add(MoodChartDataModel(formattedDate, mood ?? -1, comment));
       }
-
-      return moodChartData.reversed.toList();
+      return moodChartData;
     } else if (type == "one_month") {
-      final Map<String, List<int>> groupedData = {};
+      final Map<String, int?> groupedData = {};
+      final Map<String, String?> commentsMap = {};
 
-      // Define date format
       final DateFormat dateFormat = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-      final DateFormat dayFormat =
-          DateFormat('MMM dd'); // Format for displaying day
+      final DateFormat dayFormat = DateFormat('yyyy-MM-dd');
 
-      // Get today's date and calculate the date 30 days ago
       final DateTime today = DateTime.now();
       final DateTime monthAgo = today.subtract(Duration(days: 30));
 
-      // Iterate through the data and group by date within the last month
+      for (int i = 0; i < 30; i++) {
+        final DateTime date = today.subtract(Duration(days: i));
+        final String dayName = dayFormat.format(date);
+        groupedData[dayName] = null;
+        commentsMap[dayName] = null;
+      }
+
       for (var entry in data) {
         final DateTime date = dateFormat.parse(entry.date!, true).toLocal();
         if (date.isAfter(monthAgo) && date.isBefore(today)) {
           final String dayName = dayFormat.format(date);
           final int mood = int.parse(entry.mood!) * 20;
 
-          if (!groupedData.containsKey(dayName)) {
-            groupedData[dayName] = [];
-          }
-          groupedData[dayName]?.add(mood);
+          groupedData[dayName] = mood;
+          commentsMap[dayName] = entry.comment;
         }
       }
 
-      // Create MoodChartDataModel instances for each day in the last month
       final List<MoodChartDataModel> moodChartData = [];
 
       for (int i = 0; i < 30; i++) {
         final DateTime date = today.subtract(Duration(days: i));
         final String dayName = dayFormat.format(date);
-        final List<int>? moods = groupedData[dayName];
-        final int averageMood = moods != null && moods.isNotEmpty
-            ? (moods.reduce((a, b) => a + b) / moods.length).round()
-            : 0;
+        final int? moods = groupedData[dayName];
+        final String? comment = commentsMap[dayName];
 
-        moodChartData.add(MoodChartDataModel(dayName, averageMood));
+        moodChartData.add(MoodChartDataModel(dayName, moods ?? -1, comment));
       }
 
-      return moodChartData.reversed
-          .toList(); // Reverse to show chronological order
+      return moodChartData.reversed.toList();
     } else if (type == "three_month") {
-      // Create a map to hold the grouped data by month
       final Map<String, List<int>> groupedData = {};
+      final Map<String, String?> commentsMap = {};
 
-      // Define date format
       final DateFormat dateFormat = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-      final DateFormat monthFormat =
-          DateFormat('MMM'); // Format for displaying month
+      final DateFormat monthFormat = DateFormat('MMM');
 
-      // Get today's date and calculate the start date for three months ago
       final DateTime today = DateTime.now();
       final DateTime threeMonthsAgo = DateTime(today.year, today.month - 2, 1);
 
-      // Iterate through the data and group by month within the last three months
       for (var entry in data) {
         final DateTime date = dateFormat.parse(entry.date!, true).toLocal();
         if (date.isAfter(threeMonthsAgo) &&
@@ -633,12 +638,13 @@ class StatisticsController extends FullLifeCycleController
 
           if (!groupedData.containsKey(monthName)) {
             groupedData[monthName] = [];
+            commentsMap[monthName] = null;
           }
           groupedData[monthName]?.add(mood);
+          commentsMap[monthName] = entry.comment;
         }
       }
 
-      // Create MoodChartDataModel instances for each of the last three months
       final List<MoodChartDataModel> moodChartData = [];
 
       for (int i = 0; i < 3; i++) {
@@ -649,25 +655,23 @@ class StatisticsController extends FullLifeCycleController
             ? (moods.reduce((a, b) => a + b) / moods.length).round()
             : 0;
 
-        moodChartData.add(MoodChartDataModel(monthName, averageMood));
+        moodChartData.add(MoodChartDataModel(
+            monthName, averageMood == 0 ? null : averageMood,
+            commentsMap[monthName]));
       }
 
       return moodChartData.reversed
           .toList(); // Reverse to show chronological order
     } else if (type == "six_month") {
-      // Create a map to hold the grouped data by month
       final Map<String, List<int>> groupedData = {};
+      final Map<String, String?> commentMap = {};
 
-      // Define date format
       final DateFormat dateFormat = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-      final DateFormat monthFormat =
-          DateFormat('MMM'); // Format for displaying month
+      final DateFormat monthFormat = DateFormat('MMM');
 
-      // Get today's date and calculate the start date for six months ago
       final DateTime today = DateTime.now();
       final DateTime sixMonthsAgo = DateTime(today.year, today.month - 5, 1);
 
-      // Iterate through the data and group by month within the last six months
       for (var entry in data) {
         final DateTime date = dateFormat.parse(entry.date!, true).toLocal();
         if (date.isAfter(sixMonthsAgo) &&
@@ -677,12 +681,13 @@ class StatisticsController extends FullLifeCycleController
 
           if (!groupedData.containsKey(monthName)) {
             groupedData[monthName] = [];
+            commentMap[monthName] = null;
           }
           groupedData[monthName]?.add(mood);
+          commentMap[monthName] = entry.comment;
         }
       }
 
-      // Create MoodChartDataModel instances for each of the last six months
       final List<MoodChartDataModel> moodChartData = [];
 
       for (int i = 0; i < 6; i++) {
@@ -693,19 +698,21 @@ class StatisticsController extends FullLifeCycleController
             ? (moods.reduce((a, b) => a + b) / moods.length).round()
             : 0;
 
-        moodChartData.add(MoodChartDataModel(monthName, averageMood));
+        moodChartData.add(MoodChartDataModel(
+            monthName, averageMood == 0 ? null : averageMood,
+            commentMap[monthName]));
       }
 
-      return moodChartData.reversed
-          .toList(); // Reverse to show chronological order
+      return moodChartData.reversed.toList();
     } else {
       final Map<String, List<int>> groupedData = {};
+      final Map<String, String?> commentMap = {};
+
       final DateFormat monthFormat = DateFormat('MMM');
 
-      // Get today's date and calculate the start date for one year ago
       final DateTime today = DateTime.now();
       final DateTime oneYearAgo =
-          DateTime(today.year - 1, today.month, today.day);
+      DateTime(today.year - 1, today.month, today.day);
 
       for (var entry in data) {
         final DateTime date = DateTime.parse(entry.date!);
@@ -715,14 +722,15 @@ class StatisticsController extends FullLifeCycleController
 
           if (!groupedData.containsKey(monthName)) {
             groupedData[monthName] = [];
+            commentMap[monthName] = null;
           }
           groupedData[monthName]?.add(mood);
+          commentMap[monthName] = entry.comment;
         }
       }
 
       final List<MoodChartDataModel> moodChartData = [];
 
-      // Loop through the last 12 months
       for (int i = 0; i < 12; i++) {
         final DateTime month = DateTime(today.year, today.month - i, 1);
         final String monthName = monthFormat.format(month);
@@ -731,115 +739,122 @@ class StatisticsController extends FullLifeCycleController
             ? (moods.reduce((a, b) => a + b) / moods.length).round()
             : 0;
 
-        moodChartData.add(MoodChartDataModel(monthName, averageMood));
+        moodChartData.add(MoodChartDataModel(
+            monthName, averageMood == 0 ? null : averageMood,
+            commentMap[monthName]));
       }
 
-      return moodChartData.reversed
-          .toList(); // Reverse to show chronological order
+      return moodChartData.reversed.toList();
     }
   }
 
-  String getMonthRange(int month) {
-    switch (month) {
-      case 1:
-      case 2:
-        return 'Jan-Feb';
-      case 3:
-      case 4:
-        return 'Mar-Apr';
-      case 5:
-      case 6:
-        return 'May-Jun';
-      case 7:
-      case 8:
-        return 'Jul-Aug';
-      case 9:
-      case 10:
-        return 'Sep-Oct';
-      case 11:
-      case 12:
-        return 'Nov-Dec';
-      default:
-        return '';
-    }
-  }
-
-  List<String> getLastThreeMonths() {
-    final DateTime today = DateTime.now();
-    final DateFormat monthFormat = DateFormat('MMM');
-
-    final List<String> lastThreeMonths = [];
-    for (int i = 0; i < 3; i++) {
-      final DateTime month = DateTime(today.year, today.month - i, 1);
-      lastThreeMonths.add(monthFormat.format(month));
-    }
-
-    return lastThreeMonths.reversed.toList(); // Reverse to maintain order
-  }
-
-  List<Map<String, dynamic>> calculateGoalPercentages(
+  List<Map<String, dynamic>> calculateScoreboard(
       GoalReportListResponse goalReportListResponse) {
     List<Map<String, dynamic>> goalPercentages = [];
 
-    // Iterate through the data to extract goal information
+    final DateTime today = DateTime.now();
+    final DateTime startOfWeek = today.subtract(Duration(days: today.weekday - 1));
+    final DateTime endOfWeek = startOfWeek.add(Duration(days: 6));
+    final DateFormat dateFormat = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
+
+    // Iterate through the data
     for (var entry in goalReportListResponse.data!) {
-      for (var detail in entry.details!) {
-        if (detail.goal != null) {
-          String goalId = detail.goal!.sId!;
-          String goalName = detail.goal!.name!;
-          String goalCategory = detail.goal!.category!.sId!;
-          String goalMeasureType = detail.type!;
-          String detailValue = detail.value!;
+      final DateTime entryDate = dateFormat.parse(entry.date!, true);
+      if (entryDate.isAfter(startOfWeek.subtract(Duration(days: 1))) &&
+          entryDate.isBefore(endOfWeek.add(Duration(days: 1)))) {
+        for (var detail in entry.details!) {
+          if (detail.goal != null) {
+            String goalId = detail.goal!.sId!;
+            String goalName = detail.goal!.name!;
+            String goalCategory = detail.goal!.category!.sId!;
+            String goalMeasureType = detail.type!;
+            String detailValue = detail.value!;
+            String achieveType = detail.goal!.achieveType!;
+            int achieveXDays = int.parse(detail.goal!.achieveXDays!); // Number of days to achieve
+            int goalImportance = int.parse(detail.goal!.goalImportance!);
 
-          // Find the existing goal in the goalPercentages list or create a new one
-          var existingGoal =
-              goalPercentages.firstWhere((g) => g['id'] == goalId,
-                  orElse: () => {
-                        'id': goalId,
-                        'name': goalName,
-                        'category': goalCategory,
-                        'measureType': goalMeasureType,
-                        'values': []
-                      });
+            // Add or update goal in the list
+            var existingGoal = goalPercentages.firstWhere(
+                  (g) => g['id'] == goalId,
+              orElse: () =>
+              {
+                'id': goalId,
+                'name': goalName,
+                'category': goalCategory,
+                'measureType': goalMeasureType,
+                'achieveType': achieveType,
+                'achieveXDays': achieveXDays,
+                'values': [],
+                'importance': goalImportance,
+              },
+            );
 
-          if (!goalPercentages.contains(existingGoal)) {
-            goalPercentages.add(existingGoal);
+            if (!goalPercentages.contains(existingGoal)) {
+              goalPercentages.add(existingGoal);
+            }
+
+            existingGoal['values'].add(detailValue);
           }
-
-          existingGoal['values'].add(detailValue);
         }
       }
     }
 
-    // Calculate the percentage for each goal
+    // Calculate the percentage completion
     for (var goal in goalPercentages) {
       double totalCompletion = 0.0;
+      int achieveDaysPerWeek = goal['achieveXDays'];
 
-      for (var value in goal['values']) {
-        if (goal['measureType'] == 'boolean') {
-          totalCompletion += value == 'true' ? 1 : 0;
-        } else {
-          double numericValue = double.parse(value);
-          // Set completion to 100% if numeric value is greater than 5
-          if (numericValue > 5) {
-            totalCompletion += 1; // Treat it as fully complete
-          } else {
-            totalCompletion += numericValue / 10.0;
+      if (goal['measureType'] == 'boolean') {
+        List<double> dailyScores = List.generate(7, (index) => 0.0); // Initialize scores for each day of the week
+
+        // Calculate daily scores
+        for (int i = 0; i < goal['values'].length; i++) {
+          bool isAchieved = goal['values'][i] == 'true';
+          int dayOfWeek = DateTime.now().subtract(Duration(days: i)).weekday;
+          if (isAchieved) {
+            dailyScores[dayOfWeek - 1] += 1;
           }
         }
+
+        // Calculate weekly completion percentage
+        for (int i = 0; i < 7; i++) {
+          double dailyScore = (dailyScores[i] / achieveDaysPerWeek) * 100;
+          dailyScores[i] = dailyScore.clamp(0, 100);
+        }
+
+        // Aggregate weekly score
+        totalCompletion = dailyScores.reduce((a, b) => a + b) / 7;
+
+      } else {
+        // For point scale goals
+        List<dynamic> tempValues = goal['values'].map((v) {
+          try {
+            return double.parse(v.toString());
+          } catch (e) {
+            return 0.0;
+          }
+        }).toList();
+        List<double> values = tempValues.cast<double>();
+
+        values.sort((a, b) => b.compareTo(a)); // Sort values descending
+        List<double> topValues = values.take(achieveDaysPerWeek).toList(); // Top scores
+        double average = topValues.isNotEmpty
+            ? topValues.reduce((a, b) => a + b) / topValues.length
+            : 0.0;
+
+        totalCompletion = average;
       }
 
-      double percentage = (totalCompletion / goal['values'].length) * 100;
-      goal['completionPercentage'] = percentage;
+      goal['completionPercentage'] = totalCompletion.clamp(0, 100);
     }
 
-    // Sort the goals by completion percentage in descending order
+    // Sort and return top 5 goals
     goalPercentages.sort((a, b) =>
         b['completionPercentage'].compareTo(a['completionPercentage']));
 
-    // Return the top 5 percentage goals
     return goalPercentages.take(5).toList();
   }
+
 
   Color? getCategoryColor(String categoryId) {
     switch (categoryId) {
@@ -887,7 +902,7 @@ class StatisticsController extends FullLifeCycleController
                 }
                 getComparisonGoalReport(true);
                 getComparisonGoalReport(false);
-                getGoalReport(goalsList.first.sId!, false, false);
+                getGoalReport(goalsList.first.sId!);
               }
             }
           } else {
@@ -913,19 +928,20 @@ class StatisticsController extends FullLifeCycleController
     httpManager.getTopStreak(PrefUtils().token).then((value) {
       if (value.error == null) {
         if (value.snapshot is! ErrorResponse) {
-          GenericResponse genericResponse = value.snapshot;
-          if (genericResponse.success == true) {
-            if (genericResponse.data != null) {
+          TopStreakResponse topStreakResponse = value.snapshot;
+          if (topStreakResponse.success == true) {
+            if (topStreakResponse.data != null) {
               user = User.fromJson(json.decode(PrefUtils().user));
-              if ((user?.currentStreak ?? 0) > (genericResponse.data ?? 0)) {
+              TopStreakResponseData highestScoreObject = topStreakResponse.data!.reduce((a, b) => a.topScore! > b.topScore! ? a : b);
+              if ((user?.currentStreak ?? 0) > (highestScoreObject.topScore ?? 0)) {
                 topStreak.value = user?.currentStreak ?? 0;
               } else {
-                topStreak.value = genericResponse.data ?? 0;
+                topStreak.value = highestScoreObject.topScore ?? 0;
               }
             }
           } else {
             SmartDialog.dismiss();
-            ToastUtils.showToast(genericResponse.message ?? "",
+            ToastUtils.showToast(topStreakResponse.message ?? "",
                 color: kRedColor);
           }
         } else {
@@ -943,10 +959,10 @@ class StatisticsController extends FullLifeCycleController
     FocusManager.instance.primaryFocus?.unfocus();
     httpManager
         .getGoalReport(
-            PrefUtils().token,
-            isForFirst
-                ? goalsList[selectedFirstGoalIndex.value].sId!
-                : goalsList[selectedSecondGoalIndex.value].sId!)
+        PrefUtils().token,
+        isForFirst
+            ? goalsList[selectedFirstGoalIndex.value].sId!
+            : goalsList[selectedSecondGoalIndex.value].sId!)
         .then((value) {
       if (value.error == null) {
         if (value.snapshot is! ErrorResponse) {
@@ -1009,7 +1025,7 @@ class StatisticsController extends FullLifeCycleController
     }
 
     int achievedGoalsCount =
-        goalCompletionTracker.values.fold(0, (sum, count) => sum + count);
+    goalCompletionTracker.values.fold(0, (sum, count) => sum + count);
     goalsAchieved.value = achievedGoalsCount;
   }
 
@@ -1027,7 +1043,7 @@ class StatisticsController extends FullLifeCycleController
         if (goalType == 'boolean' && goalValue != 'true') {
           allGoalsCompleted = false;
           break;
-        } else if (goalType == 'string' && int.parse(goalValue ?? "0") > 5) {
+        } else if (goalType == 'string' && int.parse(goalValue ?? "0") != 10) {
           allGoalsCompleted = false;
           break;
         }
@@ -1036,12 +1052,13 @@ class StatisticsController extends FullLifeCycleController
       if (allGoalsCompleted) {
         fullCompletionDaysCount += 1;
       }
+
     }
+
     perfectDays.value = fullCompletionDaysCount;
   }
 
-  getGoalReport(String goalId, bool isForExpand, bool isForComments,
-      {String type = ""}) async {
+  getGoalReport(String goalId,) async {
     FocusManager.instance.primaryFocus?.unfocus();
     httpManager.getGoalReport(PrefUtils().token, goalId).then((value) {
       if (value.error == null) {
@@ -1049,20 +1066,7 @@ class StatisticsController extends FullLifeCycleController
           GoalReportListResponse goalReportListResponse = value.snapshot;
           if (goalReportListResponse.success == true) {
             if (goalReportListResponse.data != null) {
-              if (isForComments) {
-                commentsGoalReport.clear();
-                commentsGoalReport.addAll(goalReportListResponse.data!);
-              } else {
-                if (isForExpand) {
-                  expandedGoalReport.clear();
-                  expandedGoalReport.addAll(goalReportListResponse.data!);
-                  processExpandSpecificGoalChart(goalReportListResponse, type);
-                } else {
-                  specificGoalReport.clear();
-                  specificGoalReport.addAll(goalReportListResponse.data!);
-                  processSpecificGoalChart(goalReportListResponse);
-                }
-              }
+              processSpecificGoalChart(goalReportListResponse);
             }
           } else {
             SmartDialog.dismiss();
@@ -1080,285 +1084,152 @@ class StatisticsController extends FullLifeCycleController
     });
   }
 
-  List<GoalChartDateModel> processExpandSpecificGoalChart(
-      GoalReportListResponse goalReportListResponse, String type) {
-    expandedGoalReportChart.clear();
-    if (type == "one_week") {
-      Map<String, List<int>> days = {
-        'Mon': [],
-        'Tue': [],
-        'Wed': [],
-        'Thu': [],
-        'Fri': [],
-        'Sat': [],
-        'Sun': []
-      };
-
-      Map<String, List<String>> comments = {
-        'Mon': [],
-        'Tue': [],
-        'Wed': [],
-        'Thu': [],
-        'Fri': [],
-        'Sat': [],
-        'Sun': []
-      };
-
-      DateTime now = DateTime.now();
-      DateTime startOfWeek =
-          now.subtract(Duration(days: now.weekday - 1)); // Monday of this week
-      DateTime endOfWeek =
-          startOfWeek.add(Duration(days: 6)); // Sunday of this week
-
-      // Iterate over the response data
-      for (var report in goalReportListResponse.data!) {
-        DateTime date = DateTime.parse(report.date!);
-
-        // Check if the date is within the current week
-        if (date.isAfter(startOfWeek.subtract(Duration(days: 1))) &&
-            date.isBefore(endOfWeek.add(Duration(days: 1)))) {
-          int value = 0;
-
-          // Check if the goal measure is a boolean or a string
-          if (report.details![0].type == 'boolean') {
-            value = report.details![0].value == 'true' ? 100 : 0;
-          } else if (report.details![0].type == 'string') {
-            value = int.parse(report.details![0].value!) *
-                10; // Scale 0-10 to 0-100
-          }
-
-          String comment = report.details![0].comment ?? "";
-
-          // Assign to the correct day of the week
-          String dayOfWeek = DateFormat('EEE')
-              .format(date); // Get day of the week in 'Mon', 'Tue', etc.
-          if (days.containsKey(dayOfWeek)) {
-            days[dayOfWeek]!.add(value);
-            comments[dayOfWeek]!.add(comment);
-          }
-        }
-      }
-
-      days.forEach((day, values) {
-        if (values.isNotEmpty) {
-          double average = values.reduce((a, b) => a + b) / values.length;
-          String comment = comments[day]!.join(', '); // Combine comments
-          goalReportChart.add(GoalChartDateModel(day, average, comment));
-        } else {
-          goalReportChart.add(GoalChartDateModel(day, 0, ''));
-        }
-      });
-    }
-
-    return goalReportChart;
-  }
-
-  List<GoalChartDateModel> processSpecificGoalChart(
-      GoalReportListResponse goalReportListResponse) {
-    goalReportChart.clear();
-    Map<String, List<int>> quarters = {
-      'Jan - Feb': [],
-      'Mar - Apr': [],
-      'May - Jun': [],
-      'Jul - Aug': [],
-      'Sep - Oct': [],
-      'Nov - Dec': []
-    };
-
-    Map<String, List<String>> comments = {
-      'Jan - Feb': [],
-      'Mar - Apr': [],
-      'May - Jun': [],
-      'Jul - Aug': [],
-      'Sep - Oct': [],
-      'Nov - Dec': []
-    };
-
-    // Iterate over the response data
-    for (var report in goalReportListResponse.data!) {
-      DateTime date = DateTime.parse(report.date!);
-      int value = 0;
-      if (report.details!.isNotEmpty) {
-        // Check if the goal measure is a boolean or a string
-        if (report.details![0].type == 'boolean') {
-          value = report.details![0].value == 'true' ? 100 : 0;
-        } else if (report.details![0].type == 'string') {
-          value =
-              int.parse(report.details![0].value!) * 10; // Scale 0-10 to 0-100
-        }
-
-        String comment = report.details![0].comment ?? "";
-
-        // Assign to the correct quarter
-        if (date.month == 1 || date.month == 2) {
-          quarters['Jan - Feb']!.add(value);
-          if (comment.isNotEmpty) {
-            comments['Jan - Feb']!.add(comment);
-          }
-        } else if (date.month == 3 || date.month == 4) {
-          quarters['Mar - Apr']!.add(value);
-          if (comment.isNotEmpty) {
-            comments['Mar - Apr']!.add(comment);
-          }
-        } else if (date.month == 5 || date.month == 6) {
-          quarters['May - Jun']!.add(value);
-          if (comment.isNotEmpty) {
-            comments['May - Jun']!.add(comment);
-          }
-        } else if (date.month == 7 || date.month == 8) {
-          quarters['Jul - Aug']!.add(value);
-          if (comment.isNotEmpty) {
-            comments['Jul - Aug']!.add(comment);
-          }
-        } else if (date.month == 9 || date.month == 10) {
-          quarters['Sep - Oct']!.add(value);
-          if (comment.isNotEmpty) {
-            comments['Sep - Oct']!.add(comment);
-          }
-        } else if (date.month == 11 || date.month == 12) {
-          quarters['Nov - Dec']!.add(value);
-          if (comment.isNotEmpty) {
-            comments['Nov - Dec']!.add(comment);
-          }
-        }
-      }
-    }
-
-    quarters.forEach((period, values) {
-      if (values.isNotEmpty) {
-        double average = values.reduce((a, b) => a + b) / values.length;
-
-        String comment = comments[period]!.join(', ');
-        goalReportChart.add(GoalChartDateModel(period, average, comment));
-      } else {
-        goalReportChart.add(GoalChartDateModel(period, 0, ''));
-      }
-    });
-
-    return goalReportChart;
-  }
-
   List<ComparisonChartDataModel> processMultipleGoals(
       List<GoalReportListResponse> goalReportListResponses) {
     comparisonChartData.clear();
-    Map<String, List<int>> quartersGoalOne = {
-      'Jan - Feb': [],
-      'Mar - Apr': [],
-      'May - Jun': [],
-      'Jul - Aug': [],
-      'Sep - Oct': [],
-      'Nov - Dec': []
-    };
 
-    Map<String, List<String>> commentsGoalOne = {
-      'Jan - Feb': [],
-      'Mar - Apr': [],
-      'May - Jun': [],
-      'Jul - Aug': [],
-      'Sep - Oct': [],
-      'Nov - Dec': []
-    };
+    Map<String, List<int>> daysGoalOne = {};
+    Map<String, List<String>> commentsGoalOne = {};
 
-    Map<String, List<int>> quartersGoalTwo = {
-      'Jan - Feb': [],
-      'Mar - Apr': [],
-      'May - Jun': [],
-      'Jul - Aug': [],
-      'Sep - Oct': [],
-      'Nov - Dec': []
-    };
+    Map<String, List<int>> daysGoalTwo = {};
+    Map<String, List<String>> commentsGoalTwo = {};
 
-    Map<String, List<String>> commentsGoalTwo = {
-      'Jan - Feb': [],
-      'Mar - Apr': [],
-      'May - Jun': [],
-      'Jul - Aug': [],
-      'Sep - Oct': [],
-      'Nov - Dec': []
-    };
+    DateTime currentDate = DateTime.now();
+    DateTime startOfLastWeek = currentDate.subtract(Duration(days: 7));
 
-    // Process each goal response
+    for (int i = 1; i <= 7; i++) {
+      DateTime date = startOfLastWeek.add(Duration(days: i));
+      String formattedDate = DateFormat('yyyy-MM-dd').format(date);
+
+      daysGoalOne[formattedDate] = [];
+      commentsGoalOne[formattedDate] = [];
+      daysGoalTwo[formattedDate] = [];
+      commentsGoalTwo[formattedDate] = [];
+    }
+
     if (goalReportListResponses.isNotEmpty) {
       processGoalForMultiple(
-          goalReportListResponses[0], quartersGoalOne, commentsGoalOne);
+          goalReportListResponses[0], daysGoalOne, commentsGoalOne);
     }
     if (goalReportListResponses.length > 1) {
       processGoalForMultiple(
-          goalReportListResponses[1], quartersGoalTwo, commentsGoalTwo);
+          goalReportListResponses[1], daysGoalTwo, commentsGoalTwo);
     }
 
-    quartersGoalOne.forEach((period, valuesGoalOne) {
-      double averageGoalOne = valuesGoalOne.isNotEmpty
-          ? valuesGoalOne.reduce((a, b) => a + b) / valuesGoalOne.length
+    List<String> reversedOrder = [];
+    for (int i = 1; i <= 7; i++) {
+      DateTime date = startOfLastWeek.add(Duration(days: i));
+      reversedOrder.add(DateFormat('yyyy-MM-dd').format(date));
+    }
+
+    for (var date in reversedOrder) {
+      double averageGoalOne = daysGoalOne[date]!.isNotEmpty
+          ? daysGoalOne[date]!.reduce((a, b) => a + b) /
+          daysGoalOne[date]!.length
           : 0;
-      double averageGoalTwo = quartersGoalTwo[period]!.isNotEmpty
-          ? quartersGoalTwo[period]!.reduce((a, b) => a + b) /
-              quartersGoalTwo[period]!.length
+      double averageGoalTwo = daysGoalTwo[date]!.isNotEmpty
+          ? daysGoalTwo[date]!.reduce((a, b) => a + b) /
+          daysGoalTwo[date]!.length
           : 0;
+
       comparisonChartData.add(ComparisonChartDataModel(
-          period, averageGoalOne.toInt(), averageGoalTwo.toInt()));
-    });
+          date, averageGoalOne.toInt(), averageGoalTwo.toInt()));
+    }
 
     return comparisonChartData;
   }
 
   List<GoalChartDateModel> processGoalForMultiple(
       GoalReportListResponse goalReportListResponse,
-      Map<String, List<int>> quarters,
+      Map<String, List<int>> days,
       Map<String, List<String>> comments) {
-    // Initialize goalReportChart
     List<GoalChartDateModel> goalReportChart = [];
 
-    // Iterate over the response data
+    DateTime currentDate = DateTime.now();
+    DateTime startOfLastWeek = currentDate.subtract(Duration(days: 7));
+
+    for (int i = 1; i <= 7; i++) {
+      DateTime date = startOfLastWeek.add(Duration(days: i));
+      String formattedDate = DateFormat('yyyy-MM-dd').format(date);
+
+      days[formattedDate] = [];
+      comments[formattedDate] = [];
+    }
+
     for (var report in goalReportListResponse.data!) {
       DateTime date = DateTime.parse(report.date!);
+      String formattedDate = DateFormat('yyyy-MM-dd').format(date);
+
+      if (!days.containsKey(formattedDate)) {
+        continue;
+      }
+
       int value = 0;
       if (report.details!.isNotEmpty) {
-        // Check if the goal measure is a boolean or a string
         if (report.details![0].type == 'boolean') {
           value = report.details![0].value == 'true' ? 100 : 0;
         } else if (report.details![0].type == 'string') {
-          value =
-              int.parse(report.details![0].value!) * 10; // Scale 0-10 to 0-100
+          value = int.parse(report.details![0].value!) * 10;
         }
 
         String comment = report.details![0].comment ?? "";
 
-        // Assign to the correct period
-        String period;
-        if (date.month == 1 || date.month == 2) {
-          period = 'Jan - Feb';
-        } else if (date.month == 3 || date.month == 4) {
-          period = 'Mar - Apr';
-        } else if (date.month == 5 || date.month == 6) {
-          period = 'May - Jun';
-        } else if (date.month == 7 || date.month == 8) {
-          period = 'Jul - Aug';
-        } else if (date.month == 9 || date.month == 10) {
-          period = 'Sep - Oct';
-        } else if (date.month == 11 || date.month == 12) {
-          period = 'Nov - Dec';
-        } else {
-          continue; // Skip if date month is invalid
-        }
-
-        quarters[period]!.add(value);
+        days[formattedDate]!.add(value);
         if (comment.isNotEmpty) {
-          comments[period]!.add(comment);
+          comments[formattedDate]!.add(comment);
         }
       }
     }
 
-    // Calculate averages and prepare chart data
-    quarters.forEach((period, values) {
-      double average = values.isNotEmpty
-          ? values.reduce((a, b) => a + b) / values.length
+    // Prepare data for output
+    List<String> reversedOrder = [];
+    for (int i = 1; i <= 7; i++) {
+      DateTime date = startOfLastWeek.add(Duration(days: i));
+      reversedOrder.add(DateFormat('yyyy-MM-dd').format(date));
+    }
+
+    for (var date in reversedOrder) {
+      double average = days[date]!.isNotEmpty
+          ? days[date]!.reduce((a, b) => a + b) / days[date]!.length
           : 0;
-      String comment = comments[period]!.join(', ');
-      goalReportChart.add(GoalChartDateModel(period, average, comment));
-    });
+      String comment = comments[date]!.join(', ');
+
+      goalReportChart.add(GoalChartDateModel(date, average, comment));
+    }
 
     return goalReportChart;
+  }
+
+  updateUserMood(String date, int mood, String comment,
+      Function(bool isSuccess) onAddMood) async {
+    SmartDialog.showLoading();
+    FocusManager.instance.primaryFocus?.unfocus();
+    httpManager
+        .updateUserMoodByDate(PrefUtils().token, date, mood, comment)
+        .then((value) {
+      SmartDialog.dismiss();
+      if (value.error == null) {
+        if (value.snapshot is! ErrorResponse) {
+          GenericResponse genericResponse = value.snapshot;
+          if (genericResponse.success == true) {
+            onAddMood(true);
+          } else {
+            onAddMood(false);
+            SmartDialog.dismiss();
+            ToastUtils.showToast(genericResponse.message ?? "",
+                color: kRedColor);
+          }
+        } else {
+          onAddMood(false);
+          ErrorResponse errorResponse = value.snapshot;
+          ToastUtils.showToast(errorResponse.error!.details!.message ?? "",
+              color: kRedColor);
+        }
+      } else {
+        onAddMood(false);
+        ToastUtils.showToast(value.error ?? "", color: kRedColor);
+      }
+    });
   }
 
   @override
@@ -1375,6 +1246,6 @@ class StatisticsController extends FullLifeCycleController
 
   @override
   void onResumed() {
-    _getUserData(isShowLoading: false);
+    getUserData(isShowLoading: false);
   }
 }

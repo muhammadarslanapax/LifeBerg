@@ -12,14 +12,18 @@ import 'package:life_berg/model/generic_response.dart';
 import 'package:life_berg/model/goal/goals_list_response.dart';
 import 'package:life_berg/model/goal_mood_report/goal_date_response.dart';
 import 'package:life_berg/model/goal_report/goal_report_list_response.dart';
+import 'package:life_berg/model/journal/add_journal_response.dart';
 import 'package:life_berg/model/journal/journal_list_response.dart';
 import 'package:life_berg/model/mood_history/mood_history_response.dart';
+import 'package:life_berg/model/top_streak/top_streak_response.dart';
 import 'package:life_berg/model/user/user_response.dart';
 import 'package:mime/mime.dart';
 
 import '../model/base_response.dart';
 import '../model/error/error_response.dart';
 import '../model/goal/goal.dart';
+import '../model/goal_mood_report/check_reports.dart';
+import '../model/goal_report/goal_report_list_response_data.dart';
 import '../model/reminder/reminder_date_time.dart';
 import 'apis_constants.dart';
 
@@ -397,6 +401,33 @@ class HttpManager {
     }
   }
 
+  Future<BaseResponse> updateUserMoodByDate(
+      String token, String date, int mood, String comment) async {
+    try {
+      var url = ApiConstants.SUBMIT_MOOD;
+      var params = HashMap();
+      params["date"] = date;
+      params["mood"] = mood ~/ 20;
+      params["comment"] = comment;
+      var response =
+          await http.post(Uri.parse(url), body: json.encode(params), headers: {
+        "Content-Type": "application/json",
+        'Authorization': 'Bearer $token',
+      });
+
+      if (response.statusCode == 200) {
+        var responseBody = json.decode(response.body);
+        GenericResponse genericResponse =
+            GenericResponse.fromJson(responseBody);
+        return BaseResponse(genericResponse, null);
+      } else {
+        return _getErrorResponse(response.body);
+      }
+    } catch (e) {
+      return BaseResponse(null, e.toString());
+    }
+  }
+
   Future<BaseResponse> getUserGoalsList(
     String token,
     String status,
@@ -604,9 +635,9 @@ class HttpManager {
 
       if (response.statusCode == 200) {
         var responseBody = json.decode(response.body);
-        GenericResponse genericResponse =
-            GenericResponse.fromJson(responseBody);
-        return BaseResponse(genericResponse, null);
+        AddJournalResponse addJournalResponse =
+            AddJournalResponse.fromJson(responseBody);
+        return BaseResponse(addJournalResponse, null);
       } else {
         return _getErrorResponse(response.body);
       }
@@ -672,7 +703,7 @@ class HttpManager {
     try {
       var url = ApiConstants.UPDATE_JOURNAL;
       Map<String, dynamic> params = {
-        "color": color,
+        if (color.isNotEmpty) "color": color,
         "description": description,
         "journalId": journalId,
       };
@@ -708,12 +739,54 @@ class HttpManager {
         if (highlight.isNotEmpty) "highLight": highlight,
         "details": goal.map((e) {
           return {
+            "isSkipped": e.isSkipped.value,
             "type": e.goalMeasure!.type,
             "value": e.goalMeasure!.type == "string"
-                ? e.sliderValue.value.toInt().toString()
-                : e.isChecked.value,
+                ? e.isSkipped.value
+                    ? "0"
+                    : e.sliderValue.value.toInt().toString()
+                : e.isSkipped.value
+                    ? false
+                    : e.isChecked.value,
             "goal": e.sId!,
-            "comment": e.comment ?? ""
+            "comment": e.isSkipped.value ? "" : e.comment ?? ""
+          };
+        }).toList(),
+      };
+
+      var response =
+          await http.post(Uri.parse(url), body: json.encode(params), headers: {
+        "Content-Type": "application/json",
+        'Authorization': 'Bearer $token',
+      });
+
+      if (response.statusCode == 200) {
+        var responseBody = json.decode(response.body);
+        GenericResponse genericResponse =
+            GenericResponse.fromJson(responseBody);
+        return BaseResponse(genericResponse, null);
+      } else {
+        return _getErrorResponse(response.body);
+      }
+    } catch (e) {
+      return BaseResponse(null, e.toString());
+    }
+  }
+
+  Future<BaseResponse> updateCommentGoalReport(
+      String token, String comment, CheckReports reports,
+      {String date = ""}) async {
+    try {
+      var url = ApiConstants.SUBMIT_GOAL;
+      Map<String, dynamic> params = {
+        "date": date,
+        "details": reports.details!.map((e) {
+          return {
+            "type": e.type,
+            "value": e.value,
+            "goal": e.goal!.sId,
+            "comment": e.comment ?? "",
+            "isSkipped": e.isSkipped ?? false
           };
         }).toList(),
       };
@@ -981,7 +1054,7 @@ class HttpManager {
         var value = await response.stream.bytesToString();
         var responseBody = json.decode(value);
         GoalDateResponse goalDateResponse =
-        GoalDateResponse.fromJson(responseBody);
+            GoalDateResponse.fromJson(responseBody);
         return BaseResponse(goalDateResponse, null);
       } else {
         var value = await response.stream.bytesToString();
@@ -1005,9 +1078,9 @@ class HttpManager {
 
       if (response.statusCode == 200) {
         var responseBody = json.decode(response.body);
-        GenericResponse genericResponse =
-        GenericResponse.fromJson(responseBody);
-        return BaseResponse(genericResponse, null);
+        TopStreakResponse topStreakResponse =
+            TopStreakResponse.fromJson(responseBody);
+        return BaseResponse(topStreakResponse, null);
       } else {
         return _getErrorResponse(response.body);
       }

@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:life_berg/constant/color.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 // ignore: must_be_immutable
 class MoodChartDataModel {
-  MoodChartDataModel(this.xValueMapper, this.yValueMapper);
+  MoodChartDataModel(this.xValueMapper, this.yValueMapper, this.comment);
 
   String xValueMapper;
-  int yValueMapper;
+  int? yValueMapper;
+  String? comment;
 }
 
 class MoodChart extends StatelessWidget {
@@ -34,7 +36,36 @@ class MoodChart extends StatelessWidget {
     return Container(
       height: 200,
       child: SfCartesianChart(
-        tooltipBehavior: TooltipBehavior(enable: true),
+        tooltipBehavior: TooltipBehavior(
+            enable: true,
+            header: '',
+            canShowMarker: true,
+            textStyle: TextStyle(color: Colors.white),
+            color: kTertiaryColor,
+            builder: (dynamic data, dynamic point, dynamic series, int index,
+                int d) {
+              return (data.comment ?? "").toString().isNotEmpty
+                  ? Container(
+                      padding: EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: kTertiaryColor,
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: Text(
+                        '${data.comment ?? ""}',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    )
+                  : Container(
+                      width: 40,
+                      height: 30,
+                      padding: EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: kTertiaryColor,
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                    );
+            }),
         margin: EdgeInsets.zero,
         borderWidth: 0,
         borderColor: Colors.transparent,
@@ -60,7 +91,7 @@ class MoodChart extends StatelessWidget {
         ),
         primaryXAxis: CategoryAxis(
           name: 'xAxis',
-          maximum: primaryXYAxisMax,
+          maximum: 6,
           minimum: primaryXYAxisMin,
           interval: primaryXYAxisInterval,
           majorGridLines: MajorGridLines(width: 0),
@@ -83,13 +114,15 @@ class MoodChart extends StatelessWidget {
         dataSource: moodChartDataSource,
         markerSettings: MarkerSettings(
           isVisible: true,
+          color: kTertiaryColor,
           borderColor: kMapMarkerBorderColor,
         ),
-        xValueMapper: (MoodChartDataModel data, _) => data.xValueMapper,
+        xValueMapper: (MoodChartDataModel data, _) =>
+            DateFormat("EEE").format(DateTime.parse(data.xValueMapper)),
         yValueMapper: (MoodChartDataModel data, _) => data.yValueMapper,
         xAxisName: 'xAxis',
         yAxisName: 'yAxis',
-        color: kDarkBlueColor,
+        color: Colors.transparent,
       ),
     ];
   }

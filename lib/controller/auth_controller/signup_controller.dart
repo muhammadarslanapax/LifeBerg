@@ -220,7 +220,9 @@ class SignupController extends GetxController {
         userResponse.user?.lifeBergName == null) {
       Get.to(() => CompleteProfile());
     }else{
-      Get.offAll(() => BottomNavBar());
+      Get.offAll(() => BottomNavBar(
+        key: bottomNavBarKey,
+      ));
       PrefUtils().loggedIn = true;
     }
   }

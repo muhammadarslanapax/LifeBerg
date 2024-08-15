@@ -26,7 +26,7 @@ class Gratitudes extends StatefulWidget {
 }
 
 class _GratitudesState extends State<Gratitudes> {
-  final JournalController controller = Get.put(JournalController());
+  final JournalController controller = Get.find<JournalController>();
 
   bool showResults = false;
 

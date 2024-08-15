@@ -14,7 +14,6 @@ import '../model/user/apple_user_credential.dart';
 class FireAuth {
   static FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 
-
   static Future<UserCredential?> signInWithGoogle() async {
     final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
     if (googleUser != null) {

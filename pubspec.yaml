@@ -52,6 +52,7 @@ dependencies:
   vibration: ^1.9.0
   flutter_cupertino_date_picker_fork: ^1.0.7
   animated_custom_dropdown: ^3.1.1
+  flutter_slidable:
 
 dev_dependencies:
   flutter_test:

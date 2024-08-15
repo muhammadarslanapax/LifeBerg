@@ -12,20 +12,25 @@ import 'package:life_berg/view/screens/personal_statistics/personal_statistics.d
 
 import '../../../utils/pref_utils.dart';
 
+final GlobalKey<BottomNavBarState> bottomNavBarKey = GlobalKey<BottomNavBarState>();
+
 class BottomNavBar extends StatefulWidget {
+
   BottomNavBar({
     this.currentIndex = 0,
     this.currentRoute = '/home',
-  });
+    Key? key
+  }) : super(key: key);
 
   int? currentIndex;
   String? currentRoute;
 
   @override
-  State<BottomNavBar> createState() => _BottomNavBarState();
+  State<BottomNavBar> createState() => BottomNavBarState();
+
 }
 
-class _BottomNavBarState extends State<BottomNavBar> {
+class BottomNavBarState extends State<BottomNavBar> {
   List<String> items = [
     Assets.imagesB1,
     Assets.imagesB2,
@@ -58,6 +63,20 @@ class _BottomNavBarState extends State<BottomNavBar> {
     '/personal_statistics': GlobalKey<NavigatorState>(),
   };
 
+  void selectTab(int index) {
+    final page = _pageRoutes[index];
+    setState(() {
+      widget.currentRoute = page;
+      widget.currentIndex = index;
+    });
+    // Clear stacks for all pages except the selected one
+    _navigatorKeys.forEach((route, key) {
+      if (route != widget.currentRoute) {
+        key.currentState!.popUntil((route) => route.isFirst);
+      }
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -68,13 +87,20 @@ class _BottomNavBarState extends State<BottomNavBar> {
 
   void getCurrentScreens(String currentPage, int index) {
     if (currentPage == widget.currentRoute) {
+      // Clear the stack for the current page navigator
       _navigatorKeys[currentPage]!.currentState!.popUntil(
             (route) => route.isFirst,
-          );
+      );
     } else {
       setState(() {
         widget.currentRoute = _pageRoutes[index];
         widget.currentIndex = index;
+        // Clear stacks for all other pages
+        _navigatorKeys.forEach((route, key) {
+          if (route != widget.currentRoute) {
+            key.currentState!.popUntil((route) => route.isFirst);
+          }
+        });
       });
     }
   }
@@ -94,22 +120,11 @@ class _BottomNavBarState extends State<BottomNavBar> {
     var isIos = Theme.of(context).platform;
     return WillPopScope(
       onWillPop: () async {
-        log(widget.currentRoute.toString());
         final isFirstRouteInCurrentIndex =
-            await _navigatorKeys[widget.currentIndex]!.currentState!.maybePop();
+        await _navigatorKeys[widget.currentRoute]!.currentState!.maybePop();
 
         if (isFirstRouteInCurrentIndex) {
-          if (widget.currentRoute != '/home') {
-            getCurrentScreens('/home', 0);
-          } else if (widget.currentRoute != '/journal') {
-            getCurrentScreens('/journal', 1);
-          } else if (widget.currentRoute != '/main_life_administration') {
-            getCurrentScreens('/main_life_administration', 2);
-          } else if (widget.currentRoute != '/personal_development') {
-            getCurrentScreens('/personal_development', 3);
-          } else if (widget.currentRoute != '/personal_statistics') {
-            getCurrentScreens('/personal_statistics', 4);
-          }
+          getCurrentScreens(_pageRoutes[0], 0); // Navigate to home
           return false;
         }
         return isFirstRouteInCurrentIndex;
@@ -131,7 +146,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
 
   Widget _bottomNavBar(TargetPlatform isIos) {
     return Container(
-      height: isIos == Platform.isIOS ? null : 70,
+      height: isIos == TargetPlatform.iOS ? null : 70,
       color: kSeoulColor.withOpacity(0.94),
       child: BottomNavigationBar(
         elevation: 0,
@@ -146,7 +161,7 @@ class _BottomNavBarState extends State<BottomNavBar> {
         selectedItemColor: kTertiaryColor,
         items: List.generate(
           items.length,
-          (index) {
+              (index) {
             return BottomNavigationBarItem(
               icon: ImageIcon(
                 AssetImage(
