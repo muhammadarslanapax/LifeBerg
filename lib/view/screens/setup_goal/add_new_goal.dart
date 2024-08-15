@@ -134,8 +134,7 @@ class AddNewGoal extends StatelessWidget {
                   } else if (goalName.isEmpty) {
                     ToastUtils.showToast(goalNameError, color: kRedColor);
                     return;
-                  } else if (goalController.selectedGoal.value ==
-                      selectCategory) {
+                  } else if (goalController.selectedGoal.value == selectCategory) {
                     ToastUtils.showToast(selectCategoryError, color: kRedColor);
                     return;
                   } else if (description.isEmpty) {
@@ -275,9 +274,7 @@ class AddNewGoal extends StatelessWidget {
                         paddingLeft: data == selectCategory ? 0 : 11,
                         text: data,
                         size: 14,
-                        color: data == selectCategory
-                            ? kTextColor.withOpacity(0.50)
-                            : kCoolGreyColor,
+                        color: data == selectCategory ? kTextColor.withOpacity(0.50) : kCoolGreyColor,
                         weight: FontWeight.w400,
                       ),
                     ],
@@ -347,14 +344,12 @@ class AddNewGoal extends StatelessWidget {
             Expanded(
               flex: 1,
               child: Container(
-                height: 56,
+                height: 60,
                 child: MyTextField(
                   marginBottom: 0,
                   hint: type,
                   onChanged: (String value) {
-                    int max = goalController.selectGoalDaysType.value == week
-                        ? 7
-                        : 31;
+                    int max = goalController.selectGoalDaysType.value == week ? 7 : 31;
                     int x;
                     try {
                       x = int.parse(value);
@@ -370,9 +365,7 @@ class AddNewGoal extends StatelessWidget {
                       goalController.daysCon.value = TextEditingValue(
                         text: x.toString(),
                         selection: TextSelection.fromPosition(
-                          TextPosition(
-                              offset: goalController
-                                  .daysCon.value.selection.baseOffset),
+                          TextPosition(offset: goalController.daysCon.value.selection.baseOffset),
                         ),
                       );
                     }
@@ -619,8 +612,7 @@ class AddNewGoal extends StatelessWidget {
               return AddGoalReminder(
                 (days, time) {
                   if (days.isNotEmpty && time != null) {
-                    goalController.timeList[index] =
-                        ReminderDateTime(days, time);
+                    goalController.timeList[index] = ReminderDateTime(days, time);
                   }
                 },
                 reminderDateTime: goalController.timeList[index],
@@ -681,10 +673,8 @@ class AddNewGoal extends StatelessWidget {
                     ),
                     color: Colors.white),
                 child: MyText(
-                  text: goalController.timeList.length > 0 &&
-                          index != goalController.timeList.length
-                      ? DateFormat("hh:mma")
-                          .format(goalController.timeList[index].time)
+                  text: goalController.timeList.length > 0 && index != goalController.timeList.length
+                      ? DateFormat("hh:mma").format(goalController.timeList[index].time)
                       : "",
                   size: 16,
                 ),

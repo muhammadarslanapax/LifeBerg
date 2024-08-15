@@ -15,19 +15,13 @@ import '../../../utils/pref_utils.dart';
 final GlobalKey<BottomNavBarState> bottomNavBarKey = GlobalKey<BottomNavBarState>();
 
 class BottomNavBar extends StatefulWidget {
-
-  BottomNavBar({
-    this.currentIndex = 0,
-    this.currentRoute = '/home',
-    Key? key
-  }) : super(key: key);
+  BottomNavBar({this.currentIndex = 0, this.currentRoute = '/home', Key? key}) : super(key: key);
 
   int? currentIndex;
   String? currentRoute;
 
   @override
   State<BottomNavBar> createState() => BottomNavBarState();
-
 }
 
 class BottomNavBarState extends State<BottomNavBar> {
@@ -90,7 +84,7 @@ class BottomNavBarState extends State<BottomNavBar> {
       // Clear the stack for the current page navigator
       _navigatorKeys[currentPage]!.currentState!.popUntil(
             (route) => route.isFirst,
-      );
+          );
     } else {
       setState(() {
         widget.currentRoute = _pageRoutes[index];
@@ -120,8 +114,7 @@ class BottomNavBarState extends State<BottomNavBar> {
     var isIos = Theme.of(context).platform;
     return WillPopScope(
       onWillPop: () async {
-        final isFirstRouteInCurrentIndex =
-        await _navigatorKeys[widget.currentRoute]!.currentState!.maybePop();
+        final isFirstRouteInCurrentIndex = await _navigatorKeys[widget.currentRoute]!.currentState!.maybePop();
 
         if (isFirstRouteInCurrentIndex) {
           getCurrentScreens(_pageRoutes[0], 0); // Navigate to home
@@ -161,7 +154,7 @@ class BottomNavBarState extends State<BottomNavBar> {
         selectedItemColor: kTertiaryColor,
         items: List.generate(
           items.length,
-              (index) {
+          (index) {
             return BottomNavigationBarItem(
               icon: ImageIcon(
                 AssetImage(

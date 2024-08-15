@@ -36,7 +36,7 @@ dependencies:
   flutter_smart_dialog: ^4.5.4+2
   firebase_core: ^2.30.1
   firebase_auth: ^4.19.4
-  http: ^1.2.1
+  http: 
   firebase_messaging: ^14.9.1
   shared_preferences: ^2.1.1
   google_sign_in: ^5.4.2

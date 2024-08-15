@@ -26,6 +26,7 @@ import 'package:life_berg/view/widget/simple_app_bar.dart';
 import 'package:life_berg/view/widget/toggle_button.dart';
 import 'package:lottie/lottie.dart';
 import 'package:step_progress_indicator/step_progress_indicator.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../../../constant/strings.dart';
 import '../../../controller/journal_controller/journal_controller.dart';
@@ -37,8 +38,7 @@ class EndOfDayReport extends StatelessWidget {
   final HomeController homeController = Get.find<HomeController>();
   final JournalController journalController = Get.put(JournalController());
   final EndOfDayController endOfDayController = Get.put(EndOfDayController());
-  final StatisticsController statisticsController =
-      Get.find<StatisticsController>();
+  final StatisticsController statisticsController = Get.find<StatisticsController>();
 
   EndOfDayReport({Key? key}) : super(key: key);
 
@@ -86,19 +86,34 @@ class EndOfDayReport extends StatelessWidget {
             Stack(
               clipBehavior: Clip.none,
               children: [
-                Center(
-                    child: Lottie.asset(homeController.getIcebergJson(),
-                        height: 148.27)),
+                Center(child: Lottie.asset(homeController.getIcebergJson(), height: 148.27)),
+                Positioned(
+                  right: -5,
+                  top: -40,
+                  child: Container(
+                    width: 30,
+                    height: 30,
+                    decoration: BoxDecoration(
+                        border: Border(
+                      top: BorderSide(color: kTertiaryColor, width: 2),
+                      right: BorderSide(color: kTertiaryColor, width: 2),
+                    )),
+                  ),
+                ),
+                Positioned(
+                  right: 100,
+                  top: 35,
+                  child: CustomPaint(
+                    size: Size(30, 30), // Set the size of the canvas
+                    painter: DiagonalLinePainter(),
+                  ),
+                ),
                 Positioned(
                   right: 0,
                   top: -28,
                   child: Stack(
                     alignment: Alignment.centerRight,
                     children: [
-                      Image.asset(
-                        Assets.imagesBox,
-                        height: 88,
-                      ),
                       Container(
                         height: 88,
                         width: 100,
@@ -142,8 +157,7 @@ class EndOfDayReport extends StatelessWidget {
                     children: [
                       Obx(() => CircularStepProgressIndicator(
                             totalSteps: 100,
-                            currentStep:
-                                homeController.globalPercentage.value.toInt(),
+                            currentStep: homeController.globalPercentage.value.toInt(),
                             selectedStepSize: 7,
                             unselectedStepSize: 5,
                             padding: 0,
@@ -155,8 +169,7 @@ class EndOfDayReport extends StatelessWidget {
                             unselectedColor: kUnSelectedColor,
                             child: Center(
                               child: MyText(
-                                text:
-                                    '${homeController.globalPercentage.value.toInt()}%',
+                                text: '${homeController.globalPercentage.value.toInt()}%',
                                 size: 24,
                               ),
                             ),
@@ -172,25 +185,20 @@ class EndOfDayReport extends StatelessWidget {
                       children: [
                         Obx(() => ProgressWidget(
                               title: wellBeing,
-                              currentStep: homeController
-                                  .wellbeingPercentage.value
-                                  .toInt(),
+                              currentStep: homeController.wellbeingPercentage.value.toInt(),
                               selectedColor: kStreaksColor,
                             )),
                         Obx(
                           () => ProgressWidget(
                             title: vocational,
-                            currentStep:
-                                homeController.vocationPercentage.value.toInt(),
+                            currentStep: homeController.vocationPercentage.value.toInt(),
                             selectedColor: kRACGPExamColor,
                           ),
                         ),
                         Obx(
                           () => ProgressWidget(
                             title: development,
-                            currentStep: homeController
-                                .personalDevPercentage.value
-                                .toInt(),
+                            currentStep: homeController.personalDevPercentage.value.toInt(),
                             selectedColor: kDailyGratitudeColor,
                           ),
                         )
@@ -250,54 +258,37 @@ class EndOfDayReport extends StatelessWidget {
             MyButton(
               radius: 16.0,
               height: 56,
-              text: homeController.isGoalSubmittedToday.value == true
-                  ? reSubmit
-                  : submit,
+              text: homeController.isGoalSubmittedToday.value == true ? reSubmit : submit,
               onTap: () {
                 homeController.isGoalSubmittedToday.value = true;
-                PrefUtils().lastLearntText =
-                    endOfDayController.learnedTodayController.text;
-                PrefUtils().lastHighlightText =
-                    endOfDayController.tomorrowHighlightController.text;
-                PrefUtils().lastGratefulText =
-                    endOfDayController.greatFulController.text;
+                PrefUtils().lastLearntText = endOfDayController.learnedTodayController.text;
+                PrefUtils().lastHighlightText = endOfDayController.tomorrowHighlightController.text;
+                PrefUtils().lastGratefulText = endOfDayController.greatFulController.text;
                 PrefUtils().isGoalSubmittedToday = true;
                 List<Goal> allGoals = [];
                 allGoals.addAll(homeController.wellBeingGoals);
                 allGoals.addAll(homeController.vocationalGoals);
                 allGoals.addAll(homeController.personalDevGoals);
-                var greatFull =
-                    endOfDayController.greatFulController.text.toString();
-                var learnedToday =
-                    endOfDayController.learnedTodayController.text.toString();
-                var tomorrowHighlight = endOfDayController
-                    .tomorrowHighlightController.text
-                    .toString();
-                if ((greatFull.isEmpty ||
-                        greatFull.replaceAll(" ", "") == "\u2022") &&
-                    (learnedToday.isEmpty ||
-                        learnedToday.replaceAll(" ", "") == "\u2022") &&
+                var greatFull = endOfDayController.greatFulController.text.toString();
+                var learnedToday = endOfDayController.learnedTodayController.text.toString();
+                var tomorrowHighlight = endOfDayController.tomorrowHighlightController.text.toString();
+                if ((greatFull.isEmpty || greatFull.replaceAll(" ", "") == "\u2022") &&
+                    (learnedToday.isEmpty || learnedToday.replaceAll(" ", "") == "\u2022") &&
                     tomorrowHighlight.isEmpty) {
                   journalController.submitReport((isSuccess) {
                     SmartDialog.dismiss();
                     if (isSuccess) {
                       showEndDayReportSuccessDialog(context);
                     }
-                  },
-                      homeController.isShowHighlight.value
-                          ? PrefUtils().tomorrowHighlightGoal
-                          : "",
-                      allGoals);
+                  }, homeController.isShowHighlight.value ? PrefUtils().tomorrowHighlightGoal : "", allGoals);
                 } else {
                   setTomorrowHighlight();
                   journalController.submitReport((isSuccess) {
-                    if (greatFull.isNotEmpty &&
-                        greatFull.replaceAll(" ", "") != "\u2022") {
+                    if (greatFull.isNotEmpty && greatFull.replaceAll(" ", "") != "\u2022") {
                       journalController.addNewJournal((isSuccess, id) {
                         if (isSuccess) {
                           PrefUtils().lastGratefulTextId = id;
-                          if (learnedToday.isNotEmpty &&
-                              learnedToday.replaceAll(" ", "") != "\u2022") {
+                          if (learnedToday.isNotEmpty && learnedToday.replaceAll(" ", "") != "\u2022") {
                             journalController.addNewJournal((isSuccess, id) {
                               journalController.getUserJournals();
                               PrefUtils().lastLearntTextId = id;
@@ -305,10 +296,7 @@ class EndOfDayReport extends StatelessWidget {
                               journalController.getUserJournals();
                               endOfDayController.setInitialBulletPoint();
                               showEndDayReportSuccessDialog(context);
-                            },
-                                endOfDayController.learnedTodayController.text
-                                    .toString(),
-                                colorToHex(kTertiaryColor),
+                            }, endOfDayController.learnedTodayController.text.toString(), colorToHex(kTertiaryColor),
                                 "Development",
                                 id: PrefUtils().lastLearntTextId);
                           } else {
@@ -318,16 +306,14 @@ class EndOfDayReport extends StatelessWidget {
                             showEndDayReportSuccessDialog(context);
                           }
                         }
-                      }, endOfDayController.greatFulController.text.toString(),
-                          colorToHex(kTertiaryColor), "Gratitudes",
+                      }, endOfDayController.greatFulController.text.toString(), colorToHex(kTertiaryColor),
+                          "Gratitudes",
                           id: PrefUtils().lastGratefulTextId);
-                    } else if (learnedToday.isNotEmpty &&
-                        learnedToday.replaceAll(" ", "") != "\u2022") {
+                    } else if (learnedToday.isNotEmpty && learnedToday.replaceAll(" ", "") != "\u2022") {
                       journalController.addNewJournal((isSuccess, id) {
                         if (isSuccess) {
                           PrefUtils().lastLearntTextId = id;
-                          if (greatFull.isNotEmpty &&
-                              greatFull.replaceAll(" ", "") != "\u2022") {
+                          if (greatFull.isNotEmpty && greatFull.replaceAll(" ", "") != "\u2022") {
                             journalController.addNewJournal((isSuccess, id) {
                               journalController.getUserJournals();
                               PrefUtils().lastGratefulTextId = id;
@@ -335,10 +321,7 @@ class EndOfDayReport extends StatelessWidget {
                               journalController.getUserJournals();
                               endOfDayController.setInitialBulletPoint();
                               showEndDayReportSuccessDialog(context);
-                            },
-                                endOfDayController.greatFulController.text
-                                    .toString(),
-                                colorToHex(kTertiaryColor),
+                            }, endOfDayController.greatFulController.text.toString(), colorToHex(kTertiaryColor),
                                 "Gratitudes",
                                 id: PrefUtils().lastGratefulTextId);
                           } else {
@@ -348,21 +331,14 @@ class EndOfDayReport extends StatelessWidget {
                             showEndDayReportSuccessDialog(context);
                           }
                         }
-                      },
-                          endOfDayController.learnedTodayController.text
-                              .toString(),
-                          colorToHex(kTertiaryColor),
+                      }, endOfDayController.learnedTodayController.text.toString(), colorToHex(kTertiaryColor),
                           "Development",
                           id: PrefUtils().lastLearntTextId);
                     } else {
                       SmartDialog.dismiss();
                       showEndDayReportSuccessDialog(context);
                     }
-                  },
-                      homeController.isShowHighlight.value
-                          ? PrefUtils().tomorrowHighlightGoal
-                          : "",
-                      allGoals);
+                  }, homeController.isShowHighlight.value ? PrefUtils().tomorrowHighlightGoal : "", allGoals);
                 }
               },
             ),
@@ -377,12 +353,10 @@ class EndOfDayReport extends StatelessWidget {
 
   setTomorrowHighlight() {
     if (endOfDayController.tomorrowHighlightController.text.isNotEmpty) {
-      PrefUtils().tomorrowHighlightGoal =
-          endOfDayController.tomorrowHighlightController.text;
+      PrefUtils().tomorrowHighlightGoal = endOfDayController.tomorrowHighlightController.text;
       DateTime now = DateTime.now();
       DateTime nextDay = now.add(Duration(days: 1));
-      PrefUtils().tomorrowHighlightGoalDate =
-          DateFormat("yyyy-MM-dd").format(nextDay);
+      PrefUtils().tomorrowHighlightGoalDate = DateFormat("yyyy-MM-dd").format(nextDay);
     }
   }
 
@@ -448,8 +422,7 @@ class EndOfDayReport extends StatelessWidget {
                             statisticsController.getUserData();
                             Get.back();
                             Get.back();
-                            final state = bottomNavBarKey.currentState
-                                as BottomNavBarState?;
+                            final state = bottomNavBarKey.currentState as BottomNavBarState?;
                             state?.selectTab(4);
                             // Navigator.of(context).pushAndRemoveUntil(
                             //     MaterialPageRoute(builder: (_) =>BottomNavBar(
@@ -487,8 +460,7 @@ class EndOfDayReport extends StatelessWidget {
 }
 
 class MessageFromTimmy extends StatelessWidget {
-  final WellbeingActionPlanController controller =
-      Get.put(WellbeingActionPlanController());
+  final WellbeingActionPlanController controller = Get.put(WellbeingActionPlanController());
 
   MessageFromTimmy({
     Key? key,
@@ -573,16 +545,13 @@ class MessageFromTimmy extends StatelessWidget {
                                     height: 42,
                                     decoration: BoxDecoration(
                                         color: kSecondaryColor,
-                                        borderRadius: const BorderRadius.all(
-                                            Radius.circular(8.0)),
+                                        borderRadius: const BorderRadius.all(Radius.circular(8.0)),
                                         border: Border.all(
                                           width: 1.0,
                                           color: kBorderColor,
                                         )),
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 12.0, vertical: 12.0),
-                                    child: SvgPicture.asset(
-                                        "assets/vectors/ic_plus.svg"),
+                                    padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),
+                                    child: SvgPicture.asset("assets/vectors/ic_plus.svg"),
                                   ),
                                 );
                               } else {
@@ -612,8 +581,7 @@ class MessageFromTimmy extends StatelessWidget {
                       child: Row(
                         children: [
                           MyText(
-                            text:
-                                'Click here to edit your wellbeing action plan',
+                            text: 'Click here to edit your wellbeing action plan',
                             size: 13,
                             weight: FontWeight.w500,
                             color: kTertiaryColor,
@@ -639,5 +607,26 @@ class MessageFromTimmy extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class DiagonalLinePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = kTertiaryColor
+      ..strokeWidth = 2;
+
+    // Draw a 45-degree line from top-left to bottom-right
+    canvas.drawLine(
+      Offset(size.width, 0),
+      Offset(0, size.height),
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return false;
   }
 }

@@ -18,8 +18,7 @@ class PersonalDevelopment extends StatefulWidget {
   State<PersonalDevelopment> createState() => _PersonalDevelopmentState();
 }
 
-class _PersonalDevelopmentState extends State<PersonalDevelopment>
-    with SingleTickerProviderStateMixin {
+class _PersonalDevelopmentState extends State<PersonalDevelopment> with SingleTickerProviderStateMixin {
   bool showResults = false;
   late TabController tabController;
   int currentTab = 0;
@@ -130,8 +129,7 @@ class _PersonalDevelopmentState extends State<PersonalDevelopment>
                   height: 200,
                   child: PageView.builder(
                     controller: pDevController.latestUpdatePageController,
-                    onPageChanged: (index) =>
-                        pDevController.onUpdatePageChanged(index),
+                    onPageChanged: (index) => pDevController.onUpdatePageChanged(index),
                     physics: BouncingScrollPhysics(),
                     itemCount: 3,
                     scrollDirection: Axis.horizontal,

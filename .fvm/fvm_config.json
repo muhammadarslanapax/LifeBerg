@@ -1,0 +1,15 @@
+{
+  "flutterSdkVersion": "3.19.5",
+  "flavors": {}
+
+,
+
+
+  "dart.flutterSdkPath": ".fvm/flutter_sdk",
+  "search.exclude": {
+    "**/.fvm": true
+  },
+  "files.watcherExclude": {
+    "**/.fvm": true
+  }
+}
